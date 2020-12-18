@@ -2,7 +2,8 @@
 
 Wondering what packages or scripts are scoped to what policies?  Or what configuration profiles contain a certain payload?  Need an overview of all your network segments?  How about finding out what object(s) smart/static groups are attached to?  Object info looks to summarize these things.
 
-Download: 
+Download: [Object Info](https://github.com/BIG-RAT/Object-Info/releases/download/current/objectinfo.zip)
+
 ![alt text](./images/ObjectInfo.png "Object Info")
 
 **Current Searches**:
