@@ -644,9 +644,11 @@ class ViewController: NSViewController, URLSessionDelegate {
                                             default:
                                                 break
                                             }
+
+                                            print("\n[searchResults] looking for \(self.menuTitle)")
                                             if self.searchResult(payload: payload!, critereaArray: searchStringArray) {
+                                                print("[searchResults] \(self.menuTitle) found in \(recordName)\n")
                                                 self.detailedResults = "\(self.menuTitle) \t\(recordName)"
-                                                print("[getDetails] detailedResults: \(self.detailedResults)\n")
                                                 switch self.endpointType {
                                                 case "ios_cp":
                                                     self.getScope(endpointInfo: endpointInfo, scopeObjects: ["mobile_devices", "mobile_device_groups", "buildings", "departments", "users", "user_groups", "network_segments"])
@@ -654,9 +656,14 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                     self.getScope(endpointInfo: endpointInfo, scopeObjects: ["computers", "computer_groups", "buildings", "departments", "users", "user_groups", "network_segments"])
                                                 }
 
-                                            } //else {
-                                                //self.detailedResults = ""
-                                            //}
+//                                                self.summaryArray.append(endpointData(column1: "\(self.menuTitle)", column2: "\(recordName)", column3: "", column4: "", column5: "", column6: ""))
+//                                                self.details_TextView.string.append("\(self.menuTitle)\t\(recordName)\n")
+
+                                            } else {
+                                                print("[searchResults] \(recordName) not found\n")
+                                                self.detailedResults = ""
+                                            }
+
                                         }
 
                                         switch self.menuIdentifier {
@@ -721,8 +728,9 @@ class ViewController: NSViewController, URLSessionDelegate {
                                     break
                                 }
 
+                                print("[getDetails] singleEndpointXmlTag: \(self.singleEndpointXmlTag)")
                                 switch self.singleEndpointXmlTag {
-                                case "policy","computer_configuration","os_x_configuration_profile","mac_application","configuration_profile","mobile_device_application":
+                                case "policy","computer_configuration","mac_application","configuration_profile","mobile_device_application":
                                     for i in (0..<thePackageArray.count) {
     //                                        print("package name in policy: \(String(describing: thePackageArray[i]["name"]!))")
                                         currentPayload = "\(String(describing: thePackageArray[i]["name"]!))"
@@ -741,9 +749,6 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                 self.details_TextView.string.append("\(currentPayload)\t\(recordName)\t\t\(triggers)\t\(freq)\n")
 
                                             }
-                                        case "osxconfigurationprofiles":
-                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "", column3: "\(recordName)", column4: "", column5: "", column6: ""))
-                                            self.details_TextView.string.append("\(currentPayload)\t\t\(recordName)\n")
                                         case "macapplications":
                                             self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "", column3: "", column4: "", column5: "", column6: "\(recordName)"))
                                             self.details_TextView.string.append("\(currentPayload)\t\t\t\t\t\(recordName)\n")
@@ -762,6 +767,9 @@ class ViewController: NSViewController, URLSessionDelegate {
                                             self.detailedResults = "\(currentPayload) \t\(recordName) \t\(triggers) \t\(freq)"
                                         }
                                     }
+//                                case "os_x_configuration_profile":
+//                                    self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "", column4: "", column5: "", column6: ""))
+//                                    self.details_TextView.string.append("\(currentPayload)\t\t\(recordName)\n")
 
                                 default:
                                     break
@@ -776,11 +784,11 @@ class ViewController: NSViewController, URLSessionDelegate {
                         }
 //                    }   // end do
 
-                        let theRecord: [String] = "\(self.detailedResults)".components(separatedBy: " \t")
-//                        print("[getDetails] theRecord: \(theRecord)")
+                        let theRecord: [String] = "\(self.detailedResults)".components(separatedBy: "\t")
+                        print("[getDetails] theRecord: \(theRecord)")
 
                         if self.endpointType != "Packages" && self.endpointType != "Scripts" && self.menuIdentifier != "scg" && self.menuIdentifier != "sdg" {
-//                            print("[getDetails] using theRecord")
+                            print("[getDetails] \(recordName) is using theRecord with theRecord.count = \(theRecord.count)")
                             switch theRecord.count {
                             case 5:
                                 self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "\(theRecord[3])", column5: "\(theRecord[4])", column6: ""))
@@ -789,6 +797,11 @@ class ViewController: NSViewController, URLSessionDelegate {
                                 if theRecord[0] != "" {
                                     self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "", column5: "", column6: ""))
                                     self.details_TextView.string.append("\(theRecord[0])\t\(theRecord[1])\t\(theRecord[2])\n")
+                                }
+                            case 2:
+                                if theRecord[0] != "" {
+                                    self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "", column4: "", column5: "", column6: ""))
+                                    self.details_TextView.string.append("\(theRecord[0])\t\(theRecord[1])\n")
                                 }
                             default: break
 
@@ -969,15 +982,18 @@ class ViewController: NSViewController, URLSessionDelegate {
         
         if let scope = endpointInfo["scope"] as? [String : AnyObject] {
             if scope["\(allScope)"] as! Bool {
+                print("[getScope] scoped to All")
 //                self.detailedResults.append(" \tAll Computers")
                 self.theScope = "All Computers"
                 switch self.endpointType {
                 case "ios_cp":
 //                    self.detailedResults.append(" \tAll iOS Devices")
                     self.theScope = "All iOS Devices"
+                    currentScopeArray.append("group: \(String(describing: self.theScope))")
                 default:
 //                    self.detailedResults.append(" \tAll Computers")
-                    self.theScope = "All Computers"
+//                    self.theScope = "All Computers"
+                    currentScopeArray.append("group: \(String(describing: self.theScope))")
                 }
             } else {
 //                let scopeObjects = ["computers", "computer_groups", "buildings", "departments"]
@@ -995,18 +1011,20 @@ class ViewController: NSViewController, URLSessionDelegate {
                     }
                     
                 }
-                // convert array to comma seperated list (newline not working)
-                var scopeList = ""
-                for scopeItem in currentScopeArray {
-                    if scopeList != "" {
-                        scopeList.append(", \(scopeItem)")
-                    } else {
-                        scopeList.append("\(scopeItem)")
-                    }
+            }   // else - end
+            // convert array to comma seperated list (newline not working)
+            var scopeList = ""
+            for scopeItem in currentScopeArray {
+                if scopeList != "" {
+                    scopeList.append(", \(scopeItem)")
+                } else {
+                    scopeList.append("\(scopeItem)")
                 }
-                self.detailedResults.append(" \t\(scopeList)")  // remove this at some point, replace references with 'theScope'
-                self.theScope = scopeList
             }
+            print("[getScope] scopeList: \(scopeList)")
+            self.detailedResults.append("\t\(scopeList)")  // remove this at some point, replace references with 'theScope'
+            print("[getScope] self.detailedResults: \(self.detailedResults)")
+            self.theScope = scopeList
         }
     }
     
@@ -1070,12 +1088,13 @@ class ViewController: NSViewController, URLSessionDelegate {
     
     
     func searchResult(payload: String, critereaArray: [String]) -> Bool {
+//        print("\n[searchResult] payload: \(payload)\ncriteriaArray: \(critereaArray)\n")
         for criterea in critereaArray {
             if payload.range(of:criterea, options: .regularExpression) == nil {
+//                print("\n[searchResult] criteria not found: \(criterea)\n")
                 return false
             }
         }
-        // matched all criterea
         return true
     }
     
