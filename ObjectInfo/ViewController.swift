@@ -144,7 +144,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         }
         
         if menuIdentifier != "" {
-            get_button.isEnabled = true
+            get_button.isEnabled    = true
             export_button.isEnabled = false
             let selection = endpointDict[endpointType]!
 
@@ -187,7 +187,8 @@ class ViewController: NSViewController, URLSessionDelegate {
         endpointXmlTag         = oEndpointXmlTag
         singleEndpointXmlTag   = oSingleEndpointXmlTag
         if endpointXmlTag != "" {
-            var theRecordArray = [String]()
+            get_button.isEnabled = false
+            var theRecordArray   = [String]()
             
             summaryArray.removeAll()
             self.details_TextView.string = ""
@@ -335,12 +336,12 @@ class ViewController: NSViewController, URLSessionDelegate {
 
                             } else {
                                 self.alert_dialog(header: "Alert", message: "Nothing found at:\n\(self.endpointUrl)")
-                                if self.selectedEndpoint == "computerconfigurations" {
+                                if self.selectedEndpoint == "computerconfigurations" || self.selectedEndpoint == "macapplications" {
 //                                    self.increment = 100.0
 //                                    self.apiDetailCount = self.completeCounter
                                     self.queryComplete()
                                 }
-                                WriteToLog().message(stringOfText: ["[apiCall] completion - Nothing found at:\n\(self.endpointUrl)"])
+                                WriteToLog().message(stringOfText: ["[apiCall] completion - Nothing found at: \(self.endpointUrl)"])
                                 completion("")
                             }
                 
@@ -866,10 +867,11 @@ class ViewController: NSViewController, URLSessionDelegate {
     
     func queryComplete() {
         spinner.stopAnimation(self)
-        stop_button.isHidden = true
-        export_button.isEnabled = true
-        progressBar.isHidden = true
+        stop_button.isHidden         = true
+        export_button.isEnabled      = true
+        progressBar.isHidden         = true
         action_textField.stringValue = "Search Complete"
+        get_button.isEnabled         = true
     }
     
     // convert an array to a comma delimited string - start
@@ -1126,11 +1128,11 @@ class ViewController: NSViewController, URLSessionDelegate {
     override func viewDidAppear() {
 
         jamfServer_TextField.becomeFirstResponder()
-        get_button.isEnabled = false
-        self.spinner.isHidden = true
+        get_button.isEnabled         = false
+        self.spinner.isHidden        = true
         self.export_button.isEnabled = false
         
-        let settings_plist = Bundle.main.path(forResource: "settings", ofType: "plist")!
+        let settings_plist  = Bundle.main.path(forResource: "settings", ofType: "plist")!
         var isDir: ObjCBool = true
 
         // app version info
