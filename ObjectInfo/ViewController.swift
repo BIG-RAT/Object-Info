@@ -121,10 +121,10 @@ class ViewController: NSViewController, URLSessionDelegate {
     
     
     @IBAction func selectedItem_MenuItem(_ sender: NSMenuItem) {
-        print("sender title: \(sender.title)")
+//        print("sender title: \(sender.title)")
         menuTitle           = "\(sender.title)"
         menuIdentifier      = "\(sender.identifier?.rawValue ?? "")"
-        print("menuIdent: \(menuIdentifier)")
+//        print("menuIdent: \(menuIdentifier)")
         
         switch menuIdentifier {
         case "mac_passcode","mac_network","mac_vpn","mac_cert","mac_scep","mac_dir","mac_kext","mac_su","mac_restrict","mac_loginitems","mac_loginwindow","mac_dock","mac_mobility","mac_print","mac_sec-priv","mac_ad-cert":
@@ -148,7 +148,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             export_button.isEnabled = false
             let selection = endpointDict[endpointType]!
 
-            print("endpointDict[\(endpointType)]: \(endpointDict[endpointType]!)")
+            WriteToLog().message(stringOfText: ["endpointDict[\(endpointType)]: \(endpointDict[endpointType]!)"])
 
             oSelectedEndpoint       = "\(selection[0])"
             oEndpointXmlTag         = "\(selection[1])"
@@ -203,29 +203,29 @@ class ViewController: NSViewController, URLSessionDelegate {
             packageScriptArray.removeAll()
             pkgScrArray.removeAll()
 
-            print("\n[get] apiCall for endpoint: \(endpointXmlTag)")
-            print("[get] apiCall for menuIdentifier: \(menuIdentifier)")
+            WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: \(endpointXmlTag)"])
+            WriteToLog().message(stringOfText: ["[get] apiCall for menuIdentifier: \(menuIdentifier)"])
 
             apiCall(endpoint: "\(endpointXmlTag)") {
                 (result: String) in
-                print("[get] returned from apiCall - result:\n\(result)")
+                WriteToLog().message(stringOfText: ["[get] returned from apiCall - result:\n\(result)"])
 
                 self.results_TextView.string = "\(result)"
                 if self.menuIdentifier == "Packages" || self.menuIdentifier == "Scripts" || self.menuIdentifier == "scg" || self.menuIdentifier == "sdg" {
                     
                     self.packageScriptArray = "\(result)".components(separatedBy: "\n")
-//                    print("packageScriptArray: \(self.packageScriptArray)")
+//                    WriteToLog().message(stringOfText: ["packageScriptArray: \(self.packageScriptArray)")
                     for theRecord in self.packageScriptArray {
                         theRecordArray = theRecord.components(separatedBy: "\t")
                         if theRecordArray.count == 2 {
-                            print("[get] theRecord: \(theRecordArray[1])")
+                            WriteToLog().message(stringOfText: ["[get] theRecord: \(theRecordArray[1])"])
 //                            print("\(self.singleEndpointXmlTag) name: \(theRecordArray[1])")
                             self.pkgScrArray.append("\(theRecordArray[1])")
                         }
                     }
                     if self.menuIdentifier != "sdg" {
                         // switch lookup to packages/scripts scoped to policies - start
-                        print("[get] apiCall for endpoint: policies")
+                        WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: policies"])
                         self.selectedEndpoint = "policies"
                         self.singleEndpointXmlTag = "policy"
                         self.apiCall(endpoint: "policies") {
@@ -236,7 +236,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                         // switch lookup to packages/scripts scoped to policies - end
                     } else {
                         // switch lookup to mobile device groups scoped to configuration profiles - start
-                        print("[get] apiCall for endpoint: configuration_profiles")
+                        WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: configuration_profiles"])
                         self.selectedEndpoint = "mobiledeviceconfigurationprofiles"
                         self.singleEndpointXmlTag = "configuration_profile"
                         self.apiCall(endpoint: "configuration_profiles") {
@@ -256,7 +256,7 @@ class ViewController: NSViewController, URLSessionDelegate {
     }
     
     func apiCall(endpoint: String, completion: @escaping (_ result: String) -> Void) {
-        print("[apiCall] endpoint: \(endpoint)")
+        WriteToLog().message(stringOfText: ["[apiCall] endpoint: \(endpoint)"])
 
         completeCounter = 0
         progressBar.increment(by: -1.0)
@@ -277,10 +277,10 @@ class ViewController: NSViewController, URLSessionDelegate {
         let jamfBase64Creds  = (jamfUtf8Creds?.base64EncodedString())!
         
         if self.selectedEndpoint != "" {
-            print("[apiCall] selectedEndpoint: \(self.selectedEndpoint)")
+            WriteToLog().message(stringOfText: ["[apiCall] selectedEndpoint: \(self.selectedEndpoint)"])
             self.endpointUrl = self.jamfServer_TextField.stringValue + "/JSSResource/\(self.selectedEndpoint)"
             self.endpointUrl = self.endpointUrl.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
-            print("[apiCall] endpointURL: \(endpointUrl)")
+            WriteToLog().message(stringOfText: ["[apiCall] endpointURL: \(endpointUrl)"])
         } else {
             completion("no endpoint selected")
         }
@@ -340,7 +340,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 //                                    self.apiDetailCount = self.completeCounter
                                     self.queryComplete()
                                 }
-                                print("[apiCall] completion - Nothing found at:\n\(self.endpointUrl)")
+                                WriteToLog().message(stringOfText: ["[apiCall] completion - Nothing found at:\n\(self.endpointUrl)"])
                                 completion("")
                             }
                 
@@ -469,12 +469,12 @@ class ViewController: NSViewController, URLSessionDelegate {
                             }   // for i in (0..<endpointInfo.count) - end
                             
                         }  else {  // if let serverEndpointJSON - end
-                            print("apiCall - existing endpoints: error serializing JSON: \(String(describing: error))\n")
+                            WriteToLog().message(stringOfText: ["apiCall - existing endpoints: error serializing JSON: \(String(describing: error))"])
                         }
                     }   // end do
                     if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
 
-                        print("[apiCall] completion - status code: \(httpResponse.statusCode)")
+                        WriteToLog().message(stringOfText: ["[apiCall] completion - status code: \(httpResponse.statusCode)"])
                         completion(self.displayResults)
                         if self.username != self.preferencesDict["username"] as? String || self.currentServer != self.preferencesDict["jps_url"] as! String {
                             self.preferencesDict["username"]    = self.username as AnyObject
@@ -491,7 +491,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                     } else {
                         // something went wrong
 //                        self.spinner.stopAnimation(self)
-                        print("[apiCall] completion - Something went wrong, status code: \(httpResponse.statusCode)")
+                        WriteToLog().message(stringOfText: ["[apiCall] completion - Something went wrong, status code: \(httpResponse.statusCode)"])
                         switch httpResponse.statusCode {
                         case 401:
                         self.alert_dialog(header: "Alert", message: "Authentication failed.  Check username and password.")
@@ -503,7 +503,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                     }   // if httpResponse.statusCode - end
                 } else {  // if let httpResponse = response - end
 //                    self.spinner.stopAnimation(self)
-                    print("[apiCall] completion - No response to \(self.endpointUrl)")
+                    WriteToLog().message(stringOfText: ["[apiCall] completion - No response to \(self.endpointUrl)"])
                     self.alert_dialog(header: "Alert", message: "No response to:\n\(self.endpointUrl)")
                     completion("")
                 }
@@ -532,7 +532,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         let jamfBase64Creds = (jamfUtf8Creds?.base64EncodedString())!
         
         let idUrl = self.endpointUrl+"/id/\(id)"
-        print("\n[getDetails] idUrl: \(idUrl)")
+        WriteToLog().message(stringOfText: ["[getDetails] idUrl: \(idUrl)"])
         
         detailQ.addOperation {
 
@@ -560,9 +560,9 @@ class ViewController: NSViewController, URLSessionDelegate {
                 if let httpResponse = response as? HTTPURLResponse {
                     if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
 //                    do {
-                        print("[getDetails] GET: \(idUrl)")
-                        print("[getDetails] singleEndpointXmlTag: \(self.singleEndpointXmlTag)")
-                        print("[getDetails] menuIdentifier: \(self.menuIdentifier)")
+                        WriteToLog().message(stringOfText: ["[getDetails] GET: \(idUrl)"])
+                        WriteToLog().message(stringOfText: ["[getDetails] singleEndpointXmlTag: \(self.singleEndpointXmlTag)"])
+                        WriteToLog().message(stringOfText: ["[getDetails] menuIdentifier: \(self.menuIdentifier)"])
 
                         self.progressBar.increment(by: self.increment)
 
@@ -583,7 +583,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                         self.detailedResults = ""
                                         recordName = generalTag["name"] as! String
 
-                                        print("[getDetails] \(self.singleEndpointXmlTag) name: \(recordName)")
+                                        WriteToLog().message(stringOfText: ["[getDetails] \(self.singleEndpointXmlTag) name: \(recordName)"])
                                         if !(self.menuIdentifier == "scg" || self.menuIdentifier == "sdg") {
                                             let payload = generalTag["payloads"]?.replacingOccurrences(of: "\"", with: "")
     //                                        print("\(String(describing: payload))")
@@ -645,9 +645,9 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                 break
                                             }
 
-                                            print("\n[searchResults] looking for \(self.menuTitle)")
+                                            WriteToLog().message(stringOfText: ["[searchResults] looking for \(self.menuTitle)"])
                                             if self.searchResult(payload: payload!, critereaArray: searchStringArray) {
-                                                print("[searchResults] \(self.menuTitle) found in \(recordName)\n")
+                                                WriteToLog().message(stringOfText: ["[searchResults] \(self.menuTitle) found in \(recordName)"])
                                                 self.detailedResults = "\(self.menuTitle) \t\(recordName)"
                                                 switch self.endpointType {
                                                 case "ios_cp":
@@ -660,7 +660,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 //                                                self.details_TextView.string.append("\(self.menuTitle)\t\(recordName)\n")
 
                                             } else {
-                                                print("[searchResults] \(recordName) not found\n")
+                                                WriteToLog().message(stringOfText: ["[searchResults] \(recordName) not found"])
                                                 self.detailedResults = ""
                                             }
 
@@ -672,7 +672,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                 thePackageArray = packageConfigTag["computer_groups"] as! [Dictionary<String, Any>]
                                                 searchStringArray = [""]
                                             case "sdg": // added 201207 lnh
-                                                print("[getDetails] Checking scope for \(self.singleEndpointXmlTag)")
+                                                WriteToLog().message(stringOfText: ["[getDetails] Checking scope for \(self.singleEndpointXmlTag)"])
                                                 let packageConfigTag = endpointInfo["scope"] as! [String:AnyObject]
                                                 thePackageArray = packageConfigTag["mobile_device_groups"] as! [Dictionary<String, Any>]
                                                 searchStringArray = [""]
@@ -687,7 +687,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                     if let generalTag = endpointInfo["general"] as? [String : AnyObject] {
                                         recordName = generalTag["name"] as! String
                                         self.detailedResults = "\(recordName)"
-                                        print("[getDetails] case policy,computer_configuration - Policy Name: \(recordName)")
+                                        WriteToLog().message(stringOfText: ["[getDetails] case policy,computer_configuration - Policy Name: \(recordName)"])
                                         // get triggers
                                         if self.selectedEndpoint == "policies" {
                                             triggers = self.triggersAsString(generalTag: generalTag)
@@ -728,7 +728,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                     break
                                 }
 
-                                print("[getDetails] singleEndpointXmlTag: \(self.singleEndpointXmlTag)")
+                                WriteToLog().message(stringOfText: ["[getDetails] singleEndpointXmlTag: \(self.singleEndpointXmlTag)"])
                                 switch self.singleEndpointXmlTag {
                                 case "policy","computer_configuration","mac_application","configuration_profile","mobile_device_application":
                                     for i in (0..<thePackageArray.count) {
@@ -777,18 +777,18 @@ class ViewController: NSViewController, URLSessionDelegate {
 
 
                             } else {
-                                print("getDetails: if let endpointInfo = endpointJSON[\(self.singleEndpointXmlTag)], id='\(id)' error.)\n\(idUrl)\n")
+                                WriteToLog().message(stringOfText: ["getDetails: if let endpointInfo = endpointJSON[\(self.singleEndpointXmlTag)], id='\(id)' error.)\n\(idUrl)"])
                             }
                         }  else {  // if let serverEndpointJSON - end
-                            print("getDetails - existing endpoints: error serializing JSON: \(String(describing: error))\n")
+                            WriteToLog().message(stringOfText: ["getDetails - existing endpoints: error serializing JSON: \(String(describing: error))"])
                         }
 //                    }   // end do
 
                         let theRecord: [String] = "\(self.detailedResults)".components(separatedBy: "\t")
-                        print("[getDetails] theRecord: \(theRecord)")
+                        WriteToLog().message(stringOfText: ["[getDetails] theRecord: \(theRecord)"])
 
                         if self.endpointType != "Packages" && self.endpointType != "Scripts" && self.menuIdentifier != "scg" && self.menuIdentifier != "sdg" {
-                            print("[getDetails] \(recordName) is using theRecord with theRecord.count = \(theRecord.count)")
+                            WriteToLog().message(stringOfText: ["[getDetails] \(recordName) is using theRecord with theRecord.count = \(theRecord.count)"])
                             switch theRecord.count {
                             case 5:
                                 self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "\(theRecord[3])", column5: "\(theRecord[4])", column6: ""))
@@ -809,26 +809,26 @@ class ViewController: NSViewController, URLSessionDelegate {
 
                         }
                         
-                        print("returning from: \(idUrl)\n")
+//                        print("returning from: \(idUrl)\n")
 //                        print("getDetails - theRecord: \(theRecord)")
                         completion(self.detailedResults)
                     } else {
                         // something went wrong
-                        print("status code: \(httpResponse.statusCode)")
+                        WriteToLog().message(stringOfText: ["status code: \(httpResponse.statusCode)"])
                         completion(self.detailedResults)
                     }   // if httpResponse.statusCode - end
                 } else {   // if let httpResponse = response - end
                     DispatchQueue.main.async {
                         self.progressBar.increment(by: 1.0)
                     }
-                    print("no response for: \(idUrl)")
+                    WriteToLog().message(stringOfText: ["no response for: \(idUrl)"])
                 }
                 semaphore.signal()
                 self.completeCounter+=1
-                print("[getDetails] completeCounter: \(self.completeCounter)\tapiDetailCount: \(self.apiDetailCount)")
+                WriteToLog().message(stringOfText: ["[getDetails] completeCounter: \(self.completeCounter)\tapiDetailCount: \(self.apiDetailCount)"])
                 if (self.completeCounter == self.apiDetailCount) {
                     if !(self.selectedEndpoint == "osxconfigurationprofiles" && self.menuIdentifier == "scg") {
-                        print("[getDetails] queryComplete")
+                        WriteToLog().message(stringOfText: ["[getDetails] queryComplete"])
                         self.queryComplete()
                     }
                 }
@@ -898,14 +898,14 @@ class ViewController: NSViewController, URLSessionDelegate {
     
     // remove policy entries generated by jamf remote - start
     func validEndpointInfo(endpointJSON: [String: Any], endpoint: String) -> [Any] {
-        print("[validEndpointInfo] endpoint: \(endpoint)")
+        WriteToLog().message(stringOfText: ["[validEndpointInfo] endpoint: \(endpoint)"])
         var filtered    = [Any]()
         var tmpFiltered = filtered
 //        var tmpPolicyNames = [String]()
         
         switch endpoint {
         case "policies":
-            print("[validEndpointInfo] filter out policies from Jamf Remote")
+            WriteToLog().message(stringOfText: ["[validEndpointInfo] filter out policies from Jamf Remote"])
             tmpFiltered = endpointJSON[endpoint] as! [Any]
             for i in (0..<tmpFiltered.count) {
                 let localRecord = tmpFiltered[i] as! [String : AnyObject]
@@ -931,7 +931,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             }
  */
         default:
-            print("[validEndpointInfo] filtered: \(filtered)")
+            WriteToLog().message(stringOfText: ["[validEndpointInfo] filtered: \(filtered)"])
             filtered = endpointJSON[endpoint] as! [Any]
         }
 
@@ -965,13 +965,13 @@ class ViewController: NSViewController, URLSessionDelegate {
     }
     
     func getScope(endpointInfo: [String : AnyObject], scopeObjects: [String]) {
-        print("[getScope] endpointInfo: \(endpointInfo)")
-        print("[getScope] scopeObjects: \(scopeObjects)")
+        WriteToLog().message(stringOfText: ["[getScope] endpointInfo: \(endpointInfo)"])
+        WriteToLog().message(stringOfText: ["[getScope] scopeObjects: \(scopeObjects)"])
         
         var allScope            = ""
         var currentScopeArray   = [String]()
 
-        print("[getScope] endpointType: \(endpointType)")
+        WriteToLog().message(stringOfText: ["[getScope] endpointType: \(endpointType)"])
 
         switch endpointType {
         case "ios_cp","sdg":    // added sdg lnh - 201205
@@ -982,7 +982,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         
         if let scope = endpointInfo["scope"] as? [String : AnyObject] {
             if scope["\(allScope)"] as! Bool {
-                print("[getScope] scoped to All")
+//                print("[getScope] scoped to All")
 //                self.detailedResults.append(" \tAll Computers")
                 self.theScope = "All Computers"
                 switch self.endpointType {
@@ -1021,9 +1021,9 @@ class ViewController: NSViewController, URLSessionDelegate {
                     scopeList.append("\(scopeItem)")
                 }
             }
-            print("[getScope] scopeList: \(scopeList)")
+//            print("[getScope] scopeList: \(scopeList)")
             self.detailedResults.append("\t\(scopeList)")  // remove this at some point, replace references with 'theScope'
-            print("[getScope] self.detailedResults: \(self.detailedResults)")
+//            print("[getScope] self.detailedResults: \(self.detailedResults)")
             self.theScope = scopeList
         }
     }
@@ -1071,7 +1071,7 @@ class ViewController: NSViewController, URLSessionDelegate {
     func queueCheck(completion: @escaping (_ result: Bool) -> Void) {
         theGeneralQ.async {
             while self.pendingCount > 10 {
-                print("\npending: \(self.pendingCount)\n")
+//                print("\npending: \(self.pendingCount)\n")
                 sleep(1)
             }
         }
@@ -1132,6 +1132,13 @@ class ViewController: NSViewController, URLSessionDelegate {
         
         let settings_plist = Bundle.main.path(forResource: "settings", ofType: "plist")!
         var isDir: ObjCBool = true
+
+        // app version info
+        let appInfo = Bundle.main.infoDictionary!
+        let version = appInfo["CFBundleShortVersionString"] as! String
+
+        // OS version info
+        let os = ProcessInfo().operatingSystemVersion
         
         // Create Application Support folder for the app if missing - start
         let app_support_path = NSHomeDirectory() + "/Library/Application Support/Object Info"
@@ -1181,6 +1188,12 @@ class ViewController: NSViewController, URLSessionDelegate {
                 passwd_TextField.stringValue = storedPassword[1]
             }
         }
+
+        WriteToLog().message(stringOfText: [""])
+        WriteToLog().message(stringOfText: ["================================"])
+        WriteToLog().message(stringOfText: ["  Object Info Version: \(version)"])
+        WriteToLog().message(stringOfText: ["        macOS Version: \(os.majorVersion).\(os.minorVersion).\(os.patchVersion)"])
+        WriteToLog().message(stringOfText: ["================================"])
     }
 
     override var representedObject: Any? {

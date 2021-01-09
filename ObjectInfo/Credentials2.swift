@@ -1,6 +1,6 @@
 //
 //  Credentials2.swift
-//  jamf-migrator
+//  Object Info
 //
 //  Created by Leslie Helou on 9/20/19.
 //  Copyright © 2019 jamf. All rights reserved.

@@ -13,6 +13,8 @@
 		B5932DE31F6FF3FC00720831 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B5932DE21F6FF3FC00720831 /* Assets.xcassets */; };
 		B5932DE61F6FF3FC00720831 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B5932DE41F6FF3FC00720831 /* Main.storyboard */; };
 		B5D6B960207E92B10012C280 /* settings.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5D6B95F207E92B10012C280 /* settings.plist */; };
+		B5E61EBA25A8BF070047A25F /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E61EB925A8BF070047A25F /* Globals.swift */; };
+		B5E61EBD25A8BF650047A25F /* WriteToLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E61EBC25A8BF650047A25F /* WriteToLog.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,6 +27,8 @@
 		B5932DE71F6FF3FC00720831 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B5AAEC8C2281B93D0076A9DC /* Object Info.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Object Info.entitlements"; sourceTree = SOURCE_ROOT; };
 		B5D6B95F207E92B10012C280 /* settings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = settings.plist; sourceTree = "<group>"; };
+		B5E61EB925A8BF070047A25F /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
+		B5E61EBC25A8BF650047A25F /* WriteToLog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WriteToLog.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,7 +64,9 @@
 				B5AAEC8C2281B93D0076A9DC /* Object Info.entitlements */,
 				B5932DDE1F6FF3FC00720831 /* AppDelegate.swift */,
 				B58D8833250BF46C00E8D6E4 /* Credentials2.swift */,
+				B5E61EB925A8BF070047A25F /* Globals.swift */,
 				B5932DE01F6FF3FC00720831 /* ViewController.swift */,
+				B5E61EBC25A8BF650047A25F /* WriteToLog.swift */,
 				B5932DE21F6FF3FC00720831 /* Assets.xcassets */,
 				B5932DE41F6FF3FC00720831 /* Main.storyboard */,
 				B5932DE71F6FF3FC00720831 /* Info.plist */,
@@ -152,9 +158,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5E61EBA25A8BF070047A25F /* Globals.swift in Sources */,
 				B58D8834250BF46C00E8D6E4 /* Credentials2.swift in Sources */,
 				B5932DE11F6FF3FC00720831 /* ViewController.swift in Sources */,
 				B5932DDF1F6FF3FC00720831 /* AppDelegate.swift in Sources */,
+				B5E61EBD25A8BF650047A25F /* WriteToLog.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -270,13 +278,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = PS2F6S478M;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = ObjectInfo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				MARKETING_VERSION = 1.0.2;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ObjectInfo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -289,13 +297,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = PS2F6S478M;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = ObjectInfo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				MARKETING_VERSION = 1.0.2;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ObjectInfo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
