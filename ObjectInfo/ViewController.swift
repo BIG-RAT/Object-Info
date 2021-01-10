@@ -199,8 +199,8 @@ class ViewController: NSViewController, URLSessionDelegate {
             self.details_TextView.string.append("\n")
 
             self.results_TextView.string = ""
-            displayResults = ""
-            allDetailedResults = ""
+            displayResults               = ""
+            allDetailedResults           = ""
             packageScriptArray.removeAll()
             pkgScrArray.removeAll()
 
@@ -227,7 +227,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                     if self.menuIdentifier != "sdg" {
                         // switch lookup to packages/scripts scoped to policies - start
                         WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: policies"])
-                        self.selectedEndpoint = "policies"
+                        self.selectedEndpoint     = "policies"
                         self.singleEndpointXmlTag = "policy"
                         self.apiCall(endpoint: "policies") {
                             (result: String) in
@@ -238,7 +238,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                     } else {
                         // switch lookup to mobile device groups scoped to configuration profiles - start
                         WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: configuration_profiles"])
-                        self.selectedEndpoint = "mobiledeviceconfigurationprofiles"
+                        self.selectedEndpoint     = "mobiledeviceconfigurationprofiles"
                         self.singleEndpointXmlTag = "configuration_profile"
                         self.apiCall(endpoint: "configuration_profiles") {
                             (result: String) in
@@ -347,8 +347,8 @@ class ViewController: NSViewController, URLSessionDelegate {
                 
                             for i in (0..<endpointInfo.count) {
                             
-                                let theRecord = endpointInfo[i] as! [String : AnyObject]
-                                let recordId = theRecord["id"] as! Int
+                                let theRecord  = endpointInfo[i] as! [String : AnyObject]
+                                let recordId   = theRecord["id"] as! Int
                                 let recordName = theRecord["name"] as! String
                             
                                 self.displayResults.append("\(recordId)\t\(recordName)\n")
@@ -362,7 +362,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                             localCounter+=1
                                             if localCounter == endpointInfo.count && self.menuIdentifier == "scg" {
                                                 // start looping through macapplications - start
-                                                self.selectedEndpoint = "macapplications"
+                                                self.selectedEndpoint     = "macapplications"
                                                 self.singleEndpointXmlTag = "mac_application"
                                                 self.apiCall(endpoint: "mac_applications") {
                                                     (result: String) in
@@ -437,7 +437,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                  switch self.menuIdentifier {
                                                      case "sdg":
                                                          // start looping through configurations - start
-                                                         self.selectedEndpoint = "mobiledeviceapplications"
+                                                         self.selectedEndpoint     = "mobiledeviceapplications"
                                                          self.singleEndpointXmlTag = "mobile_device_application"
                                                          self.apiCall(endpoint: "mobile_device_applications") {
                                                              (result: String) in
@@ -478,8 +478,8 @@ class ViewController: NSViewController, URLSessionDelegate {
                         WriteToLog().message(stringOfText: ["[apiCall] completion - status code: \(httpResponse.statusCode)"])
                         completion(self.displayResults)
                         if self.username != self.preferencesDict["username"] as? String || self.currentServer != self.preferencesDict["jps_url"] as! String {
-                            self.preferencesDict["username"]    = self.username as AnyObject
-                            self.preferencesDict["jps_url"]     = self.currentServer as AnyObject
+                            self.preferencesDict["username"] = self.username as AnyObject
+                            self.preferencesDict["jps_url"]  = self.currentServer as AnyObject
                             NSDictionary(dictionary: self.preferencesDict).write(to: self.prefsPath, atomically: true)
                         } else if self.saveCreds_button.state.rawValue == 1 {
                             NSDictionary(dictionary: self.preferencesDict).write(to: self.prefsPath, atomically: true)
@@ -573,11 +573,11 @@ class ViewController: NSViewController, URLSessionDelegate {
 
                                 switch self.singleEndpointXmlTag {
                                 case "network_segment":
-                                    recordName = endpointInfo["name"] as! String
-                                    let starting = endpointInfo["starting_address"] as! String
-                                    let ending = endpointInfo["ending_address"] as! String
-                                    let dp = endpointInfo["distribution_point"] as! String
-                                    let url = endpointInfo["url"] as! String
+                                    recordName           = endpointInfo["name"] as! String
+                                    let starting         = endpointInfo["starting_address"] as! String
+                                    let ending           = endpointInfo["ending_address"] as! String
+                                    let dp               = endpointInfo["distribution_point"] as! String
+                                    let url              = endpointInfo["url"] as! String
                                     self.detailedResults = "\(recordName) \t\(starting) \t\(ending) \t\(dp) \t\(url)"
                                 case "os_x_configuration_profile","mac_application","configuration_profile","mobile_device_application":
                                     if let generalTag = endpointInfo["general"] as? [String : AnyObject] {
@@ -670,13 +670,13 @@ class ViewController: NSViewController, URLSessionDelegate {
                                         switch self.menuIdentifier {
                                             case "scg":
                                                 let packageConfigTag = endpointInfo["scope"] as! [String:AnyObject]
-                                                thePackageArray = packageConfigTag["computer_groups"] as! [Dictionary<String, Any>]
-                                                searchStringArray = [""]
+                                                thePackageArray      = packageConfigTag["computer_groups"] as! [Dictionary<String, Any>]
+                                                searchStringArray    = [""]
                                             case "sdg": // added 201207 lnh
                                                 WriteToLog().message(stringOfText: ["[getDetails] Checking scope for \(self.singleEndpointXmlTag)"])
                                                 let packageConfigTag = endpointInfo["scope"] as! [String:AnyObject]
-                                                thePackageArray = packageConfigTag["mobile_device_groups"] as! [Dictionary<String, Any>]
-                                                searchStringArray = [""]
+                                                thePackageArray      = packageConfigTag["mobile_device_groups"] as! [Dictionary<String, Any>]
+                                                searchStringArray    = [""]
                                             default:
                                                 break
                                         }
@@ -706,7 +706,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                     case "Packages":
                                         if self.selectedEndpoint == "policies" {
                                             let packageConfigTag = endpointInfo["package_configuration"] as! [String:AnyObject]
-                                            thePackageArray = packageConfigTag["packages"] as! [Dictionary<String, Any>]
+                                            thePackageArray      = packageConfigTag["packages"] as! [Dictionary<String, Any>]
                                         } else {
                                             thePackageArray = endpointInfo["packages"] as! [Dictionary<String, Any>]
                                         }
@@ -716,7 +716,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 
                                     case "scg":
                                         let packageConfigTag = endpointInfo["scope"] as! [String:AnyObject]
-                                        thePackageArray = packageConfigTag["computer_groups"] as! [Dictionary<String, Any>]
+                                        thePackageArray      = packageConfigTag["computer_groups"] as! [Dictionary<String, Any>]
 
 //                                    case "sdg": // added 201207 lnh
 //                                        let packageConfigTag = endpointInfo["scope"] as! [String:AnyObject]
@@ -856,10 +856,10 @@ class ViewController: NSViewController, URLSessionDelegate {
 //    }
     
     func alert_dialog(header: String, message: String) {
-        let dialog: NSAlert = NSAlert()
-        dialog.messageText = header
+        let dialog: NSAlert    = NSAlert()
+        dialog.messageText     = header
         dialog.informativeText = message
-        dialog.alertStyle = NSAlert.Style.warning
+        dialog.alertStyle      = NSAlert.Style.warning
         dialog.addButton(withTitle: "OK")
         dialog.runModal()
         //return true
@@ -911,7 +911,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             tmpFiltered = endpointJSON[endpoint] as! [Any]
             for i in (0..<tmpFiltered.count) {
                 let localRecord = tmpFiltered[i] as! [String : AnyObject]
-                let recordName = localRecord["name"] as! String
+                let recordName  = localRecord["name"] as! String
                 if recordName.range(of:"[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] at", options: .regularExpression) == nil {
                     // policy was generated from jamf remote, remove it
                     filtered.append(localRecord)
@@ -958,7 +958,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         }
         for j in (numberOfColumns..<6) {
 //                tableView.removeTableColumn(tableView.tableColumns[numberOfColumns])
-            tableColumn = tableView.tableColumn(withIdentifier: NSUserInterfaceItemIdentifier(rawValue: "column\(j+1)"))
+            tableColumn  = tableView.tableColumn(withIdentifier: NSUserInterfaceItemIdentifier(rawValue: "column\(j+1)"))
             columnHeader = (tableColumn?.headerCell)!
             columnHeader.title = ""
             tableColumn?.width = 10.0
@@ -1003,7 +1003,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                     var scopeObjectArray = [String]()
                     if let scopeArray = scope[scopeObject] as? [Any] {
                         for i in (0..<scopeArray.count) {
-                            let theRecord = scopeArray[i] as! [String : AnyObject]
+                            let theRecord  = scopeArray[i] as! [String : AnyObject]
                             let recordName = theRecord["name"] as! String
                             scopeObjectArray.append(recordName)
                         }
@@ -1039,9 +1039,9 @@ class ViewController: NSViewController, URLSessionDelegate {
         
         savePanel.begin { (result) -> Void in
             if result.rawValue == NSFileHandlingPanelOKButton {
-                let exportedFileURL = savePanel.url
+                let exportedFileURL  = savePanel.url
                 var exportPathString = exportedFileURL?.absoluteString.replacingOccurrences(of: "file://", with: "")
-                exportPathString = exportPathString?.replacingOccurrences(of: "%20", with: " ")
+                exportPathString     = exportPathString?.replacingOccurrences(of: "%20", with: " ")
                 
 //                let exportPath = exportedFileURL?.absoluteString
                 if !self.fm.fileExists(atPath: exportPathString!) {
@@ -1172,8 +1172,8 @@ class ViewController: NSViewController, URLSessionDelegate {
         preferencesDict = (NSDictionary(contentsOf: prefsPath) as? [String : AnyObject])!
         // read preferences - end
         
-        jamfServer_TextField.stringValue    = (preferencesDict["jps_url"] == nil) ? "" : preferencesDict["jps_url"] as! String
-        uname_TextField.stringValue         = (preferencesDict["username"] == nil) ? "" : preferencesDict["username"] as! String
+        jamfServer_TextField.stringValue = (preferencesDict["jps_url"] == nil) ? "" : preferencesDict["jps_url"] as! String
+        uname_TextField.stringValue      = (preferencesDict["username"] == nil) ? "" : preferencesDict["username"] as! String
         
         if preferencesDict["save_pwd"] == nil {
             saveCreds_button.state = NSControl.StateValue(rawValue: 0)
