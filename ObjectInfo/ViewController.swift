@@ -669,8 +669,10 @@ class ViewController: NSViewController, URLSessionDelegate {
 
                                         switch self.menuIdentifier {
                                             case "scg":
+                                                print("checking smart computer groups")
                                                 let packageConfigTag = endpointInfo["scope"] as! [String:AnyObject]
                                                 thePackageArray      = packageConfigTag["computer_groups"] as! [Dictionary<String, Any>]
+                                                print("thePackageArray: \(thePackageArray)")
                                                 searchStringArray    = [""]
                                             case "sdg": // added 201207 lnh
                                                 WriteToLog().message(stringOfText: ["[getDetails] Checking scope for \(self.singleEndpointXmlTag)"])
@@ -731,9 +733,12 @@ class ViewController: NSViewController, URLSessionDelegate {
 
                                 WriteToLog().message(stringOfText: ["[getDetails] singleEndpointXmlTag: \(self.singleEndpointXmlTag)"])
                                 switch self.singleEndpointXmlTag {
-                                case "policy","computer_configuration","mac_application","configuration_profile","mobile_device_application":
+                                case "policy","computer_configuration","mac_application","os_x_configuration_profile","configuration_profile","mobile_device_application":
                                     for i in (0..<thePackageArray.count) {
-    //                                        print("package name in policy: \(String(describing: thePackageArray[i]["name"]!))")
+
+                                        print("package name in policy: \(String(describing: thePackageArray[i]["name"]!))")
+                                        print("      selectedEndpoint: \(String(describing: self.selectedEndpoint))")
+
                                         currentPayload = "\(String(describing: thePackageArray[i]["name"]!))"
                                         currentPolicyArray.append("\(recordName)")
                                         if let pkgIndex = self.pkgScrArray.index(of: "\(currentPayload)") {
@@ -757,6 +762,9 @@ class ViewController: NSViewController, URLSessionDelegate {
                                             self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "", column4: "", column5: "", column6: ""))
                                             self.details_TextView.string.append("\(currentPayload)\t\(recordName)\t\t\(triggers)\n")
                                         case "mobiledeviceapplications":
+                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "", column3: "\(recordName)", column4: "", column5: "", column6: ""))
+                                            self.details_TextView.string.append("\(currentPayload)\t\t\(recordName)\n")
+                                        case "osxconfigurationprofiles":
                                             self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "", column3: "\(recordName)", column4: "", column5: "", column6: ""))
                                             self.details_TextView.string.append("\(currentPayload)\t\t\(recordName)\n")
                                         default:
