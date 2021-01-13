@@ -669,10 +669,8 @@ class ViewController: NSViewController, URLSessionDelegate {
 
                                         switch self.menuIdentifier {
                                             case "scg":
-                                                print("checking smart computer groups")
                                                 let packageConfigTag = endpointInfo["scope"] as! [String:AnyObject]
                                                 thePackageArray      = packageConfigTag["computer_groups"] as! [Dictionary<String, Any>]
-                                                print("thePackageArray: \(thePackageArray)")
                                                 searchStringArray    = [""]
                                             case "sdg": // added 201207 lnh
                                                 WriteToLog().message(stringOfText: ["[getDetails] Checking scope for \(self.singleEndpointXmlTag)"])
@@ -736,8 +734,8 @@ class ViewController: NSViewController, URLSessionDelegate {
                                 case "policy","computer_configuration","mac_application","os_x_configuration_profile","configuration_profile","mobile_device_application":
                                     for i in (0..<thePackageArray.count) {
 
-                                        print("package name in policy: \(String(describing: thePackageArray[i]["name"]!))")
-                                        print("      selectedEndpoint: \(String(describing: self.selectedEndpoint))")
+//                                        print("package name in policy: \(String(describing: thePackageArray[i]["name"]!))")
+//                                        print("      selectedEndpoint: \(String(describing: self.selectedEndpoint))")
 
                                         currentPayload = "\(String(describing: thePackageArray[i]["name"]!))"
                                         currentPolicyArray.append("\(recordName)")
