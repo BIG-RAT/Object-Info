@@ -49,3 +49,10 @@ Download: [Object Info](https://github.com/BIG-RAT/Object-Info/releases/download
 	* VPN
 	* WebClip
 	* Wi-Fi
+
+
+<hr>
+
+**History**
+
+2021-01-13: Version 1.1.0.  Added ability to sort column results.  Fixed some issues where scoped objects were not listed.
