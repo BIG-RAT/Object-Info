@@ -671,6 +671,12 @@ class ViewController: NSViewController, URLSessionDelegate {
                                             case "scg":
                                                 let packageConfigTag = endpointInfo["scope"] as! [String:AnyObject]
                                                 thePackageArray      = packageConfigTag["computer_groups"] as! [Dictionary<String, Any>]
+                                                if packageConfigTag["all_computers"] as! Bool {
+//                                                    thePackageArray["All Computers"] = "1"
+//                                                    self.theScope = "All Computers"
+                                                    thePackageArray.append(["id": 1, "name": "All Computers"])
+                                                }
+                                                print("groups: \(thePackageArray)")
                                                 searchStringArray    = [""]
                                             case "sdg": // added 201207 lnh
                                                 WriteToLog().message(stringOfText: ["[getDetails] Checking scope for \(self.singleEndpointXmlTag)"])
@@ -717,6 +723,11 @@ class ViewController: NSViewController, URLSessionDelegate {
                                     case "scg":
                                         let packageConfigTag = endpointInfo["scope"] as! [String:AnyObject]
                                         thePackageArray      = packageConfigTag["computer_groups"] as! [Dictionary<String, Any>]
+                                        if packageConfigTag["all_computers"] as! Bool {
+//                                                    thePackageArray["All Computers"] = "1"
+//                                                    self.theScope = "All Computers"
+                                            thePackageArray.append(["id": 1, "name": "All Computers"])
+                                        }
 
 //                                    case "sdg": // added 201207 lnh
 //                                        let packageConfigTag = endpointInfo["scope"] as! [String:AnyObject]
