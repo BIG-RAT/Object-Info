@@ -970,6 +970,12 @@ DQ
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="Lcu-p8-kVV"/>
                                                                         </connections>
                                                                     </menuItem>
+                                                                    <menuItem title="System Extensions" identifier="mac_sysext" id="KPX-JZ-e3P">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="L72-aw-pcO"/>
+                                                                        </connections>
+                                                                    </menuItem>
                                                                     <menuItem title="VPN" identifier="mac_vpn" id="sqR-Z8-Asg">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                         <connections>

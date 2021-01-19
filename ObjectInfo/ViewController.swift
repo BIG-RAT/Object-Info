@@ -124,10 +124,10 @@ class ViewController: NSViewController, URLSessionDelegate {
 //        print("sender title: \(sender.title)")
         menuTitle           = "\(sender.title)"
         menuIdentifier      = "\(sender.identifier?.rawValue ?? "")"
-//        print("menuIdent: \(menuIdentifier)")
+        print("menuIdent: \(menuIdentifier)")
         
         switch menuIdentifier {
-        case "mac_passcode","mac_network","mac_vpn","mac_cert","mac_scep","mac_dir","mac_kext","mac_su","mac_restrict","mac_loginitems","mac_loginwindow","mac_dock","mac_mobility","mac_print","mac_sec-priv","mac_ad-cert":
+        case "mac_passcode","mac_network","mac_vpn","mac_cert","mac_scep","mac_dir","mac_kext","mac_su","mac_restrict","mac_loginitems","mac_loginwindow","mac_dock","mac_mobility","mac_print","mac_sec-priv","mac_ad-cert","mac_sysext":
             endpointType = "mac_cp"
             select_MenuItem.title = "macOS-"+menuTitle
         case "ios_passcode","ios_restrict","ios_wifi","ios_vpn","ios_mail","ios_eas","ios_google","ios_sam","ios_webclip","ios_hsl":
@@ -604,6 +604,8 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                 searchStringArray = ["<string>com.apple.DirectoryService.managed</string>"]
                                             case "mac_kext":
                                                 searchStringArray = ["<string>com.apple.syspolicy.kernel-extension-policy</string>"]
+                                            case "mac_sysext":
+                                                searchStringArray = ["<string>com.apple.system-extension-policy</string>"]
                                             case "mac_su":
                                                 searchStringArray = ["<string>com.apple.SoftwareUpdate</string>"]
                                             case "mac_restrict":
