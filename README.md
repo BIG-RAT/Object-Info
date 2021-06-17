@@ -34,6 +34,7 @@ Download: [Object Info](https://github.com/BIG-RAT/Object-Info/releases/download
 	* SCEP
 	* Security & Privacy 
 	* Software Update
+	* System Extensions
 	* VPN
 
 * Find iOS configuration profiles containing a particular payload.  
@@ -55,4 +56,6 @@ Download: [Object Info](https://github.com/BIG-RAT/Object-Info/releases/download
 
 **History**
 
-2021-01-14: Version 1.1.1.  Added ability to sort column results.  Fixed some issues where scoped objects were not listed.
+2021-06-17: Version 1.1.3 - Fix crash when config profile has no payload.
+
+2021-01-14: Version 1.1.1 - Added ability to sort column results.  Fixed some issues where scoped objects were not listed.
