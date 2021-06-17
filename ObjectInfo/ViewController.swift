@@ -292,7 +292,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             let request = NSMutableURLRequest(url: encodedURL! as URL)
             
             request.httpMethod = "GET"
-            let serverConf = URLSessionConfiguration.default
+            let serverConf = URLSessionConfiguration.ephemeral
             serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(jamfBase64Creds)", "Content-Type" : "application/json", "Accept" : "application/json"]
             URLCache.shared.removeAllCachedResponses()
             let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
@@ -553,7 +553,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 
             
             request.httpMethod = "GET"
-            let serverConf = URLSessionConfiguration.default
+            let serverConf = URLSessionConfiguration.ephemeral
             serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(jamfBase64Creds)", "Content-Type" : "application/json", "Accept" : "application/json"]
             let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = serverSession.dataTask(with: request as URLRequest, completionHandler: {
@@ -581,12 +581,13 @@ class ViewController: NSViewController, URLSessionDelegate {
                                     self.detailedResults = "\(recordName) \t\(starting) \t\(ending) \t\(dp) \t\(url)"
                                 case "os_x_configuration_profile","mac_application","configuration_profile","mobile_device_application":
                                     if let generalTag = endpointInfo["general"] as? [String : AnyObject] {
+                                        print("endpointInfo: \(endpointInfo)")
                                         self.detailedResults = ""
                                         recordName = generalTag["name"] as! String
 
                                         WriteToLog().message(stringOfText: ["[getDetails] \(self.singleEndpointXmlTag) name: \(recordName)"])
                                         if !(self.menuIdentifier == "scg" || self.menuIdentifier == "sdg") {
-                                            let payload = generalTag["payloads"]?.replacingOccurrences(of: "\"", with: "")
+                                            let payload = generalTag["payloads"]?.replacingOccurrences(of: "\"", with: "") ?? ""
     //                                        print("\(String(describing: payload))")
                                             // login windown look for <string>Login Window:  Global Preferences</string>
                                             switch self.menuIdentifier {
@@ -649,7 +650,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                             }
 
                                             WriteToLog().message(stringOfText: ["[searchResults] looking for \(self.menuTitle)"])
-                                            if self.searchResult(payload: payload!, critereaArray: searchStringArray) {
+                                            if self.searchResult(payload: payload, critereaArray: searchStringArray) {
                                                 WriteToLog().message(stringOfText: ["[searchResults] \(self.menuTitle) found in \(recordName)"])
                                                 self.detailedResults = "\(self.menuTitle) \t\(recordName)"
                                                 switch self.endpointType {
