@@ -342,8 +342,8 @@ class ViewController: NSViewController, URLSessionDelegate {
                                 self.increment = 1.0/Double(self.apiDetailCount)
                                 
                                 // display what is being search
-                                print(" selectedEndpoint: \(self.selectedEndpoint)")
-                                print("oSelectedEndpoint: \(self.oSelectedEndpoint)")
+//                                print(" selectedEndpoint: \(self.selectedEndpoint)")
+//                                print("oSelectedEndpoint: \(self.oSelectedEndpoint)")
                                 switch self.selectedEndpoint {
                                 case "policies","packages","scripts","computergroups":
                                     if self.oSelectedEndpoint == "computerextensionattributes" {
@@ -648,7 +648,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                         if let endpointJSON = json as? [String: Any] {
                             if let endpointInfo = endpointJSON["\(self.singleEndpointXmlTag)"] as? [String : AnyObject] {
 
-                                print("[getDetails] self.singleEndpointXmlTag: \(self.singleEndpointXmlTag)")
+//                                print("[getDetails] self.singleEndpointXmlTag: \(self.singleEndpointXmlTag)")
                                 switch self.singleEndpointXmlTag {
                                 case "network_segment":
                                     recordName           = endpointInfo["name"] as! String
@@ -659,7 +659,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                     self.detailedResults = "\(recordName) \t\(starting) \t\(ending) \t\(dp) \t\(url)"
                                 case "os_x_configuration_profile","mac_application","configuration_profile","mobile_device_application":
                                     if let generalTag = endpointInfo["general"] as? [String : AnyObject] {
-                                        print("endpointInfo: \(endpointInfo)")
+//                                        print("endpointInfo: \(endpointInfo)")
                                         self.detailedResults = ""
                                         recordName = generalTag["name"] as! String
 
@@ -812,28 +812,18 @@ class ViewController: NSViewController, URLSessionDelegate {
                                     }
                                     
                                 case "computer_group", "advanced_computer_search", "mobile_device_group", "advanced_mobile_device_search":
-//                                    print("[getDetails] computer_groups endpointInfo: \(endpointInfo)")
                                     if let _ = endpointInfo["name"] as? String {
                                         recordName = endpointInfo["name"] as! String
-                                        print("[getDetails] 2 computer_group recordName: \(recordName)")
                                         let groupCriteria = endpointInfo["criteria"] as? [[String: Any]]
-//                                        print("[getDetails] computer_groups criteria: \(groupCriteria!)")
                                         
                                         for theCriteria in groupCriteria! {
-                                            print("[getDetails] computer_groups criteria: \(theCriteria)")
                                             criteriaName = theCriteria["name"] as! String
                                             if self.pkgScrArray.firstIndex(of: criteriaName) != nil {
-                                                print("[getDetails] computer_groups \(recordName) uses EA '\(criteriaName)' as a criteria")
                                                 eaUsed = true
                                             }
                                         }
                                         self.detailedResults = "\(recordName)"
                                         WriteToLog().message(stringOfText: ["[getDetails] case computer_group - Group Name: \(recordName)"])
-                                        // get triggers
-//                                            if self.selectedEndpoint == "policies" {
-//                                                triggers = self.triggersAsString(generalTag: generalTag)
-//                                                freq = generalTag["frequency"] as! String
-//                                            }
                                     }
 
                                 default:
