@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17701"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="18122"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -847,6 +847,25 @@ DQ
                                                     <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="0kG-0a-XuC"/>
                                                 </connections>
                                             </menuItem>
+                                            <menuItem title="Extentsion Attributes" id="9Go-vT-HYn">
+                                                <modifierMask key="keyEquivalentModifierMask"/>
+                                                <menu key="submenu" id="JXQ-k1-jYX">
+                                                    <items>
+                                                        <menuItem title="Computers" identifier="cea" id="dyn-dD-kzK">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="iEj-VK-QIK"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                        <menuItem title="Mobile Devices" identifier="mdea" id="GeV-Qy-Q2G">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="AJp-lQ-tV7"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                    </items>
+                                                </menu>
+                                            </menuItem>
                                             <menuItem title="Groups" id="Kmp-DZ-Ltt" userLabel="Groups">
                                                 <modifierMask key="keyEquivalentModifierMask"/>
                                                 <menu key="submenu" title="Groups" id="mR3-Rx-MnM">
@@ -1087,7 +1106,7 @@ DQ
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="9no-uy-YcU">
-                                                            <rect key="frame" x="1" y="1" width="125" height="17"/>
+                                                            <rect key="frame" x="11" y="1" width="125" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8I3-ad-aOt">
@@ -1127,7 +1146,7 @@ DQ
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="eLh-vZ-pEE">
-                                                            <rect key="frame" x="129" y="1" width="119" height="17"/>
+                                                            <rect key="frame" x="139" y="1" width="119" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XkM-BP-Zy2">
@@ -1163,7 +1182,7 @@ DQ
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="NPj-A7-5gt">
-                                                            <rect key="frame" x="251" y="1" width="119" height="17"/>
+                                                            <rect key="frame" x="261" y="1" width="119" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PKj-vX-SUm">
@@ -1206,7 +1225,7 @@ DQ
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="zSQ-rV-iiR">
-                                                            <rect key="frame" x="373" y="1" width="119" height="17"/>
+                                                            <rect key="frame" x="383" y="1" width="119" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="UGM-3E-bKj">
@@ -1242,7 +1261,7 @@ DQ
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="HK5-FF-VR2">
-                                                            <rect key="frame" x="495" y="1" width="119" height="17"/>
+                                                            <rect key="frame" x="505" y="1" width="119" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4t2-vi-0OK">
@@ -1278,7 +1297,7 @@ DQ
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="k0N-d9-gHH">
-                                                            <rect key="frame" x="617" y="1" width="123" height="17"/>
+                                                            <rect key="frame" x="627" y="1" width="123" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TUV-ez-d3R">

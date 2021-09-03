@@ -75,15 +75,20 @@ class ViewController: NSViewController, URLSessionDelegate {
                         "scg":              ["computergroups","computer_groups","computer_group"],
                         "sdg":              ["mobiledevicegroups","mobile_device_groups","mobile_device_group"],
                         "mac_cp":           ["osxconfigurationprofiles","os_x_configuration_profiles","os_x_configuration_profile"],
-                        "ios_cp":           ["mobiledeviceconfigurationprofiles","configuration_profiles","configuration_profile"]]
+                        "ios_cp":           ["mobiledeviceconfigurationprofiles","configuration_profiles","configuration_profile"],
+                        "cea":              ["computerextensionattributes","computer_extension_attributes","computer_extension_attribute"],
+                        "mdea":             ["mobiledeviceextensionattributes","mobile_device_extension_attributes","mobile_device_extension_attributes"],
+                        "acs":              ["advancedcomputersearches","advanced_computer_searches","advanced_computer_search"],
+                        "ams":              ["advancedmobiledevicesearches","advanced_mobile_device_searches","advanced_mobile_device_search"]]
     
-    var headersDict = ["recon":            ["Policy","Trigger","Scope"],
-                       "Network Segments": ["Segment Name","Start Address","End Address","Default Share","URL"],
-                       "Packages":         ["Package Name","Policy","Trigger","Frequency","Configuration"],
-                       "Scripts":          ["Script Name","Policy","Trigger","Frequency","Configuration"],
-                       "scg":              ["Group Name","Policy","Profile","Trigger","Frequency","App"],
-                       "sdg":              ["Group Name","Profile","App"],
-                       "mac_cp":           ["Payload Type","Profile Name","Scope"]]
+    var headersDict = ["recon":             ["Policy","Trigger","Scope"],
+                       "Network Segments":  ["Segment Name","Start Address","End Address","Default Share","URL"],
+                       "Packages":          ["Package Name","Policy","Trigger","Frequency","Configuration"],
+                       "Scripts":           ["Script Name","Policy","Trigger","Frequency","Configuration"],
+                       "scg":               ["Group Name","Policy","Profile","Trigger","Frequency","App"],
+                       "sdg":               ["Group Name","Profile","App"],
+                       "mac_cp":            ["Payload Type","Profile Name","Scope"],
+                       "cea":               ["Extension Attribute","Smart Group","Advanced Search"]]
     
     var currentServer           = ""
     var username                = ""
@@ -137,7 +142,10 @@ class ViewController: NSViewController, URLSessionDelegate {
         case "scg","sdg":    // added sdg lnh - 201205
             endpointType = menuIdentifier
             select_MenuItem.title = menuTitle+" Groups"
-            //headersDict["sdg"]  = headersDict["scg"]
+        case "cea","mdea":    // added sdg lnh - 210828
+            endpointType = menuIdentifier
+            select_MenuItem.title = menuTitle+" EA"
+            headersDict["mdea"]  = headersDict["cea"]
         default:
             endpointType = menuIdentifier
             select_MenuItem.title = menuTitle
@@ -212,7 +220,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                 WriteToLog().message(stringOfText: ["[get] returned from apiCall - result:\n\(result)"])
 
                 self.results_TextView.string = "\(result)"
-                if self.menuIdentifier == "Packages" || self.menuIdentifier == "Scripts" || self.menuIdentifier == "scg" || self.menuIdentifier == "sdg" {
+                if self.menuIdentifier == "Packages" || self.menuIdentifier == "Scripts" || self.menuIdentifier == "scg" || self.menuIdentifier == "sdg" || self.menuIdentifier == "cea" || self.menuIdentifier == "mdea" {
                     
                     self.packageScriptArray = "\(result)".components(separatedBy: "\n")
 //                    WriteToLog().message(stringOfText: ["packageScriptArray: \(self.packageScriptArray)")
@@ -224,7 +232,24 @@ class ViewController: NSViewController, URLSessionDelegate {
                             self.pkgScrArray.append("\(theRecordArray[1])")
                         }
                     }
-                    if self.menuIdentifier != "sdg" {
+                    
+                    if self.menuIdentifier == "cea" || self.menuIdentifier == "mdea" {
+                        // switch lookup to eas scoped to groups - start
+                        WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: Groups"])
+                        switch self.menuIdentifier {
+                        case "cea":
+                            self.selectedEndpoint     = "computergroups"
+                            self.singleEndpointXmlTag = "computer_group"
+                        default:
+                            self.selectedEndpoint     = "mobiledevicegroups"
+                            self.singleEndpointXmlTag = "mobile_device_group"
+                        }
+                        self.apiCall(endpoint: "\(self.singleEndpointXmlTag)s") {
+                            (result: String) in
+                            self.results_TextView.string = "\(result)"
+                        }
+                        // switch lookup to eas scoped to groups - end
+                    } else if self.menuIdentifier != "sdg" {
                         // switch lookup to packages/scripts scoped to policies - start
                         WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: policies"])
                         self.selectedEndpoint     = "policies"
@@ -317,31 +342,45 @@ class ViewController: NSViewController, URLSessionDelegate {
                                 self.increment = 1.0/Double(self.apiDetailCount)
                                 
                                 // display what is being search
+                                print(" selectedEndpoint: \(self.selectedEndpoint)")
+                                print("oSelectedEndpoint: \(self.oSelectedEndpoint)")
                                 switch self.selectedEndpoint {
                                 case "policies","packages","scripts","computergroups":
-                                    self.action_textField.stringValue = "Searching policies"
+                                    if self.oSelectedEndpoint == "computerextensionattributes" {
+                                        self.action_textField.stringValue = "Querying Computer Groups"
+                                    } else {
+                                        self.action_textField.stringValue = "Querying policies"
+                                    }
                                 case "computerconfigurations":
-                                    self.action_textField.stringValue = "Searching computer configurations"
+                                    self.action_textField.stringValue = "Querying computer configurations"
                                 case "osxconfigurationprofiles":
-                                    self.action_textField.stringValue = "Searching macOS configuration profiles"
+                                    self.action_textField.stringValue = "Querying macOS configuration profiles"
                                 case "mobiledeviceconfigurationprofiles","mobiledevicegroups":
-                                    self.action_textField.stringValue = "Searching mobile configuration profiles"
+                                    if self.oSelectedEndpoint == "mobiledeviceextensionattributes" {
+                                        self.action_textField.stringValue = "Querying Mobile Device Groups"
+                                    } else {
+                                        self.action_textField.stringValue = "Querying mobile configuration profiles"
+                                    }
                                 case "macapplications":
-                                    self.action_textField.stringValue = "Searching macOS apps"
+                                    self.action_textField.stringValue = "Querying macOS apps"
                                 case "mobiledeviceapplications":
-                                    self.action_textField.stringValue = "Searching mobile apps"
+                                    self.action_textField.stringValue = "Querying mobile apps"
+                                case "advancedcomputersearches", "advancedmobiledevicesearches":
+                                    self.action_textField.stringValue = "Querying Advanced Searches"
                                 default:
                                     self.action_textField.stringValue = ""
                                 }
 
                             } else {
-                                self.alert_dialog(header: "Alert", message: "Nothing found at:\n\(self.endpointUrl)")
+                                if self.selectedEndpoint != "computerconfigurations" && self.selectedEndpoint != "advancedmobiledevicesearches" {
+                                    self.alert_dialog(header: "Alert", message: "Nothing found at:\n\(self.endpointUrl)")
+                                    WriteToLog().message(stringOfText: ["[apiCall] completion - Nothing found at: \(self.endpointUrl)"])
+                                }
                                 if self.selectedEndpoint == "computerconfigurations" || self.selectedEndpoint == "macapplications" {
 //                                    self.increment = 100.0
 //                                    self.apiDetailCount = self.completeCounter
                                     self.queryComplete()
                                 }
-                                WriteToLog().message(stringOfText: ["[apiCall] completion - Nothing found at: \(self.endpointUrl)"])
                                 completion("")
                             }
                 
@@ -353,7 +392,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                             
                                 self.displayResults.append("\(recordId)\t\(recordName)\n")
 
-                                //print("[apiCall] switch endpoint: \(endpoint)")
+                                print("[apiCall] switch endpoint: \(endpoint)")
                                 switch endpoint {
                                     case "network_segments","os_x_configuration_profiles":
                                         self.getDetails(id: "\(recordId)") {
@@ -462,6 +501,44 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                 }
                                             }
                                         }
+                                        
+                                case "computer_groups","mobile_device_groups":  // added 210829 lnh
+                                     self.getDetails(id: "\(recordId)") {
+                                        (result: String) in
+                                        self.allDetailedResults.append("\(result)")
+                                        localCounter+=1
+                                        if localCounter == endpointInfo.count {
+                                             
+                                             switch self.menuIdentifier {
+                                                 case "cea":
+                                                     print("start advanced computer searches query")
+                                                     self.selectedEndpoint     = "advancedcomputersearches"
+                                                     self.singleEndpointXmlTag = "advanced_computer_search"
+                                                     self.apiCall(endpoint: "advanced_computer_searches") {
+                                                         (result: String) in
+                                                         self.results_TextView.string = "\(result)"
+                                                    }
+                                                 default:
+                                                    print("start advanced mobile device searches query")
+                                                    self.selectedEndpoint     = "advancedmobiledevicesearches"
+                                                    self.singleEndpointXmlTag = "advanced_mobile_device_search"
+                                                    self.apiCall(endpoint: "advanced_mobile_device_searches") {
+                                                        (result: String) in
+                                                        self.results_TextView.string = "\(result)"
+                                                   }
+                                             }
+                                         }
+                                     }
+                                    
+                                case "advanced_computer_searches", "advanced_mobile_device_searches":  // added 210903 lnh
+                                     self.getDetails(id: "\(recordId)") {
+                                        (result: String) in
+                                        self.allDetailedResults.append("\(result)")
+                                        localCounter+=1
+                                        if localCounter == endpointInfo.count {
+                                            self.queryComplete()
+                                         }
+                                     }
 
                                     default:
                                         break
@@ -525,8 +602,8 @@ class ViewController: NSViewController, URLSessionDelegate {
         
 //        let safeCharSet = CharacterSet.alphanumerics
         
-        username        = self.uname_TextField.stringValue     //.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
-        password        = self.passwd_TextField.stringValue    //.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
+        username        = self.uname_TextField.stringValue
+        password        = self.passwd_TextField.stringValue
         let jamfCreds   = "\(self.username):\(self.password)"
         
         let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
@@ -537,7 +614,6 @@ class ViewController: NSViewController, URLSessionDelegate {
         
         detailQ.addOperation {
 
-            
             let encodedURL          = NSURL(string: idUrl)
             let request             = NSMutableURLRequest(url: encodedURL! as URL)
 
@@ -550,8 +626,9 @@ class ViewController: NSViewController, URLSessionDelegate {
             var triggers            = ""
             var freq                = ""
             var currentPolicyArray  = [String]()
+            var criteriaName        = ""
+            var eaUsed              = false
 
-            
             request.httpMethod = "GET"
             let serverConf = URLSessionConfiguration.ephemeral
             serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(jamfBase64Creds)", "Content-Type" : "application/json", "Accept" : "application/json"]
@@ -571,6 +648,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                         if let endpointJSON = json as? [String: Any] {
                             if let endpointInfo = endpointJSON["\(self.singleEndpointXmlTag)"] as? [String : AnyObject] {
 
+                                print("[getDetails] self.singleEndpointXmlTag: \(self.singleEndpointXmlTag)")
                                 switch self.singleEndpointXmlTag {
                                 case "network_segment":
                                     recordName           = endpointInfo["name"] as! String
@@ -589,7 +667,6 @@ class ViewController: NSViewController, URLSessionDelegate {
                                         if !(self.menuIdentifier == "scg" || self.menuIdentifier == "sdg") {
                                             let payload = generalTag["payloads"]?.replacingOccurrences(of: "\"", with: "") ?? ""
     //                                        print("\(String(describing: payload))")
-                                            // login windown look for <string>Login Window:  Global Preferences</string>
                                             switch self.menuIdentifier {
                                             case "mac_passcode","ios_passcode":
                                                 searchStringArray = ["<string>com.apple.mobiledevice.passwordpolicy</string>"]
@@ -729,12 +806,34 @@ class ViewController: NSViewController, URLSessionDelegate {
                                         if packageConfigTag["all_computers"] as! Bool {
                                             thePackageArray.append(["id": 1, "name": "All Computers"])
                                         }
-
-//                                    case "sdg": // added 201207 lnh
-//                                        let packageConfigTag = endpointInfo["scope"] as! [String:AnyObject]
-//                                        thePackageArray = packageConfigTag["mobile_device_groups"] as! [Dictionary<String, Any>] all_mobile_devices
+                                        
                                     default:
                                         break
+                                    }
+                                    
+                                case "computer_group", "advanced_computer_search", "mobile_device_group", "advanced_mobile_device_search":
+//                                    print("[getDetails] computer_groups endpointInfo: \(endpointInfo)")
+                                    if let _ = endpointInfo["name"] as? String {
+                                        recordName = endpointInfo["name"] as! String
+                                        print("[getDetails] 2 computer_group recordName: \(recordName)")
+                                        let groupCriteria = endpointInfo["criteria"] as? [[String: Any]]
+//                                        print("[getDetails] computer_groups criteria: \(groupCriteria!)")
+                                        
+                                        for theCriteria in groupCriteria! {
+                                            print("[getDetails] computer_groups criteria: \(theCriteria)")
+                                            criteriaName = theCriteria["name"] as! String
+                                            if self.pkgScrArray.firstIndex(of: criteriaName) != nil {
+                                                print("[getDetails] computer_groups \(recordName) uses EA '\(criteriaName)' as a criteria")
+                                                eaUsed = true
+                                            }
+                                        }
+                                        self.detailedResults = "\(recordName)"
+                                        WriteToLog().message(stringOfText: ["[getDetails] case computer_group - Group Name: \(recordName)"])
+                                        // get triggers
+//                                            if self.selectedEndpoint == "policies" {
+//                                                triggers = self.triggersAsString(generalTag: generalTag)
+//                                                freq = generalTag["frequency"] as! String
+//                                            }
                                     }
 
                                 default:
@@ -789,7 +888,18 @@ class ViewController: NSViewController, URLSessionDelegate {
 //                                case "os_x_configuration_profile":
 //                                    self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "", column4: "", column5: "", column6: ""))
 //                                    self.details_TextView.string.append("\(currentPayload)\t\t\(recordName)\n")
-
+                                case "computer_group", "mobile_device_group":
+                                    if eaUsed {
+                                        self.summaryArray.append(endpointData(column1: "\(criteriaName)", column2: "\(recordName)", column3: "", column4: "", column5: "", column6: ""))
+                                        self.details_TextView.string.append("\(criteriaName)\t\(recordName)\t\t\n")
+                                        eaUsed = false
+                                    }
+                                case "advanced_computer_search", "advanced_mobile_device_search":
+                                    if eaUsed {
+                                        self.summaryArray.append(endpointData(column1: "\(criteriaName)", column2: "", column3: "\(recordName)", column4: "", column5: "", column6: ""))
+                                        self.details_TextView.string.append("\(criteriaName)\t\t\(recordName)\t\n")
+                                        eaUsed = false
+                                    }
                                 default:
                                     break
                                 }
@@ -1123,6 +1233,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         detailQ.cancelAllOperations()
         stop_button.isHidden = true
         export_button.isEnabled = true
+        spinner.stopAnimation(self)
     }
     
     
