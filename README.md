@@ -57,6 +57,8 @@ Download: [Object Info](https://github.com/BIG-RAT/Object-Info/releases/download
 
 **History**
 
+2021-09-05: Version 1.2.0 - Added computer and mobile device extension attribute usage.  Scans groups and advanced device searches to see if they are used.
+
 2021-06-17: Version 1.1.3 - Fix crash when config profile has no payload.
 
 2021-01-14: Version 1.1.1 - Added ability to sort column results.  Fixed some issues where scoped objects were not listed.
