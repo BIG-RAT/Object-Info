@@ -997,12 +997,12 @@ class ViewController: NSViewController, URLSessionDelegate {
         var elementList = ""
         
         var elementArray = [String]()
-        generalTag["trigger_checkin"] as! Bool ? elementArray.append("checkin"):print("")
-        generalTag["trigger_enrollment_complete"] as! Bool ? elementArray.append("Enrollment Complete"):print("")
-        generalTag["trigger_login"] as! Bool ? elementArray.append("login"):print("")
-        generalTag["trigger_logout"] as! Bool ? elementArray.append("logout"):print("")
-        generalTag["trigger_network_state_changed"] as! Bool ? elementArray.append("Network State Change"):print("")
-        generalTag["trigger_startup"] as! Bool ? elementArray.append("startup"):print("")
+        generalTag["trigger_checkin"] as? Bool ?? false ? elementArray.append("checkin"):print("")
+        generalTag["trigger_enrollment_complete"] as? Bool ?? false ? elementArray.append("Enrollment Complete"):print("")
+        generalTag["trigger_login"] as? Bool ?? false ? elementArray.append("login"):print("")
+        generalTag["trigger_logout"] as? Bool ?? false ? elementArray.append("logout"):print("")
+        generalTag["trigger_network_state_changed"] as? Bool ?? false ? elementArray.append("Network State Change"):print("")
+        generalTag["trigger_startup"] as? Bool ?? false ? elementArray.append("startup"):print("")
         generalTag["trigger_other"] as? String != nil ? elementArray.append("\(String(describing: generalTag["trigger_other"]!))"):print("")
         
         for element in elementArray {
