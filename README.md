@@ -57,6 +57,8 @@ Download: [Object Info](https://github.com/BIG-RAT/Object-Info/releases/download
 
 **History**
 
+2021-10-17: Version 1.2.1 - Fixed crash due to login trigger being removed from Jamf Pro
+
 2021-09-05: Version 1.2.0 - Added computer and mobile device extension attribute usage.  Scans groups and advanced device searches to see if they are used.
 
 2021-06-17: Version 1.1.3 - Fix crash when config profile has no payload.
