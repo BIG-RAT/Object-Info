@@ -68,6 +68,19 @@ class ViewController: NSViewController, URLSessionDelegate {
     @IBOutlet weak var endpoint_PopUpButton: NSPopUpButton!
     @IBOutlet weak var select_MenuItem: NSMenuItem!
     
+    let endpointDefDict = ["policy":"policies",
+                           "network_segment":"network segments",
+                           "package":"packages",
+                           "script":"scripts",
+                           "computer_group":"computer groups",
+                           "mobile_device_group":"mobile device groups",
+                           "os_x_configuration_profile":"macOS config profiles",
+                           "configuration_profile":"iOS config profiles",
+                           "computer_extension_attribute":"macOS extension attribtes",
+                           "mobile_device_extension_attributes":"iOS extension attribtes",
+                           "advanced_computer_search":"advanced computer searches",
+                           "advanced_mobile_device_search":"advanced mobile device searches"]
+    
     let endpointDict = ["recon":            ["policies","policies","policy"],
                         "Network Segments": ["networksegments","network_segments","network_segment"],
                         "Packages":         ["packages","packages","package"],
@@ -537,7 +550,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                         localCounter+=1
                                         if localCounter == endpointInfo.count {
                                             self.queryComplete()
-                                         }
+                                        }
                                      }
 
                                     default:
@@ -568,7 +581,6 @@ class ViewController: NSViewController, URLSessionDelegate {
 
                     } else {
                         // something went wrong
-//                        self.spinner.stopAnimation(self)
                         WriteToLog().message(stringOfText: ["[apiCall] completion - Something went wrong, status code: \(httpResponse.statusCode)"])
                         switch httpResponse.statusCode {
                         case 401:
@@ -580,7 +592,6 @@ class ViewController: NSViewController, URLSessionDelegate {
                         completion(self.displayResults)
                     }   // if httpResponse.statusCode - end
                 } else {  // if let httpResponse = response - end
-//                    self.spinner.stopAnimation(self)
                     WriteToLog().message(stringOfText: ["[apiCall] completion - No response to \(self.endpointUrl)"])
                     self.alert_dialog(header: "Alert", message: "No response to:\n\(self.endpointUrl)")
                     completion("")
@@ -628,6 +639,14 @@ class ViewController: NSViewController, URLSessionDelegate {
             var currentPolicyArray  = [String]()
             var criteriaName        = ""
             var eaUsed              = false
+            
+            DispatchQueue.main.async {
+                self.spinner.isHidden = false
+                self.spinner.startAnimation(self)
+                
+                self.stop_button.isHidden = false
+                self.action_textField.stringValue = "Getting details for \(self.endpointDefDict[self.singleEndpointXmlTag] ?? self.singleEndpointXmlTag)"
+            }
 
             request.httpMethod = "GET"
             let serverConf = URLSessionConfiguration.ephemeral
