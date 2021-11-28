@@ -820,7 +820,7 @@ DQ
                                 <popUpButtonCell key="cell" type="push" title="Select" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="F3g-fT-T3E" id="1bX-ug-H8H">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="menu"/>
-                                    <menu key="menu" id="5hi-gF-imc">
+                                    <menu key="menu" title="Login" identifier="trigger_login" id="5hi-gF-imc">
                                         <items>
                                             <menuItem title="Select" state="on" identifier="Select" id="F3g-fT-T3E"/>
                                             <menuItem isSeparatorItem="YES" id="48B-JH-URh"/>
@@ -829,6 +829,55 @@ DQ
                                                 <connections>
                                                     <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="pLs-M0-X0T"/>
                                                 </connections>
+                                            </menuItem>
+                                            <menuItem title="Trigger" id="KnV-RL-HgU">
+                                                <modifierMask key="keyEquivalentModifierMask"/>
+                                                <menu key="submenu" title="Trigger" id="QEW-lS-WTI">
+                                                    <items>
+                                                        <menuItem title="Startup" identifier="trigger_startup" toolTip="Policies with the Startup trigger enabled" id="MQw-Ms-7Gd">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="mLx-LB-JSb"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                        <menuItem title="Login" identifier="trigger_login" toolTip="Policies with the Login trigger enabled" id="6Wv-VW-gCG">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="uFh-eQ-Qj9"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                        <menuItem title="Logout" identifier="trigger_logout" toolTip="Policies with the Logout (deprecated) trigger enabled" id="Tli-fp-gD5">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="B9t-9y-Im6"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                        <menuItem title="Network State Change" identifier="trigger_network_state_changed" toolTip="Policies with the Network State Change trigger enabled" id="BxC-ku-i5E">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="BlV-HH-Evd"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                        <menuItem title="Enrollment Complete" identifier="trigger_enrollment_complete" toolTip="Policies with the Enrollment Complete trigger enabled" id="KlU-CW-WOo">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="0iw-PP-Jnm"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                        <menuItem title="Recurring Check-in" identifier="trigger_checkin" toolTip="Policies with the Recurring Check-in trigger enabled" id="afS-0J-iWc">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="qop-Uu-27A"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                        <menuItem title="Custom" identifier="trigger_other" toolTip="Policies with a Custom trigger enabled" id="0JM-RU-bB0">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="WhG-Ob-APa"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                    </items>
+                                                </menu>
                                             </menuItem>
                                             <menuItem title="Network Segments" identifier="Network Segments" id="9xB-Fv-bb9">
                                                 <connections>
