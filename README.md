@@ -2,13 +2,14 @@
 
 Wondering what packages or scripts are scoped to what policies?  Or what configuration profiles contain a certain payload?  Need an overview of all your network segments?  How about finding out what object(s) smart/static groups are attached to?  Object info looks to summarize these things.
 
-Download: [Object Info](https://github.com/BIG-RAT/Object-Info/releases/download/current/Object.Info.zip)
+Download: [Object Info](https://github.com/BIG-RAT/Object-Info/releases/download/current/Object.zip)
 
 ![alt text](./images/ObjectInfo.png "Object Info")
 
 **Current Searches**:
 
 * Find policies that update inventory.
+* Find what triggers are used in what policies.
 * Find IP range, default share name, and URL associated with a network segment.
 * Find what policies and computer configurations a package is associated with.
 * Find what policies and computer configurations a script is associated with.
@@ -56,6 +57,8 @@ Download: [Object Info](https://github.com/BIG-RAT/Object-Info/releases/download
 <hr>
 
 **History**
+
+2021-11-127: Version 1.4.0 - Fixed issues with extension attribute and group lookups.  Added ability to report on policy trigger usage.
 
 2021-10-17: Version 1.2.1 - Fixed crash due to login trigger being removed from Jamf Pro
 
