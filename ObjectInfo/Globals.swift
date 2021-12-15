@@ -13,5 +13,7 @@ struct Log {
     static var file  = "ObjectInfo.log"
     static var maxFiles = 10
     static var maxSize  = 5000000 // 5MB
+    static var lookupFailed = false
+    static var FailedCount  = 0
 }
 

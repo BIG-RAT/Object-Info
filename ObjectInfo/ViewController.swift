@@ -144,7 +144,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 //        print("sender title: \(sender.title)")
         menuTitle           = "\(sender.title)"
         menuIdentifier      = "\(sender.identifier?.rawValue ?? "")"
-        print("menuIdent: \(menuIdentifier)")
+//        print("menuIdent: \(menuIdentifier)")
         
         switch menuIdentifier {
         case "mac_passcode","mac_network","mac_vpn","mac_cert","mac_scep","mac_dir","mac_kext","mac_su","mac_restrict","mac_loginitems","mac_loginwindow","mac_dock","mac_mobility","mac_print","mac_sec-priv","mac_ad-cert","mac_sysext":
@@ -201,6 +201,10 @@ class ViewController: NSViewController, URLSessionDelegate {
 
 
     @IBAction func get(_ sender: Any) {
+        
+        Log.lookupFailed = false
+        Log.FailedCount  = 0
+        
         if jamfServer_TextField.stringValue == "" {
             alert_dialog(header: "Alert", message: "Jamf server URL is required.")
             jamfServer_TextField.becomeFirstResponder()
@@ -354,7 +358,8 @@ class ViewController: NSViewController, URLSessionDelegate {
 //                            print("[ViewController.apiCall] endpoint: \(endpoint)")
 //                            print("[ViewController.apiCall] endpointJSON: \(endpointJSON)")
                             let endpointInfo = self.validEndpointInfo(endpointJSON: endpointJSON, endpoint: endpoint)
-//                            print("[ViewController.apiCall] endpointInfo: \(endpointInfo)")
+//                          print("[ViewController.apiCall] endpointInfo: \(endpointInfo)")
+//                            print("[ViewController.apiCall] endpointInfo.count: \(endpointInfo.count)")
 
                             self.apiDetailCount = endpointInfo.count
                             if (self.apiDetailCount > 0) {
@@ -538,7 +543,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                      
                                                      switch self.menuIdentifier {
                                                          case "cea":
-                                                             print("start advanced computer searches query")
+//                                                             print("start advanced computer searches query")
                                                              self.selectedEndpoint     = "advancedcomputersearches"
                                                              self.singleEndpointXmlTag = "advanced_computer_search"
                                                              self.apiCall(endpoint: "advanced_computer_searches") {
@@ -546,7 +551,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                                  self.results_TextView.string = "\(result)"
                                                             }
                                                          default:
-                                                            print("start advanced mobile device searches query")
+//                                                            print("start advanced mobile device searches query")
                                                             self.selectedEndpoint     = "advancedmobiledevicesearches"
                                                             self.singleEndpointXmlTag = "advanced_mobile_device_search"
                                                             self.apiCall(endpoint: "advanced_mobile_device_searches") {
@@ -804,7 +809,6 @@ class ViewController: NSViewController, URLSessionDelegate {
                                     }
 
                                 case "policy","computer_configuration":
-                                    //print("policy endpointInfo: \(endpointInfo)")
                                     if let generalTag = endpointInfo["general"] as? [String : AnyObject] {
                                         recordName = generalTag["name"] as! String
                                         self.detailedResults = "\(recordName)"
@@ -873,8 +877,8 @@ class ViewController: NSViewController, URLSessionDelegate {
                                 case "policy","computer_configuration","mac_application","os_x_configuration_profile","configuration_profile","mobile_device_application":
                                     for i in (0..<thePackageArray.count) {
 
-                                        print("package name in policy: \(String(describing: thePackageArray[i]["name"]!))")
-                                        print("      selectedEndpoint: \(String(describing: self.selectedEndpoint))")
+//                                        print("package name in policy: \(String(describing: thePackageArray[i]["name"]!))")
+//                                        print("      selectedEndpoint: \(String(describing: self.selectedEndpoint))")
 
                                         currentPayload = "\(String(describing: thePackageArray[i]["name"]!))"
                                         currentPolicyArray.append("\(recordName)")
@@ -977,19 +981,24 @@ class ViewController: NSViewController, URLSessionDelegate {
                         completion(self.detailedResults)
                     } else {
                         // something went wrong
-                        WriteToLog().message(stringOfText: ["status code: \(httpResponse.statusCode)"])
+                        WriteToLog().message(stringOfText: ["[getDetails] lookup failed for \(idUrl)"])
+                        WriteToLog().message(stringOfText: ["[getDetails] status code: \(httpResponse.statusCode)"])
+                        Log.FailedCount+=1
+                        Log.lookupFailed = true
                         completion(self.detailedResults)
                     }   // if httpResponse.statusCode - end
                 } else {   // if let httpResponse = response - end
                     DispatchQueue.main.async {
                         self.progressBar.increment(by: 1.0)
                     }
-                    WriteToLog().message(stringOfText: ["no response for: \(idUrl)"])
+                    WriteToLog().message(stringOfText: ["[getDetails] lookup failed, no response for: \(idUrl)"])
+                    Log.FailedCount+=1
+                    Log.lookupFailed = true
                 }
                 semaphore.signal()
                 self.completeCounter+=1
                 WriteToLog().message(stringOfText: ["[getDetails] completeCounter: \(self.completeCounter)\tapiDetailCount: \(self.apiDetailCount)"])
-                if (self.completeCounter == self.apiDetailCount) {
+                if (self.completeCounter >= self.apiDetailCount) {
                     if !(self.selectedEndpoint == "osxconfigurationprofiles" && self.menuIdentifier == "scg") {
                         WriteToLog().message(stringOfText: ["[getDetails] queryComplete"])
                         self.queryComplete()
@@ -1034,6 +1043,11 @@ class ViewController: NSViewController, URLSessionDelegate {
         progressBar.isHidden         = true
         action_textField.stringValue = "Search Complete"
         get_button.isEnabled         = true
+        if Log.lookupFailed {
+            let query = Log.FailedCount == 1 ? "query":"queries"
+            alert_dialog(header: "Attention", message: "\(Log.FailedCount) \(query) failed.\nCheck the log, ~/Library/Logs/ObjectInfo/, and search for '[getDetails] lookup failed' to get additional details.")
+            Log.lookupFailed = false
+        }
     }
     
     // convert an array to a comma delimited string - start
@@ -1129,8 +1143,8 @@ class ViewController: NSViewController, URLSessionDelegate {
     }
     
     func getScope(endpointInfo: [String : AnyObject], scopeObjects: [String]) {
-        WriteToLog().message(stringOfText: ["[getScope] endpointInfo: \(endpointInfo)"])
-        WriteToLog().message(stringOfText: ["[getScope] scopeObjects: \(scopeObjects)"])
+//        WriteToLog().message(stringOfText: ["[getScope] endpointInfo: \(endpointInfo)"])
+//        WriteToLog().message(stringOfText: ["[getScope] scopeObjects: \(scopeObjects)"])
         
         var allScope            = ""
         var currentScopeArray   = [String]()
