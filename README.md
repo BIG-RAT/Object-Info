@@ -58,6 +58,8 @@ Download: [Object Info](https://github.com/BIG-RAT/Object-Info/releases/download
 
 **History**
 
+2021-11-127: Version 1.4.2 - Fixed issue where policy/script lookups may hang when computer configurations exist.  Added an alert in the event one or more lookups fail.
+
 2021-11-127: Version 1.4.0 - Fixed issues with extension attribute and group lookups.  Added ability to report on policy trigger usage.
 
 2021-10-17: Version 1.2.1 - Fixed crash due to login trigger being removed from Jamf Pro
