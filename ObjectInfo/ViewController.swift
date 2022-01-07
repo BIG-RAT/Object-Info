@@ -94,7 +94,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                         "acs":              ["advancedcomputersearches","advanced_computer_searches","advanced_computer_search"],
                         "ams":              ["advancedmobiledevicesearches","advanced_mobile_device_searches","advanced_mobile_device_search"]]
     
-    var headersDict = ["recon":             ["Policy","Trigger","Scope"],
+    var headersDict = ["recon":             ["Policy","Trigger","Frequency","Scope"],
                        "Network Segments":  ["Segment Name","Start Address","End Address","Default Share","URL"],
                        "Packages":          ["Package Name","Policy","Trigger","Frequency","Configuration"],
                        "Scripts":           ["Script Name","Policy","Trigger","Frequency","Configuration"],
@@ -240,7 +240,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             packageScriptArray.removeAll()
             pkgScrArray.removeAll()
 
-            WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: \(endpointXmlTag)"])
+            WriteToLog().message(stringOfText: ["[get]       apiCall for endpoint: \(endpointXmlTag)"])
             WriteToLog().message(stringOfText: ["[get] apiCall for menuIdentifier: \(menuIdentifier)"])
 
             apiCall(endpoint: "\(endpointXmlTag)") {
@@ -296,7 +296,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                         self.apiCall(endpoint: "configuration_profiles") {
                             (result: String) in
                             self.results_TextView.string = "\(result)"
-    //                        print("apiCall done with policies?\n\(result)\n")
+//                            print("apiCall done with policies?\n\(result)\n")
                         }
                         // switch lookup to mobile device groups scoped to configuration profiles - end
                     }
@@ -322,13 +322,13 @@ class ViewController: NSViewController, URLSessionDelegate {
         
 //        let safeCharSet = CharacterSet.alphanumerics
         
-        self.currentServer   = self.jamfServer_TextField.stringValue
-        self.username        = self.uname_TextField.stringValue     //.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
-        self.password        = self.passwd_TextField.stringValue    //.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
-        let jamfCreds        = "\(self.username):\(self.password)"
+        self.currentServer  = self.jamfServer_TextField.stringValue
+        self.username       = self.uname_TextField.stringValue     //.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
+        self.password       = self.passwd_TextField.stringValue    //.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
+        let jamfCreds       = "\(self.username):\(self.password)"
         
-        let jamfUtf8Creds    = jamfCreds.data(using: String.Encoding.utf8)
-        let jamfBase64Creds  = (jamfUtf8Creds?.base64EncodedString())!
+        let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
+        let jamfBase64Creds = (jamfUtf8Creds?.base64EncodedString())!
         
         if self.selectedEndpoint != "" {
             WriteToLog().message(stringOfText: ["[apiCall] selectedEndpoint: \(selectedEndpoint)"])
@@ -633,9 +633,9 @@ class ViewController: NSViewController, URLSessionDelegate {
         
 //        let safeCharSet = CharacterSet.alphanumerics
         
-        self.username        = self.uname_TextField.stringValue
-        self.password        = self.passwd_TextField.stringValue
-        let jamfCreds   = "\(self.username):\(self.password)"
+        self.username = self.uname_TextField.stringValue
+        self.password = self.passwd_TextField.stringValue
+        let jamfCreds = "\(self.username):\(self.password)"
         
         let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
         let jamfBase64Creds = (jamfUtf8Creds?.base64EncodedString())!
@@ -680,7 +680,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 //                    do {
                         WriteToLog().message(stringOfText: ["[getDetails] GET: \(idUrl)"])
                         WriteToLog().message(stringOfText: ["[getDetails] singleEndpointXmlTag: \(self.singleEndpointXmlTag)"])
-                        WriteToLog().message(stringOfText: ["[getDetails] menuIdentifier: \(self.menuIdentifier)"])
+                        WriteToLog().message(stringOfText: ["[getDetails]       menuIdentifier: \(self.menuIdentifier)"])
 
                         self.progressBar.increment(by: self.increment)
 
@@ -816,7 +816,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                         // get triggers
                                         if self.selectedEndpoint == "policies" {
                                             triggers = self.triggersAsString(generalTag: generalTag)
-                                            freq = generalTag["frequency"] as! String
+                                            freq     = generalTag["frequency"] as! String
                                         }
                                     }
                                     switch self.menuIdentifier {
@@ -825,7 +825,8 @@ class ViewController: NSViewController, URLSessionDelegate {
                                         objectDict = endpointInfo[theTag] as! [String: Any]
                                         if (objectDict[self.menuIdentifier] as? Bool ?? false) || (self.menuIdentifier == "trigger_other" && objectDict["trigger_other"] as! String != "") {
                                             self.getScope(endpointInfo: endpointInfo, scopeObjects: ["computers", "computer_groups", "buildings", "departments", "users", "user_groups", "network_segments"])
-                                            self.detailedResults = "\(recordName) \t\(triggers) \t\(self.theScope)"
+                                            self.detailedResults = "\(recordName) \t\(triggers) \t\(freq) \t\(self.theScope)"
+                                            print("self.detailedResults: \(self.detailedResults)")
                                         }
 
                                     case "Packages":
@@ -873,6 +874,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                 }
 
                                 WriteToLog().message(stringOfText: ["[getDetails] singleEndpointXmlTag: \(self.singleEndpointXmlTag)"])
+                                WriteToLog().message(stringOfText: ["[getDetails]     selectedEndpoint: \(self.selectedEndpoint)"])
                                 switch self.singleEndpointXmlTag {
                                 case "policy","computer_configuration","mac_application","os_x_configuration_profile","configuration_profile","mobile_device_application":
                                     for i in (0..<thePackageArray.count) {
@@ -960,6 +962,9 @@ class ViewController: NSViewController, URLSessionDelegate {
                             case 5:
                                 self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "\(theRecord[3])", column5: "\(theRecord[4])", column6: ""))
                                 self.details_TextView.string.append("\(theRecord[0])\t\(theRecord[1])\t\(theRecord[2])\t\(theRecord[3])\t\(theRecord[4])\n")
+                            case 4:
+                                self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "\(theRecord[3])", column5: "", column6: ""))
+                                self.details_TextView.string.append("\(theRecord[0])\t\(theRecord[1])\t\(theRecord[2])\t\(theRecord[3])\n")
                             case 3:
                                 if theRecord[0] != "" {
                                     self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "", column5: "", column6: ""))
@@ -1293,14 +1298,6 @@ class ViewController: NSViewController, URLSessionDelegate {
         stop_button.isHidden = true
         // Do any additional setup after loading the view.
 
-        // work on sorting...
-//        let descriptor1 = NSSortDescriptor(key: "column1", ascending: true)
-//        let descriptor2 = NSSortDescriptor(key: "column2", ascending: true)
-//        let descriptor3 = NSSortDescriptor(key: "column3", ascending: true)
-//
-//        tableView.tableColumns[0].sortDescriptorPrototype = descriptor1
-//        tableView.tableColumns[1].sortDescriptorPrototype = descriptor2
-//        tableView.tableColumns[2].sortDescriptorPrototype = descriptor3
     }
     
     override func viewDidAppear() {
