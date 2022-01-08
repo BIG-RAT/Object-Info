@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B5767BAA278A195900A1713E /* JamfPro.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5767BA9278A195900A1713E /* JamfPro.swift */; };
 		B58D8834250BF46C00E8D6E4 /* Credentials2.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58D8833250BF46C00E8D6E4 /* Credentials2.swift */; };
 		B5932DDF1F6FF3FC00720831 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5932DDE1F6FF3FC00720831 /* AppDelegate.swift */; };
 		B5932DE11F6FF3FC00720831 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5932DE01F6FF3FC00720831 /* ViewController.swift */; };
@@ -18,6 +19,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B5767BA9278A195900A1713E /* JamfPro.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JamfPro.swift; sourceTree = "<group>"; };
 		B58D8833250BF46C00E8D6E4 /* Credentials2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Credentials2.swift; sourceTree = "<group>"; };
 		B5932DDB1F6FF3FC00720831 /* Object Info.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Object Info.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5932DDE1F6FF3FC00720831 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -65,6 +67,7 @@
 				B5932DDE1F6FF3FC00720831 /* AppDelegate.swift */,
 				B58D8833250BF46C00E8D6E4 /* Credentials2.swift */,
 				B5E61EB925A8BF070047A25F /* Globals.swift */,
+				B5767BA9278A195900A1713E /* JamfPro.swift */,
 				B5932DE01F6FF3FC00720831 /* ViewController.swift */,
 				B5E61EBC25A8BF650047A25F /* WriteToLog.swift */,
 				B5932DE21F6FF3FC00720831 /* Assets.xcassets */,
@@ -159,6 +162,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5E61EBA25A8BF070047A25F /* Globals.swift in Sources */,
+				B5767BAA278A195900A1713E /* JamfPro.swift in Sources */,
 				B58D8834250BF46C00E8D6E4 /* Credentials2.swift in Sources */,
 				B5932DE11F6FF3FC00720831 /* ViewController.swift in Sources */,
 				B5932DDF1F6FF3FC00720831 /* AppDelegate.swift in Sources */,
@@ -284,7 +288,7 @@
 				INFOPLIST_FILE = ObjectInfo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				MARKETING_VERSION = 1.4.3;
+				MARKETING_VERSION = 1.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ObjectInfo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -303,7 +307,7 @@
 				INFOPLIST_FILE = ObjectInfo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				MARKETING_VERSION = 1.4.3;
+				MARKETING_VERSION = 1.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ObjectInfo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;

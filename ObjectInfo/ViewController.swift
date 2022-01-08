@@ -108,6 +108,7 @@ class ViewController: NSViewController, URLSessionDelegate {
     var currentServer           = ""
     var username                = ""
     var password                = ""
+    var jamfBase64Creds         = ""
     
     var displayResults          = ""
     var detailedResults         = ""
@@ -219,86 +220,98 @@ class ViewController: NSViewController, URLSessionDelegate {
             return
         }
         
-        selectedEndpoint       = oSelectedEndpoint  //ex: .../JSSResource/selectedEndpoint
-        endpointXmlTag         = oEndpointXmlTag
-        singleEndpointXmlTag   = oSingleEndpointXmlTag
-        if endpointXmlTag != "" {
-            get_button.isEnabled = false
-            var theRecordArray   = [String]()
+        currentServer  = self.jamfServer_TextField.stringValue
+        username       = self.uname_TextField.stringValue
+        password       = self.passwd_TextField.stringValue
+        let jamfCreds  = "\(self.username):\(self.password)"
+        
+        let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
+        jamfBase64Creds = (jamfUtf8Creds?.base64EncodedString())!
+        
+        JamfPro().getVersion(jpURL: jamfServer_TextField.stringValue, basicCreds: jamfBase64Creds) { [self]
+            (result: [Int]) in
             
-            summaryArray.removeAll()
-            self.details_TextView.string = ""
-            
-            for exportHeader in headersDict[endpointType]! {
-                self.details_TextView.string.append(exportHeader+"\t")
-            }
-            self.details_TextView.string.append("\n")
+            selectedEndpoint       = oSelectedEndpoint  //ex: .../JSSResource/selectedEndpoint
+            endpointXmlTag         = oEndpointXmlTag
+            singleEndpointXmlTag   = oSingleEndpointXmlTag
+            if endpointXmlTag != "" {
+                get_button.isEnabled = false
+                var theRecordArray   = [String]()
+                
+                summaryArray.removeAll()
+                self.details_TextView.string = ""
+                
+                for exportHeader in headersDict[endpointType]! {
+                    self.details_TextView.string.append(exportHeader+"\t")
+                }
+                self.details_TextView.string.append("\n")
 
-            self.results_TextView.string = ""
-            displayResults               = ""
-            allDetailedResults           = ""
-            packageScriptArray.removeAll()
-            pkgScrArray.removeAll()
+                self.results_TextView.string = ""
+                displayResults               = ""
+                allDetailedResults           = ""
+                packageScriptArray.removeAll()
+                pkgScrArray.removeAll()
 
-            WriteToLog().message(stringOfText: ["[get]       apiCall for endpoint: \(endpointXmlTag)"])
-            WriteToLog().message(stringOfText: ["[get] apiCall for menuIdentifier: \(menuIdentifier)"])
+                WriteToLog().message(stringOfText: ["[get]       apiCall for endpoint: \(endpointXmlTag)"])
+                WriteToLog().message(stringOfText: ["[get] apiCall for menuIdentifier: \(menuIdentifier)"])
 
-            apiCall(endpoint: "\(endpointXmlTag)") {
-                (result: String) in
-                WriteToLog().message(stringOfText: ["[get] returned from apiCall - result:\n\(result)"])
+                apiCall(endpoint: "\(endpointXmlTag)") {
+                    (result: String) in
+                    WriteToLog().message(stringOfText: ["[get] returned from apiCall - result:\n\(result)"])
 
-                self.results_TextView.string = "\(result)"
-                if self.menuIdentifier == "Packages" || self.menuIdentifier == "Scripts" || self.menuIdentifier == "scg" || self.menuIdentifier == "sdg" || self.menuIdentifier == "cea" || self.menuIdentifier == "mdea" {
-                    
-                    self.packageScriptArray = "\(result)".components(separatedBy: "\n")
-//                    WriteToLog().message(stringOfText: ["packageScriptArray: \(self.packageScriptArray)")
-                    for theRecord in self.packageScriptArray {
-                        theRecordArray = theRecord.components(separatedBy: "\t")
-                        if theRecordArray.count == 2 {
-                            WriteToLog().message(stringOfText: ["[get] theRecord: \(theRecordArray[1])"])
-//                            print("\(self.singleEndpointXmlTag) name: \(theRecordArray[1])")
-                            self.pkgScrArray.append("\(theRecordArray[1])")
+                    self.results_TextView.string = "\(result)"
+                    if self.menuIdentifier == "Packages" || self.menuIdentifier == "Scripts" || self.menuIdentifier == "scg" || self.menuIdentifier == "sdg" || self.menuIdentifier == "cea" || self.menuIdentifier == "mdea" {
+                        
+                        self.packageScriptArray = "\(result)".components(separatedBy: "\n")
+    //                    WriteToLog().message(stringOfText: ["packageScriptArray: \(self.packageScriptArray)")
+                        for theRecord in self.packageScriptArray {
+                            theRecordArray = theRecord.components(separatedBy: "\t")
+                            if theRecordArray.count == 2 {
+                                WriteToLog().message(stringOfText: ["[get] theRecord: \(theRecordArray[1])"])
+    //                            print("\(self.singleEndpointXmlTag) name: \(theRecordArray[1])")
+                                self.pkgScrArray.append("\(theRecordArray[1])")
+                            }
                         }
-                    }
-                    
-                    if self.menuIdentifier == "cea" || self.menuIdentifier == "mdea" {
-                        // switch lookup to eas scoped to groups - start
-                        WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: Groups"])
-                        switch self.menuIdentifier {
-                        case "cea":
-                            self.selectedEndpoint     = "computergroups"
-                            self.singleEndpointXmlTag = "computer_group"
-                        default:
-                            self.selectedEndpoint     = "mobiledevicegroups"
-                            self.singleEndpointXmlTag = "mobile_device_group"
+                        
+                        if self.menuIdentifier == "cea" || self.menuIdentifier == "mdea" {
+                            // switch lookup to eas scoped to groups - start
+                            WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: Groups"])
+                            switch self.menuIdentifier {
+                            case "cea":
+                                self.selectedEndpoint     = "computergroups"
+                                self.singleEndpointXmlTag = "computer_group"
+                            default:
+                                self.selectedEndpoint     = "mobiledevicegroups"
+                                self.singleEndpointXmlTag = "mobile_device_group"
+                            }
+                            self.apiCall(endpoint: "\(self.singleEndpointXmlTag)s") {
+                                (result: String) in
+                                self.results_TextView.string = "\(result)"
+                            }
+                            // switch lookup to eas scoped to groups - end
+                        } else if self.menuIdentifier != "sdg" {
+                            // switch lookup to packages/scripts scoped to policies - start
+                            WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: policies"])
+                            self.selectedEndpoint     = "policies"
+                            self.singleEndpointXmlTag = "policy"
+                            self.apiCall(endpoint: "policies") {
+                                (result: String) in
+                                self.results_TextView.string = "\(result)"
+        //                        print("apiCall done with policies?\n\(result)\n")
+                            }
+                            // switch lookup to packages/scripts scoped to policies - end
+                        } else {
+                            // switch lookup to mobile device groups scoped to configuration profiles - start
+                            WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: configuration_profiles"])
+                            self.selectedEndpoint     = "mobiledeviceconfigurationprofiles"
+                            self.singleEndpointXmlTag = "configuration_profile"
+                            self.apiCall(endpoint: "configuration_profiles") {
+                                (result: String) in
+                                self.results_TextView.string = "\(result)"
+    //                            print("apiCall done with policies?\n\(result)\n")
+                            }
+                            // switch lookup to mobile device groups scoped to configuration profiles - end
                         }
-                        self.apiCall(endpoint: "\(self.singleEndpointXmlTag)s") {
-                            (result: String) in
-                            self.results_TextView.string = "\(result)"
-                        }
-                        // switch lookup to eas scoped to groups - end
-                    } else if self.menuIdentifier != "sdg" {
-                        // switch lookup to packages/scripts scoped to policies - start
-                        WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: policies"])
-                        self.selectedEndpoint     = "policies"
-                        self.singleEndpointXmlTag = "policy"
-                        self.apiCall(endpoint: "policies") {
-                            (result: String) in
-                            self.results_TextView.string = "\(result)"
-    //                        print("apiCall done with policies?\n\(result)\n")
-                        }
-                        // switch lookup to packages/scripts scoped to policies - end
-                    } else {
-                        // switch lookup to mobile device groups scoped to configuration profiles - start
-                        WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: configuration_profiles"])
-                        self.selectedEndpoint     = "mobiledeviceconfigurationprofiles"
-                        self.singleEndpointXmlTag = "configuration_profile"
-                        self.apiCall(endpoint: "configuration_profiles") {
-                            (result: String) in
-                            self.results_TextView.string = "\(result)"
-//                            print("apiCall done with policies?\n\(result)\n")
-                        }
-                        // switch lookup to mobile device groups scoped to configuration profiles - end
                     }
                 }
             }
@@ -320,16 +333,6 @@ class ViewController: NSViewController, URLSessionDelegate {
 //        let semaphore = DispatchSemaphore(value: 1)   // used with theGeneralQ
         var localCounter = 0    // not needed?
         
-//        let safeCharSet = CharacterSet.alphanumerics
-        
-        self.currentServer  = self.jamfServer_TextField.stringValue
-        self.username       = self.uname_TextField.stringValue     //.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
-        self.password       = self.passwd_TextField.stringValue    //.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
-        let jamfCreds       = "\(self.username):\(self.password)"
-        
-        let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
-        let jamfBase64Creds = (jamfUtf8Creds?.base64EncodedString())!
-        
         if self.selectedEndpoint != "" {
             WriteToLog().message(stringOfText: ["[apiCall] selectedEndpoint: \(selectedEndpoint)"])
             endpointUrl = jamfServer_TextField.stringValue + "/JSSResource/\(selectedEndpoint)"
@@ -346,7 +349,8 @@ class ViewController: NSViewController, URLSessionDelegate {
             
             request.httpMethod = "GET"
             let serverConf = URLSessionConfiguration.ephemeral
-            serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(jamfBase64Creds)", "Content-Type" : "application/json", "Accept" : "application/json"]
+            
+            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "Content-Type" : "application/json", "Accept" : "application/json"]
             URLCache.shared.removeAllCachedResponses()
             let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = serverSession.dataTask(with: request as URLRequest, completionHandler: {
@@ -671,14 +675,14 @@ class ViewController: NSViewController, URLSessionDelegate {
 
             request.httpMethod = "GET"
             let serverConf = URLSessionConfiguration.ephemeral
-            serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(jamfBase64Creds)", "Content-Type" : "application/json", "Accept" : "application/json"]
+            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "Content-Type" : "application/json", "Accept" : "application/json"]
             let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = serverSession.dataTask(with: request as URLRequest, completionHandler: {
                 (data, response, error) -> Void in
                 if let httpResponse = response as? HTTPURLResponse {
                     if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
 //                    do {
-                        WriteToLog().message(stringOfText: ["[getDetails] GET: \(idUrl)"])
+                        WriteToLog().message(stringOfText: ["[getDetails]                  GET: \(idUrl)"])
                         WriteToLog().message(stringOfText: ["[getDetails] singleEndpointXmlTag: \(self.singleEndpointXmlTag)"])
                         WriteToLog().message(stringOfText: ["[getDetails]       menuIdentifier: \(self.menuIdentifier)"])
 
@@ -826,7 +830,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                         if (objectDict[self.menuIdentifier] as? Bool ?? false) || (self.menuIdentifier == "trigger_other" && objectDict["trigger_other"] as! String != "") {
                                             self.getScope(endpointInfo: endpointInfo, scopeObjects: ["computers", "computer_groups", "buildings", "departments", "users", "user_groups", "network_segments"])
                                             self.detailedResults = "\(recordName) \t\(triggers) \t\(freq) \t\(self.theScope)"
-                                            print("self.detailedResults: \(self.detailedResults)")
+//                                            print("self.detailedResults: \(self.detailedResults)")
                                         }
 
                                     case "Packages":
@@ -1280,6 +1284,16 @@ class ViewController: NSViewController, URLSessionDelegate {
         }
         return true
     }
+    
+    @IBAction func showLogFolder(_ sender: Any) {
+        var isDir: ObjCBool = true
+        if (self.fm.fileExists(atPath: Log.path!, isDirectory: &isDir)) {
+            NSWorkspace.shared.openFile(Log.path!)
+        } else {
+            alert_dialog(header: "Alert", message: "Log directory cannot be found.")
+        }
+    }
+    
     
     @IBAction func stop_action(_ sender: Any) {
         apiQ.cancelAllOperations()

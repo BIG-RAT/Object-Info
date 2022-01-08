@@ -17,3 +17,17 @@ struct Log {
     static var FailedCount  = 0
 }
 
+struct JamfProServer {
+    static var majorVersion = 0
+    static var minorVersion = 0
+    static var patchVersion = 0
+    static var build        = ""
+    static var authType     = "Basic"
+    static var authCreds    = ""
+}
+
+struct token {
+    static var refreshInterval:UInt32 = 20*60  // 20 minutes
+    static var stringValue = ""
+    static var expires     = ""
+}
