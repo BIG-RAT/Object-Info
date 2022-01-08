@@ -52,13 +52,15 @@ class JamfPro: NSObject, URLSessionDelegate {
                         }
                     }
 //                }
-                print("JamfProVersion: \(JamfProServer.majorVersion).\(JamfProServer.minorVersion)")
+                WriteToLog().message(stringOfText: ["[JamfPro.getVersion] Jamf Pro Version: \(versionString)"])
                 if ( JamfProServer.majorVersion > 9 && JamfProServer.minorVersion > 34 ) {
                     getToken(serverUrl: jpURL, base64creds: basicCreds) {
                         (returnedToken: String) in
                         completion(versionArray)
                     }
                 } else {
+                    JamfProServer.authType  = "Basic"
+                    JamfProServer.authCreds = basicCreds
                     completion(versionArray)
                 }
             })  // let task = session - end

@@ -58,6 +58,8 @@ Download: [Object Info](https://github.com/BIG-RAT/Object-Info/releases/download
 
 **History**
 
+2022-01-08: Version 1.5.0 - Add execution frequency to update inventory and trigger searches.  Add option to view log folder under View menu.  For Jamf Pro 10.35 and later authenticate using a bearer token generated from the Jamf Pro API.
+
 2021-12-15: Version 1.4.2 - Fixed issue where policy/script lookups may hang when computer configurations exist.  Added an alert in the event one or more lookups fail.
 
 2021-11-27: Version 1.4.0 - Fixed issues with extension attribute and group lookups.  Added ability to report on policy trigger usage.
