@@ -8,6 +8,12 @@
 
 import Foundation
 
+struct appInfo {
+    static let dict    = Bundle.main.infoDictionary!
+    static let version = dict["CFBundleShortVersionString"] as! String
+    static let name    = dict["CFBundleExecutable"] as! String
+}
+
 struct Log {
     static var path: String? = (NSHomeDirectory() + "/Library/Logs/ObjectInfo/")
     static var file  = "ObjectInfo.log"

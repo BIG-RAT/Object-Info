@@ -110,6 +110,8 @@ class ViewController: NSViewController, URLSessionDelegate {
     var password                = ""
     var jamfBase64Creds         = ""
     
+    var userAgentHeader         = ""
+    
     var displayResults          = ""
     var detailedResults         = ""
     var allDetailedResults      = ""
@@ -350,7 +352,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             request.httpMethod = "GET"
             let serverConf = URLSessionConfiguration.ephemeral
             
-            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "Content-Type" : "application/json", "Accept" : "application/json"]
+            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "User-Agent" : self.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
             URLCache.shared.removeAllCachedResponses()
             let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = serverSession.dataTask(with: request as URLRequest, completionHandler: {
@@ -675,7 +677,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 
             request.httpMethod = "GET"
             let serverConf = URLSessionConfiguration.ephemeral
-            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "Content-Type" : "application/json", "Accept" : "application/json"]
+            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "User-Agent" : self.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
             let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = serverSession.dataTask(with: request as URLRequest, completionHandler: {
                 (data, response, error) -> Void in
@@ -1311,6 +1313,13 @@ class ViewController: NSViewController, URLSessionDelegate {
         self.view.layer?.backgroundColor = CGColor(red: 0x5C/255.0, green: 0x78/255.0, blue: 0x94/255.0, alpha: 1.0)
         stop_button.isHidden = true
         // Do any additional setup after loading the view.
+        let additional = "-._~/?"
+        let allowed = NSMutableCharacterSet.alphanumeric()
+        allowed.addCharacters(in: additional)
+        
+        let appName     = appInfo.name.addingPercentEncoding(withAllowedCharacters: allowed as CharacterSet)
+        userAgentHeader = "\(String(describing: appName!))/\(appInfo.version)"
+        print("userAgentInfo: \(userAgentHeader)")
 
     }
     
