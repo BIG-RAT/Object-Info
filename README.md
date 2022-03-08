@@ -53,10 +53,12 @@ Download: [Object Info](https://github.com/BIG-RAT/Object-Info/releases/download
 	* WebClip
 	* Wi-Fi
 
-
+**Note:** prestages are not queried for objects like packages or profiles.
 <hr>
 
 **History**
+
+2022-03-08: Version 1.5.2 - Resolve app hanging due to computerconfigurations being removed.
 
 2022-01-08: Version 1.5.0 - Add execution frequency to update inventory and trigger searches.  Add option to view log folder under View menu.  For Jamf Pro 10.35 and later authenticate using a bearer token generated from the Jamf Pro API.
 
