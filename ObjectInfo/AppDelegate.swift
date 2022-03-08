@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  ApiDemo
+//  Object Info
 //
 //  Created by Leslie Helou on 9/18/17.
 //  Copyright © 2017 jamf. All rights reserved.

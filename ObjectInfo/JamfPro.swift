@@ -12,10 +12,8 @@ class JamfPro: NSObject, URLSessionDelegate {
     
     var renewQ = DispatchQueue(label: "com.jamfpse.token_refreshQ", qos: DispatchQoS.background)   // running background process for refreshing token
     
-    
     func getVersion(jpURL: String, basicCreds: String, completion: @escaping (_ jpversion: [Int]) -> Void) {
         var versionString  = ""
-        var versionArray   = [Int]()
         let semaphore      = DispatchSemaphore(value: 0)
         
         OperationQueue().addOperation {
@@ -56,12 +54,12 @@ class JamfPro: NSObject, URLSessionDelegate {
                 if ( JamfProServer.majorVersion > 9 && JamfProServer.minorVersion > 34 ) {
                     getToken(serverUrl: jpURL, base64creds: basicCreds) {
                         (returnedToken: String) in
-                        completion(versionArray)
+                        completion([JamfProServer.majorVersion,JamfProServer.minorVersion,JamfProServer.patchVersion])
                     }
                 } else {
                     JamfProServer.authType  = "Basic"
                     JamfProServer.authCreds = basicCreds
-                    completion(versionArray)
+                    completion([JamfProServer.majorVersion,JamfProServer.minorVersion,JamfProServer.patchVersion])
                 }
             })  // let task = session - end
             task.resume()
@@ -100,7 +98,7 @@ class JamfPro: NSObject, URLSessionDelegate {
                         token.stringValue = endpointJSON["token"] as! String
                         token.expires     = "\(endpointJSON["expires"] ?? "")"
                         print("\n[JamfPro.getToken]  token string: \(token.stringValue)")
-                        print("[JamfPro.getToken] token expires: \(token.expires)\n")
+                        print("[JamfPro.getToken]   token expires: \(token.expires)\n")
                         if token.stringValue != "" {
                             JamfProServer.authType = "Bearer"
                             JamfProServer.authCreds = token.stringValue

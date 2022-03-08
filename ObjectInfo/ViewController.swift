@@ -358,265 +358,278 @@ class ViewController: NSViewController, URLSessionDelegate {
             let task = serverSession.dataTask(with: request as URLRequest, completionHandler: {
                 (data, response, error) -> Void in
                 if let httpResponse = response as? HTTPURLResponse {
-                    do {
-                        let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
-                        if let endpointJSON = json as? [String: Any] {
-//                            print("[ViewController.apiCall] endpoint: \(endpoint)")
-//                            print("[ViewController.apiCall] endpointJSON: \(endpointJSON)")
-                            let endpointInfo = self.validEndpointInfo(endpointJSON: endpointJSON, endpoint: endpoint)
-//                          print("[ViewController.apiCall] endpointInfo: \(endpointInfo)")
-//                            print("[ViewController.apiCall] endpointInfo.count: \(endpointInfo.count)")
+//                    if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
+                    WriteToLog().message(stringOfText: ["[apiCall] completion - HTTP status code for \(self.endpointUrl): \(httpResponse.statusCode)"])
+                        do {
+                            let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
+                            
+                            let fixedJson = (httpResponse.statusCode > 199 && httpResponse.statusCode <= 299) ? json:["\(endpoint)":[]]
+//                            if let endpointJSON = json as? [String: Any] {
+                            if let endpointJSON = fixedJson as? [String: Any] {
+    //                            print("[ViewController.apiCall] endpoint: \(endpoint)")
+    //                            print("[ViewController.apiCall] endpointJSON: \(endpointJSON)")
+                                let endpointInfo = self.validEndpointInfo(endpointJSON: endpointJSON, endpoint: endpoint)
+//                                print("[ViewController.apiCall]       endpointInfo: \(endpointInfo)")
+//                                print("[ViewController.apiCall] endpointInfo.count for \(self.selectedEndpoint): \(endpointInfo.count)")
 
-                            self.apiDetailCount = endpointInfo.count
-                            if (self.apiDetailCount > 0) {
-                                // start things in motion
-                                self.spinner.isHidden = false
-                                self.spinner.startAnimation(self)
+                                self.apiDetailCount = endpointInfo.count
+                                if (self.apiDetailCount > 0) {
+                                    // start things in motion
+                                    self.spinner.isHidden = false
+                                    self.spinner.startAnimation(self)
 
-                                self.stop_button.isHidden = false
-                                self.progressBar.isHidden = false
-                                self.progressBar.maxValue = 1.0
-                                self.increment = 1.0/Double(self.apiDetailCount)
+                                    self.stop_button.isHidden = false
+                                    self.progressBar.isHidden = false
+                                    self.progressBar.maxValue = 1.0
+                                    self.increment = 1.0/Double(self.apiDetailCount)
+                                    
+                                    // display what is being search
+    //                                print(" selectedEndpoint: \(self.selectedEndpoint)")
+    //                                print("oSelectedEndpoint: \(self.oSelectedEndpoint)")
+                                    switch self.selectedEndpoint {
+                                    case "policies","packages","scripts","computergroups":
+                                        if self.oSelectedEndpoint == "computerextensionattributes" {
+                                            self.action_textField.stringValue = "Querying Computer Groups"
+                                        } else {
+                                            self.action_textField.stringValue = "Querying policies"
+                                        }
+                                    case "computerconfigurations":
+                                        self.action_textField.stringValue = "Querying computer configurations"
+                                    case "osxconfigurationprofiles":
+                                        self.action_textField.stringValue = "Querying macOS configuration profiles"
+                                    case "mobiledeviceconfigurationprofiles","mobiledevicegroups":
+                                        if self.oSelectedEndpoint == "mobiledeviceextensionattributes" {
+                                            self.action_textField.stringValue = "Querying Mobile Device Groups"
+                                        } else {
+                                            self.action_textField.stringValue = "Querying mobile configuration profiles"
+                                        }
+                                    case "macapplications":
+                                        self.action_textField.stringValue = "Querying macOS apps"
+                                    case "mobiledeviceapplications":
+                                        self.action_textField.stringValue = "Querying mobile apps"
+                                    case "advancedcomputersearches", "advancedmobiledevicesearches":
+                                        self.action_textField.stringValue = "Querying Advanced Searches"
+                                    default:
+                                        self.action_textField.stringValue = ""
+                                    }
+
+                                } else {
+                                    if self.selectedEndpoint != "computerconfigurations" && self.selectedEndpoint != "advancedmobiledevicesearches" {
+                                        self.alert_dialog(header: "Alert", message: "Nothing found at:\n\(self.endpointUrl)")
+                                        WriteToLog().message(stringOfText: ["[apiCall] completion - Nothing found at: \(self.endpointUrl)"])
+                                    }
+                                    if self.selectedEndpoint == "computerconfigurations" || self.selectedEndpoint == "macapplications" {
+    //                                    self.increment = 100.0
+    //                                    self.apiDetailCount = self.completeCounter
+                                        self.queryComplete()
+                                    }
+                                    completion("")
+                                }
+                    
+                                for i in (0..<endpointInfo.count) {
                                 
-                                // display what is being search
-//                                print(" selectedEndpoint: \(self.selectedEndpoint)")
-//                                print("oSelectedEndpoint: \(self.oSelectedEndpoint)")
-                                switch self.selectedEndpoint {
-                                case "policies","packages","scripts","computergroups":
-                                    if self.oSelectedEndpoint == "computerextensionattributes" {
-                                        self.action_textField.stringValue = "Querying Computer Groups"
-                                    } else {
-                                        self.action_textField.stringValue = "Querying policies"
-                                    }
-                                case "computerconfigurations":
-                                    self.action_textField.stringValue = "Querying computer configurations"
-                                case "osxconfigurationprofiles":
-                                    self.action_textField.stringValue = "Querying macOS configuration profiles"
-                                case "mobiledeviceconfigurationprofiles","mobiledevicegroups":
-                                    if self.oSelectedEndpoint == "mobiledeviceextensionattributes" {
-                                        self.action_textField.stringValue = "Querying Mobile Device Groups"
-                                    } else {
-                                        self.action_textField.stringValue = "Querying mobile configuration profiles"
-                                    }
-                                case "macapplications":
-                                    self.action_textField.stringValue = "Querying macOS apps"
-                                case "mobiledeviceapplications":
-                                    self.action_textField.stringValue = "Querying mobile apps"
-                                case "advancedcomputersearches", "advancedmobiledevicesearches":
-                                    self.action_textField.stringValue = "Querying Advanced Searches"
-                                default:
-                                    self.action_textField.stringValue = ""
-                                }
+                                    let theRecord  = endpointInfo[i] as! [String : AnyObject]
+                                    let recordId   = theRecord["id"] as! Int
+                                    let recordName = theRecord["name"] as! String
+                                
+                                    self.displayResults.append("\(recordId)\t\(recordName)\n")
 
-                            } else {
-                                if self.selectedEndpoint != "computerconfigurations" && self.selectedEndpoint != "advancedmobiledevicesearches" {
-                                    self.alert_dialog(header: "Alert", message: "Nothing found at:\n\(self.endpointUrl)")
-                                    WriteToLog().message(stringOfText: ["[apiCall] completion - Nothing found at: \(self.endpointUrl)"])
-                                }
-                                if self.selectedEndpoint == "computerconfigurations" || self.selectedEndpoint == "macapplications" {
-//                                    self.increment = 100.0
-//                                    self.apiDetailCount = self.completeCounter
-                                    self.queryComplete()
-                                }
-                                completion("")
-                            }
-                
-                            for i in (0..<endpointInfo.count) {
-                            
-                                let theRecord  = endpointInfo[i] as! [String : AnyObject]
-                                let recordId   = theRecord["id"] as! Int
-                                let recordName = theRecord["name"] as! String
-                            
-                                self.displayResults.append("\(recordId)\t\(recordName)\n")
-
-//                                print("[apiCall] switch endpoint: \(endpoint)")
-                                switch endpoint {
-                                    case "network_segments","os_x_configuration_profiles":
-                                    self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl) {
-                                            (result: String) in
-                                            self.allDetailedResults.append("\(result)")
-                                            localCounter+=1
-                                            if localCounter == endpointInfo.count && self.menuIdentifier == "scg" {
-                                                // start looping through macapplications - start
-                                                self.selectedEndpoint     = "macapplications"
-                                                self.singleEndpointXmlTag = "mac_application"
-                                                self.apiCall(endpoint: "mac_applications") {
-                                                    (result: String) in
-                                                    self.results_TextView.string = "\(result)"
-//                                                  print("apiCall done with mobile device applications?\n\(result)\n")
+    //                                print("[apiCall] switch endpoint: \(endpoint)")
+                                    switch endpoint {
+                                        case "network_segments","os_x_configuration_profiles":
+                                        self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl) {
+                                                (result: String) in
+                                                self.allDetailedResults.append("\(result)")
+                                                localCounter+=1
+                                                if localCounter == endpointInfo.count && self.menuIdentifier == "scg" {
+                                                    // start looping through macapplications - start
+                                                    self.selectedEndpoint     = "macapplications"
+                                                    self.singleEndpointXmlTag = "mac_application"
+                                                    self.apiCall(endpoint: "mac_applications") {
+                                                        (result: String) in
+                                                        self.results_TextView.string = "\(result)"
+    //                                                  print("apiCall done with mobile device applications?\n\(result)\n")
+                                                    }
                                                 }
                                             }
-                                        }
-                                    case "mac_applications":
-                                        self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl) {
-                                            (result: String) in
-                                            self.allDetailedResults.append("\(result)")
-                                        }
-                                    case "policies":    // used for packages and scripts
-    //                                        print("policy: \(recordName)")
-                                        self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl) {
-                                            (result: String) in
-                                            self.allDetailedResults.append("\(result)")
-                                            localCounter+=1
-    //                                                print("localCounter: \(localCounter) \tarray count: \(endpointInfo.count)")
-                                            if localCounter == endpointInfo.count {
-                                                // display packages and script not attached to any policies
-                                                
-    //                                            if self.menuIdentifier != "recon" {
-                                                switch self.menuIdentifier {
-                                                    case "Packages","Scripts":
-                                                        // start looping through configurations - start
-                                                        self.selectedEndpoint = "computerconfigurations"
-                                                        self.singleEndpointXmlTag = "computer_configuration"
-                                                        self.apiCall(endpoint: "computer_configurations") {
-                                                            (result: String) in
-                                                            self.results_TextView.string = "\(result)"
-    //                                                      print("apiCall done with configurations?\n\(result)\n")
-                                                        }
-                                                    case "scg":
-                                                        // start looping through configurations - start
-                                                        self.selectedEndpoint = "osxconfigurationprofiles"
-                                                        self.singleEndpointXmlTag = "os_x_configuration_profile"
-                                                        self.apiCall(endpoint: "os_x_configuration_profiles") {
-                                                            (result: String) in
-                                                            self.results_TextView.string = "\(result)"
-        //                                                  print("apiCall done with configurations?\n\(result)\n")
-                                                            }
-                                                    default:
-                                                        break
-                                                }
-    //                                            }   // if self.menuIdentifier != "recon" - end
+                                        case "mac_applications":
+                                            self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl) {
+                                                (result: String) in
+                                                self.allDetailedResults.append("\(result)")
                                             }
-                                        }
-                                    case "computer_configurations":
-                                        self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl) {
-                                            (result: String) in
-                                            self.allDetailedResults.append("\(result)")
-                                            if localCounter == endpointInfo.count { //i == (endpointInfo.count-1) {
-                                                // display packages and script not attached to any policies
-                                                for unused in self.pkgScrArray {
-                                                    self.summaryArray.append(endpointData(column1: unused, column2: "", column3: "", column4: "", column5: "", column6: ""))
-                                                }
-                                            }
-                                        }
-
-                                    case "configuration_profiles":  // added 201207 lnh
-                                         self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl) {
-                                             (result: String) in
-                                             self.allDetailedResults.append("\(result)")
-                                             localCounter+=1
+                                        case "policies":    // used for packages and scripts
+        //                                        print("policy: \(recordName)")
+                                            self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl) {
+                                                (result: String) in
+                                                self.allDetailedResults.append("\(result)")
+                                                localCounter+=1
         //                                                print("localCounter: \(localCounter) \tarray count: \(endpointInfo.count)")
-                                             if localCounter == endpointInfo.count {
-                                                 // display packages and script not attached to any policies
-
+                                                if localCounter == endpointInfo.count {
+                                                    // display packages and script not attached to any policies
+                                                    
         //                                            if self.menuIdentifier != "recon" {
-                                                 switch self.menuIdentifier {
-                                                     case "sdg":
-                                                         // start looping through configurations - start
-                                                         self.selectedEndpoint     = "mobiledeviceapplications"
-                                                         self.singleEndpointXmlTag = "mobile_device_application"
-                                                         self.apiCall(endpoint: "mobile_device_applications") {
-                                                             (result: String) in
-                                                             self.results_TextView.string = "\(result)"
-         //                                                  print("apiCall done with mobile device applications?\n\(result)\n")
-                                                             }
-                                                     default:
-                                                         break
-                                                 }
+                                                    switch self.menuIdentifier {
+                                                        case "Packages","Scripts":
+                                                            // start looping through configurations - start
+                                                            self.selectedEndpoint = "computerconfigurations"
+                                                            self.singleEndpointXmlTag = "computer_configuration"
+                                                            self.apiCall(endpoint: "computer_configurations") {
+                                                                (result: String) in
+                                                                self.results_TextView.string = "\(result)"
+        //                                                      print("apiCall done with configurations?\n\(result)\n")
+                                                            }
+                                                        case "scg":
+                                                            // start looping through configurations - start
+                                                            self.selectedEndpoint = "osxconfigurationprofiles"
+                                                            self.singleEndpointXmlTag = "os_x_configuration_profile"
+                                                            self.apiCall(endpoint: "os_x_configuration_profiles") {
+                                                                (result: String) in
+                                                                self.results_TextView.string = "\(result)"
+            //                                                  print("apiCall done with configurations?\n\(result)\n")
+                                                                }
+                                                        default:
+                                                            break
+                                                    }
         //                                            }   // if self.menuIdentifier != "recon" - end
-                                             }
-                                         }
-
-                                    case "mobile_device_applications":
-                                        self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl) {
-                                            (result: String) in
-                                            self.allDetailedResults.append("\(result)")
-                                            if localCounter == endpointInfo.count { //i == (endpointInfo.count-1) {
-                                                // display packages and script not attached to any policies
-                                                for unused in self.pkgScrArray {
-                                                    self.summaryArray.append(endpointData(column1: unused, column2: "", column3: "", column4: "", column5: "", column6: ""))
                                                 }
                                             }
-                                        }
+                                        case "computer_configurations":
+                                            self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl) {
+                                                (result: String) in
+                                                self.allDetailedResults.append("\(result)")
+                                                if localCounter == endpointInfo.count { //i == (endpointInfo.count-1) {
+                                                    // display packages and script not attached to any policies
+                                                    for unused in self.pkgScrArray {
+                                                        self.summaryArray.append(endpointData(column1: unused, column2: "", column3: "", column4: "", column5: "", column6: ""))
+                                                    }
+                                                }
+                                            }
+
+                                        case "configuration_profiles":  // added 201207 lnh
+                                             self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl) {
+                                                 (result: String) in
+                                                 self.allDetailedResults.append("\(result)")
+                                                 localCounter+=1
+            //                                                print("localCounter: \(localCounter) \tarray count: \(endpointInfo.count)")
+                                                 if localCounter == endpointInfo.count {
+                                                     // display packages and script not attached to any policies
+
+            //                                            if self.menuIdentifier != "recon" {
+                                                     switch self.menuIdentifier {
+                                                         case "sdg":
+                                                             // start looping through configurations - start
+                                                             self.selectedEndpoint     = "mobiledeviceapplications"
+                                                             self.singleEndpointXmlTag = "mobile_device_application"
+                                                             self.apiCall(endpoint: "mobile_device_applications") {
+                                                                 (result: String) in
+                                                                 self.results_TextView.string = "\(result)"
+             //                                                  print("apiCall done with mobile device applications?\n\(result)\n")
+                                                                 }
+                                                         default:
+                                                             break
+                                                     }
+            //                                            }   // if self.menuIdentifier != "recon" - end
+                                                 }
+                                             }
+
+                                        case "mobile_device_applications":
+                                            self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl) {
+                                                (result: String) in
+                                                self.allDetailedResults.append("\(result)")
+                                                if localCounter == endpointInfo.count { //i == (endpointInfo.count-1) {
+                                                    // display packages and script not attached to any policies
+                                                    for unused in self.pkgScrArray {
+                                                        self.summaryArray.append(endpointData(column1: unused, column2: "", column3: "", column4: "", column5: "", column6: ""))
+                                                    }
+                                                }
+                                            }
+                                                
+                                        case "computer_groups","mobile_device_groups":  // added 210829 lnh
+                                            if self.menuIdentifier != "scg" && self.menuIdentifier != "sdg" {
+                                                 self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl) {
+                                                    (result: String) in
+                                                    self.allDetailedResults.append("\(result)")
+                                                    localCounter+=1
+                                                    if localCounter == endpointInfo.count {
+                                                         
+                                                         switch self.menuIdentifier {
+                                                             case "cea":
+    //                                                             print("start advanced computer searches query")
+                                                                 self.selectedEndpoint     = "advancedcomputersearches"
+                                                                 self.singleEndpointXmlTag = "advanced_computer_search"
+                                                                 self.apiCall(endpoint: "advanced_computer_searches") {
+                                                                     (result: String) in
+                                                                     self.results_TextView.string = "\(result)"
+                                                                }
+                                                             default:
+    //                                                            print("start advanced mobile device searches query")
+                                                                self.selectedEndpoint     = "advancedmobiledevicesearches"
+                                                                self.singleEndpointXmlTag = "advanced_mobile_device_search"
+                                                                self.apiCall(endpoint: "advanced_mobile_device_searches") {
+                                                                    (result: String) in
+                                                                    self.results_TextView.string = "\(result)"
+                                                               }
+                                                         }
+                                                     }
+                                                 }
+                                            }
                                             
-                                    case "computer_groups","mobile_device_groups":  // added 210829 lnh
-                                        if self.menuIdentifier != "scg" && self.menuIdentifier != "sdg" {
+                                        case "advanced_computer_searches", "advanced_mobile_device_searches":  // added 210903 lnh
                                              self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl) {
                                                 (result: String) in
                                                 self.allDetailedResults.append("\(result)")
                                                 localCounter+=1
                                                 if localCounter == endpointInfo.count {
-                                                     
-                                                     switch self.menuIdentifier {
-                                                         case "cea":
-//                                                             print("start advanced computer searches query")
-                                                             self.selectedEndpoint     = "advancedcomputersearches"
-                                                             self.singleEndpointXmlTag = "advanced_computer_search"
-                                                             self.apiCall(endpoint: "advanced_computer_searches") {
-                                                                 (result: String) in
-                                                                 self.results_TextView.string = "\(result)"
-                                                            }
-                                                         default:
-//                                                            print("start advanced mobile device searches query")
-                                                            self.selectedEndpoint     = "advancedmobiledevicesearches"
-                                                            self.singleEndpointXmlTag = "advanced_mobile_device_search"
-                                                            self.apiCall(endpoint: "advanced_mobile_device_searches") {
-                                                                (result: String) in
-                                                                self.results_TextView.string = "\(result)"
-                                                           }
-                                                     }
-                                                 }
+                                                    self.queryComplete()
+                                                }
                                              }
-                                        }
-                                        
-                                    case "advanced_computer_searches", "advanced_mobile_device_searches":  // added 210903 lnh
-                                         self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl) {
-                                            (result: String) in
-                                            self.allDetailedResults.append("\(result)")
-                                            localCounter+=1
-                                            if localCounter == endpointInfo.count {
-                                                self.queryComplete()
-                                            }
-                                         }
 
-                                        default:
-                                            break
-    //                                  print("Script or Package")
-                                }
-                            }   // for i in (0..<endpointInfo.count) - end
-                            
-                        }  else {  // if let serverEndpointJSON - end
-                            WriteToLog().message(stringOfText: ["apiCall - existing endpoints: error serializing JSON: \(String(describing: error))"])
-                        }
-                    }   // end do
-                    if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
+                                            default:
+                                                break
+        //                                  print("Script or Package")
+                                    }
+                                }   // for i in (0..<endpointInfo.count) - end
+                                
+                            }  else {  // if let serverEndpointJSON - end
+                                WriteToLog().message(stringOfText: ["apiCall - existing endpoints: error serializing JSON: \(String(describing: error))"])
+                            }
+                        }   // end do
+                        if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
 
-                        WriteToLog().message(stringOfText: ["[apiCall] completion - status code: \(httpResponse.statusCode)"])
-                        completion(self.displayResults)
-                        if self.username != self.preferencesDict["username"] as? String || self.currentServer != self.preferencesDict["jps_url"] as! String {
-                            self.preferencesDict["username"] = self.username as AnyObject
-                            self.preferencesDict["jps_url"]  = self.currentServer as AnyObject
-                            NSDictionary(dictionary: self.preferencesDict).write(to: self.prefsPath, atomically: true)
-                        } else if self.saveCreds_button.state.rawValue == 1 {
-                            NSDictionary(dictionary: self.preferencesDict).write(to: self.prefsPath, atomically: true)
-                        }
-                        if self.saveCreds_button.state.rawValue == 1 {
-                            let serverNameArray = "\(self.jamfServer_TextField.stringValue)".components(separatedBy: "//")
-                            self.Creds.save(service: "Object Info - \(serverNameArray[1])", account: self.username, data: self.passwd_TextField.stringValue)
-                        }
+                            WriteToLog().message(stringOfText: ["[apiCall] completion - status code: \(httpResponse.statusCode)"])
+                            completion(self.displayResults)
+                            if self.username != self.preferencesDict["username"] as? String || self.currentServer != self.preferencesDict["jps_url"] as! String {
+                                self.preferencesDict["username"] = self.username as AnyObject
+                                self.preferencesDict["jps_url"]  = self.currentServer as AnyObject
+                                NSDictionary(dictionary: self.preferencesDict).write(to: self.prefsPath, atomically: true)
+                            } else if self.saveCreds_button.state.rawValue == 1 {
+                                NSDictionary(dictionary: self.preferencesDict).write(to: self.prefsPath, atomically: true)
+                            }
+                            if self.saveCreds_button.state.rawValue == 1 {
+                                let serverNameArray = "\(self.jamfServer_TextField.stringValue)".components(separatedBy: "//")
+                                self.Creds.save(service: "Object Info - \(serverNameArray[1])", account: self.username, data: self.passwd_TextField.stringValue)
+                            }
 
-                    } else {
-                        // something went wrong
-                        WriteToLog().message(stringOfText: ["[apiCall] completion - Something went wrong, status code: \(httpResponse.statusCode)"])
-                        switch httpResponse.statusCode {
-                        case 401:
-                        self.alert_dialog(header: "Alert", message: "Authentication failed.  Check username and password.")
-                        default:
-                            break
-                        }
-                        self.spinner.stopAnimation(self)
-                        completion(self.displayResults)
-                    }   // if httpResponse.statusCode - end
+                        } else {
+                            // something went wrong
+                            WriteToLog().message(stringOfText: ["[apiCall] completion - Something went wrong, status code: \(httpResponse.statusCode)"])
+                            switch httpResponse.statusCode {
+                            case 401:
+                                self.alert_dialog(header: "Alert", message: "Authentication failed.  Check username and password.")
+                            case 404:
+                                WriteToLog().message(stringOfText: ["[apiCall] unknown endpoint: \(self.selectedEndpoint)"])
+                            default:
+                                break
+                            }
+                            self.spinner.stopAnimation(self)
+                            completion(self.displayResults)
+                        }   // if httpResponse.statusCode - end
+                    
+//                    } else {
+//                        WriteToLog().message(stringOfText: ["[apiCall] completion - HTTP status code for \(self.endpointUrl): \(httpResponse.statusCode)"])
+//                        completion("")
+//                    }
+                    
                 } else {  // if let httpResponse = response - end
                     WriteToLog().message(stringOfText: ["[apiCall] completion - No response to \(self.endpointUrl)"])
                     self.alert_dialog(header: "Alert", message: "No response to:\n\(self.endpointUrl)")
@@ -1319,7 +1332,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         
         let appName     = appInfo.name.addingPercentEncoding(withAllowedCharacters: allowed as CharacterSet)
         userAgentHeader = "\(String(describing: appName!))/\(appInfo.version)"
-        print("userAgentInfo: \(userAgentHeader)")
+//        print("userAgentInfo: \(userAgentHeader)")
 
     }
     
