@@ -548,6 +548,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                             if self.menuIdentifier != "scg" && self.menuIdentifier != "sdg" {
                                                  self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl) {
                                                     (result: String) in
+                                                     print("groups result: \(result)")
                                                     self.allDetailedResults.append("\(result)")
                                                     localCounter+=1
                                                     if localCounter == endpointInfo.count {
@@ -902,6 +903,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 //                                        print("      selectedEndpoint: \(String(describing: self.selectedEndpoint))")
 
                                         currentPayload = "\(String(describing: thePackageArray[i]["name"]!))"
+                                        let currentPayloadID = "\(String(describing: thePackageArray[i]["id"]!))"
                                         currentPolicyArray.append("\(recordName)")
                                         if let pkgIndex = self.pkgScrArray.index(of: "\(currentPayload)") {
                                             self.pkgScrArray.remove(at: pkgIndex)
@@ -911,7 +913,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                         case "policies":
                                             if self.menuIdentifier == "Packages" || self.menuIdentifier == "Scripts" {
                                                 if self.selectedEndpoint != "computerconfigurations" {
-                                                    self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "\(triggers)", column4: "\(freq)", column5: "", column6: ""))
+                                                    self.summaryArray.append(endpointData(column1: "\(currentPayload)-\(currentPayloadID)nsmenu", column2: "\(recordName)", column3: "\(triggers)", column4: "\(freq)", column5: "", column6: ""))
                                                     self.details_TextView.string.append("\(currentPayload)\t\(recordName)\t\(triggers)\t\(freq)\n")
                                                 } else {
                                                     self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "\(triggers)", column4: "", column5: "\(freq)", column6: ""))
