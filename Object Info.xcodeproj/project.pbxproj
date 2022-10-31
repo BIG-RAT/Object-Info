@@ -19,6 +19,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B5450942290CEF9D00094739 /* Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Notes.md; sourceTree = "<group>"; };
 		B5767BA9278A195900A1713E /* JamfPro.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JamfPro.swift; sourceTree = "<group>"; };
 		B58D8833250BF46C00E8D6E4 /* Credentials2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Credentials2.swift; sourceTree = "<group>"; };
 		B5932DDB1F6FF3FC00720831 /* Object Info.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Object Info.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -44,11 +45,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B57ED90B291060AF0016EE69 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		B5932DD21F6FF3FC00720831 = {
 			isa = PBXGroup;
 			children = (
 				B5932DDD1F6FF3FC00720831 /* Object Info */,
 				B5932DDC1F6FF3FC00720831 /* Products */,
+				B57ED90B291060AF0016EE69 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -74,6 +83,7 @@
 				B5932DE41F6FF3FC00720831 /* Main.storyboard */,
 				B5932DE71F6FF3FC00720831 /* Info.plist */,
 				B5D6B95F207E92B10012C280 /* settings.plist */,
+				B5450942290CEF9D00094739 /* Notes.md */,
 			);
 			name = "Object Info";
 			path = ObjectInfo;

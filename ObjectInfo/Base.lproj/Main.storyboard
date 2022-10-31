@@ -712,6 +712,9 @@
                             </textField>
                             <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="JAp-4w-tnI">
                                 <rect key="frame" x="149" y="466" width="408" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="408" id="fvI-uj-15P"/>
+                                </constraints>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="https://your.jamf.server:port" drawsBackground="YES" id="TLQ-Rf-Op1">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -835,55 +838,6 @@ DQ
                                                     <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="pLs-M0-X0T"/>
                                                 </connections>
                                             </menuItem>
-                                            <menuItem title="Trigger" id="KnV-RL-HgU">
-                                                <modifierMask key="keyEquivalentModifierMask"/>
-                                                <menu key="submenu" title="Trigger" id="QEW-lS-WTI">
-                                                    <items>
-                                                        <menuItem title="Startup" identifier="trigger_startup" toolTip="Policies with the Startup trigger enabled" id="MQw-Ms-7Gd">
-                                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                                            <connections>
-                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="mLx-LB-JSb"/>
-                                                            </connections>
-                                                        </menuItem>
-                                                        <menuItem title="Login" identifier="trigger_login" toolTip="Policies with the Login trigger enabled" id="6Wv-VW-gCG">
-                                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                                            <connections>
-                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="uFh-eQ-Qj9"/>
-                                                            </connections>
-                                                        </menuItem>
-                                                        <menuItem title="Logout" identifier="trigger_logout" toolTip="Policies with the Logout (deprecated) trigger enabled" id="Tli-fp-gD5">
-                                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                                            <connections>
-                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="B9t-9y-Im6"/>
-                                                            </connections>
-                                                        </menuItem>
-                                                        <menuItem title="Network State Change" identifier="trigger_network_state_changed" toolTip="Policies with the Network State Change trigger enabled" id="BxC-ku-i5E">
-                                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                                            <connections>
-                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="BlV-HH-Evd"/>
-                                                            </connections>
-                                                        </menuItem>
-                                                        <menuItem title="Enrollment Complete" identifier="trigger_enrollment_complete" toolTip="Policies with the Enrollment Complete trigger enabled" id="KlU-CW-WOo">
-                                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                                            <connections>
-                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="0iw-PP-Jnm"/>
-                                                            </connections>
-                                                        </menuItem>
-                                                        <menuItem title="Recurring Check-in" identifier="trigger_checkin" toolTip="Policies with the Recurring Check-in trigger enabled" id="afS-0J-iWc">
-                                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                                            <connections>
-                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="qop-Uu-27A"/>
-                                                            </connections>
-                                                        </menuItem>
-                                                        <menuItem title="Custom" identifier="trigger_other" toolTip="Policies with a Custom trigger enabled" id="0JM-RU-bB0">
-                                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                                            <connections>
-                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="WhG-Ob-APa"/>
-                                                            </connections>
-                                                        </menuItem>
-                                                    </items>
-                                                </menu>
-                                            </menuItem>
                                             <menuItem title="Network Segments" identifier="Network Segments" id="9xB-Fv-bb9">
                                                 <connections>
                                                     <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="KWz-dr-8KV"/>
@@ -901,39 +855,20 @@ DQ
                                                     <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="0kG-0a-XuC"/>
                                                 </connections>
                                             </menuItem>
-                                            <menuItem title="Extentsion Attributes" id="9Go-vT-HYn">
+                                            <menuItem title="Apps" id="DYS-Br-tdq">
                                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                                <menu key="submenu" id="JXQ-k1-jYX">
+                                                <menu key="submenu" id="QdL-a8-NOG">
                                                     <items>
-                                                        <menuItem title="Computers" identifier="cea" id="dyn-dD-kzK">
+                                                        <menuItem title="Computer" identifier="apps_macOS" id="SRn-x3-jnD">
                                                             <modifierMask key="keyEquivalentModifierMask"/>
                                                             <connections>
-                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="iEj-VK-QIK"/>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="zry-Dq-3AV"/>
                                                             </connections>
                                                         </menuItem>
-                                                        <menuItem title="Mobile Devices" identifier="mdea" id="GeV-Qy-Q2G">
+                                                        <menuItem title="Mobile Device" identifier="apps_iOS" id="mBx-Wu-sG0">
                                                             <modifierMask key="keyEquivalentModifierMask"/>
                                                             <connections>
-                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="AJp-lQ-tV7"/>
-                                                            </connections>
-                                                        </menuItem>
-                                                    </items>
-                                                </menu>
-                                            </menuItem>
-                                            <menuItem title="Groups" id="Kmp-DZ-Ltt" userLabel="Groups">
-                                                <modifierMask key="keyEquivalentModifierMask"/>
-                                                <menu key="submenu" title="Groups" id="mR3-Rx-MnM">
-                                                    <items>
-                                                        <menuItem title="Computer" identifier="scg" id="scz-wC-02C">
-                                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                                            <connections>
-                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="gLq-tA-dqq"/>
-                                                            </connections>
-                                                        </menuItem>
-                                                        <menuItem title="Mobile Device" identifier="sdg" id="0eI-KB-ouk">
-                                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                                            <connections>
-                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="rOU-j2-9a3"/>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="cdJ-D3-e6O"/>
                                                             </connections>
                                                         </menuItem>
                                                     </items>
@@ -943,9 +878,9 @@ DQ
                                                 <modifierMask key="keyEquivalentModifierMask"/>
                                                 <menu key="submenu" title="Config Profile Payload" id="F4e-MC-bHk">
                                                     <items>
-                                                        <menuItem title="macOS" id="g6p-yf-X37">
+                                                        <menuItem title="Computer" id="g6p-yf-X37">
                                                             <modifierMask key="keyEquivalentModifierMask"/>
-                                                            <menu key="submenu" title="macOS" id="guh-RE-SEv">
+                                                            <menu key="submenu" title="Computer" id="guh-RE-SEv">
                                                                 <items>
                                                                     <menuItem title="AD Certificate" identifier="mac_ad-cert" id="ylf-aE-oGB">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
@@ -1058,9 +993,9 @@ DQ
                                                                 </items>
                                                             </menu>
                                                         </menuItem>
-                                                        <menuItem title="iOS" id="Apn-iZ-fNO">
+                                                        <menuItem title="Mobile Device" id="Apn-iZ-fNO">
                                                             <modifierMask key="keyEquivalentModifierMask"/>
-                                                            <menu key="submenu" title="iOS" id="Beg-nY-2F5">
+                                                            <menu key="submenu" title="Mobile Device" id="Beg-nY-2F5">
                                                                 <items>
                                                                     <menuItem title="Exchange ActiveSync" identifier="ios_eas" id="WCu-Td-4zJ">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
@@ -1128,6 +1063,112 @@ DQ
                                                     </items>
                                                 </menu>
                                             </menuItem>
+                                            <menuItem title="Config Profiles" id="Tv2-uH-KZf">
+                                                <modifierMask key="keyEquivalentModifierMask"/>
+                                                <menu key="submenu" id="wve-ga-db8">
+                                                    <items>
+                                                        <menuItem title="Computer" identifier="cp_all_macOS" id="W8z-Yi-TZk">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="r5s-jV-64h"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                        <menuItem title="Mobile Device" identifier="cp_all_iOS" id="Yvc-7q-PlY">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="Xzk-1X-4Mw"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                    </items>
+                                                </menu>
+                                            </menuItem>
+                                            <menuItem title="Extentsion Attributes" id="9Go-vT-HYn">
+                                                <modifierMask key="keyEquivalentModifierMask"/>
+                                                <menu key="submenu" id="JXQ-k1-jYX">
+                                                    <items>
+                                                        <menuItem title="Computers" identifier="cea" id="dyn-dD-kzK">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="iEj-VK-QIK"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                        <menuItem title="Mobile Devices" identifier="mdea" id="GeV-Qy-Q2G">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="AJp-lQ-tV7"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                    </items>
+                                                </menu>
+                                            </menuItem>
+                                            <menuItem title="Groups" id="Kmp-DZ-Ltt" userLabel="Groups">
+                                                <modifierMask key="keyEquivalentModifierMask"/>
+                                                <menu key="submenu" title="Groups" id="mR3-Rx-MnM">
+                                                    <items>
+                                                        <menuItem title="Computer" identifier="scg" id="scz-wC-02C">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="gLq-tA-dqq"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                        <menuItem title="Mobile Device" identifier="sdg" id="0eI-KB-ouk">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="rOU-j2-9a3"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                    </items>
+                                                </menu>
+                                            </menuItem>
+                                            <menuItem title="Trigger" id="KnV-RL-HgU">
+                                                <modifierMask key="keyEquivalentModifierMask"/>
+                                                <menu key="submenu" title="Trigger" id="QEW-lS-WTI">
+                                                    <items>
+                                                        <menuItem title="Startup" identifier="trigger_startup" toolTip="Policies with the Startup trigger enabled" id="MQw-Ms-7Gd">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="mLx-LB-JSb"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                        <menuItem title="Login" identifier="trigger_login" toolTip="Policies with the Login trigger enabled" id="6Wv-VW-gCG">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="uFh-eQ-Qj9"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                        <menuItem title="Logout" identifier="trigger_logout" toolTip="Policies with the Logout (deprecated) trigger enabled" id="Tli-fp-gD5">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="B9t-9y-Im6"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                        <menuItem title="Network State Change" identifier="trigger_network_state_changed" toolTip="Policies with the Network State Change trigger enabled" id="BxC-ku-i5E">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="BlV-HH-Evd"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                        <menuItem title="Enrollment Complete" identifier="trigger_enrollment_complete" toolTip="Policies with the Enrollment Complete trigger enabled" id="KlU-CW-WOo">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="0iw-PP-Jnm"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                        <menuItem title="Recurring Check-in" identifier="trigger_checkin" toolTip="Policies with the Recurring Check-in trigger enabled" id="afS-0J-iWc">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="qop-Uu-27A"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                        <menuItem title="Custom" identifier="trigger_other" toolTip="Policies with a Custom trigger enabled" id="0JM-RU-bB0">
+                                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                                            <connections>
+                                                                <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="WhG-Ob-APa"/>
+                                                            </connections>
+                                                        </menuItem>
+                                                    </items>
+                                                </menu>
+                                            </menuItem>
                                         </items>
                                     </menu>
                                 </popUpButtonCell>
@@ -1139,7 +1180,7 @@ DQ
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" alternatingRowBackgroundColors="YES" columnSelection="YES" autosaveColumns="NO" rowSizeStyle="automatic" headerView="p4V-OZ-3qL" viewBased="YES" id="Lo3-IF-hlX">
-                                            <rect key="frame" x="0.0" y="0.0" width="742" height="326"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="809" height="326"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1351,11 +1392,11 @@ DQ
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="k0N-d9-gHH">
-                                                            <rect key="frame" x="617" y="1" width="123" height="17"/>
+                                                            <rect key="frame" x="617" y="1" width="119" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TUV-ez-d3R">
-                                                                    <rect key="frame" x="0.0" y="1" width="123" height="16"/>
+                                                                    <rect key="frame" x="0.0" y="1" width="119" height="16"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="TTC-r7-SoA">
                                                                         <font key="font" usesAppearanceFont="YES"/>
@@ -1369,6 +1410,39 @@ DQ
                                                             </subviews>
                                                             <connections>
                                                                 <outlet property="textField" destination="TUV-ez-d3R" id="y7S-pF-fdc"/>
+                                                            </connections>
+                                                        </tableCellView>
+                                                    </prototypeCellViews>
+                                                </tableColumn>
+                                                <tableColumn identifier="column7" width="64" minWidth="10" maxWidth="3.4028234663852886e+38" id="nMf-6H-Oyw" userLabel="column7">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
+                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    </tableHeaderCell>
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="4m0-LW-dd3">
+                                                        <font key="font" metaFont="system"/>
+                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                    <sortDescriptor key="sortDescriptorPrototype" selector="localizedCaseInsensitiveCompare:" sortKey="column7"/>
+                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <prototypeCellViews>
+                                                        <tableCellView id="IaM-UY-Pz5">
+                                                            <rect key="frame" x="739" y="1" width="68" height="17"/>
+                                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                            <subviews>
+                                                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ahz-Xt-pHh">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="68" height="16"/>
+                                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="DMF-gg-54s">
+                                                                        <font key="font" usesAppearanceFont="YES"/>
+                                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                                    </textFieldCell>
+                                                                </textField>
+                                                            </subviews>
+                                                            <connections>
+                                                                <outlet property="textField" destination="ahz-Xt-pHh" id="H3t-Fa-uSf"/>
                                                             </connections>
                                                         </tableCellView>
                                                     </prototypeCellViews>
@@ -1390,7 +1464,7 @@ DQ
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <tableHeaderView key="headerView" wantsLayer="YES" id="p4V-OZ-3qL">
-                                    <rect key="frame" x="0.0" y="0.0" width="742" height="25"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="809" height="25"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
@@ -1499,7 +1573,6 @@ DQ
                             <constraint firstItem="2yB-TS-UdR" firstAttribute="top" secondItem="Ni1-N3-6aa" secondAttribute="bottom" constant="12" id="pkQ-Rv-3CN"/>
                             <constraint firstItem="Edd-TY-WUJ" firstAttribute="top" secondItem="XYK-g2-TTf" secondAttribute="bottom" constant="7" id="sEz-7U-56d"/>
                             <constraint firstItem="C0v-q9-fNq" firstAttribute="top" secondItem="heu-Js-b8d" secondAttribute="bottom" constant="6" id="sOZ-Nx-4z9"/>
-                            <constraint firstItem="ReU-E4-0zD" firstAttribute="leading" secondItem="JAp-4w-tnI" secondAttribute="trailing" constant="26" id="wCN-lS-rF5"/>
                             <constraint firstItem="46o-yf-aRB" firstAttribute="top" secondItem="ReU-E4-0zD" secondAttribute="bottom" constant="45" id="wSU-Oq-10i"/>
                             <constraint firstItem="Ni1-N3-6aa" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="38" id="wT4-sv-pMZ"/>
                             <constraint firstItem="Edd-TY-WUJ" firstAttribute="top" secondItem="C0v-q9-fNq" secondAttribute="bottom" constant="4" id="x36-oQ-Eub"/>

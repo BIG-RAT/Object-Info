@@ -17,20 +17,22 @@ class endpointData: NSObject {
     @objc dynamic var column4: String
     @objc dynamic var column5: String
     @objc dynamic var column6: String
+    @objc dynamic var column7: String
     
-    init(column1: String, column2: String, column3: String, column4: String, column5: String, column6: String) {
+    init(column1: String, column2: String, column3: String, column4: String, column5: String, column6: String, column7: String) {
         self.column1 = column1
         self.column2 = column2
         self.column3 = column3
         self.column4 = column4
         self.column5 = column5
         self.column6 = column6
+        self.column7 = column7
     }
 }
 
 class ViewController: NSViewController, URLSessionDelegate {
 
-    @objc dynamic var summaryArray: [endpointData] = [endpointData(column1: "", column2: "", column3: "", column4: "", column5: "", column6: "")]
+    @objc dynamic var summaryArray: [endpointData] = [endpointData(column1: "", column2: "", column3: "", column4: "", column5: "", column6: "", column7: "")]
 
     // keychain access
 //    let Creds = Credentials()
@@ -73,22 +75,30 @@ class ViewController: NSViewController, URLSessionDelegate {
                            "package":"packages",
                            "script":"scripts",
                            "computer_group":"computer groups",
+                           "macapplication":"mac applications",
+                           "mobiledeviceapplication":"mobile device applications",
                            "mobile_device_group":"mobile device groups",
                            "os_x_configuration_profile":"macOS config profiles",
                            "configuration_profile":"iOS config profiles",
                            "computer_extension_attribute":"macOS extension attribtes",
-                           "mobile_device_extension_attributes":"iOS extension attribtes",
+                           "mobiledeviceconfigurationprofile":"mobile device configuration profiles",
+                           "mobile_device_extension_attribute":"iOS extension attribtes",
                            "advanced_computer_search":"advanced computer searches",
                            "advanced_mobile_device_search":"advanced mobile device searches"]
     
     var endpointDict = ["recon":            ["policies","policies","policy"],
+                        "apps_macOS":       ["macapplications","mac_applications","mac_application"],
+                        "apps_iOS":         ["mobiledeviceapplications","mobile_device_applications","mobile_device_application"],
                         "Network Segments": ["networksegments","network_segments","network_segment"],
                         "Packages":         ["packages","packages","package"],
+                        "Policies-all":     ["policies","policies","policies"],
                         "Scripts":          ["scripts","scripts","script"],
                         "scg":              ["computergroups","computer_groups","computer_group"],
                         "sdg":              ["mobiledevicegroups","mobile_device_groups","mobile_device_group"],
                         "mac_cp":           ["osxconfigurationprofiles","os_x_configuration_profiles","os_x_configuration_profile"],
+                        "cp_all_macOS":     ["osxconfigurationprofiles","os_x_configuration_profiles","os_x_configuration_profile"],
                         "ios_cp":           ["mobiledeviceconfigurationprofiles","configuration_profiles","configuration_profile"],
+                        "cp_all_iOS":       ["mobiledeviceconfigurationprofiles","configuration_profiles","configuration_profile"],
                         "cea":              ["computerextensionattributes","computer_extension_attributes","computer_extension_attribute"],
                         "mdea":             ["mobiledeviceextensionattributes","mobile_device_extension_attributes","mobile_device_extension_attributes"],
                         "acs":              ["advancedcomputersearches","advanced_computer_searches","advanced_computer_search"],
@@ -96,7 +106,12 @@ class ViewController: NSViewController, URLSessionDelegate {
     
     var headersDict = ["recon":             ["Policy","Trigger","Frequency","Scope"],
                        "Network Segments":  ["Segment Name","Start Address","End Address","Default Share","URL"],
+                       "apps_iOS":          ["App Name", "Managed Dist.","Scope","Limitations","Exclusions"],
+                       "apps_macOS":        ["App Name", "Managed Dist.","Scope","Limitations","Exclusions"],
+                       "cp_all_iOS":        ["Profile Name", "Payloads","Scope","Limitations","Exclusions"],
+                       "cp_all_macOS":        ["Profile Name", "Payloads","Scope","Limitations","Exclusions"],
                        "Packages":          ["Package Name","Policy","Trigger","Frequency","Configuration"],
+                       "Policies-all":      ["Policy Name","Payloads","Trigger","Frequency","Scope","Limitations","Exclusions"],
                        "Scripts":           ["Script Name","Policy","Trigger","Frequency","Configuration"],
                        "scg":               ["Group Name","Policy","Profile","Trigger","Frequency","App"],
                        "sdg":               ["Group Name","Profile","App"],
@@ -135,6 +150,11 @@ class ViewController: NSViewController, URLSessionDelegate {
     var increment               = 0.0
     var pendingCount            = 0     // number of requests waiting for a response
     
+    var payloadArray      = [String]()
+    var limitationsExclusions   = [String:[String]]()
+    var managedDist             = false
+    var scopeableObjectsArray   = [String]()
+    
     var apiQ            = OperationQueue()
     var detailQ         = OperationQueue()
     var authQ           = DispatchQueue(label: "com.jamf.auth")
@@ -147,7 +167,6 @@ class ViewController: NSViewController, URLSessionDelegate {
 //        print("sender title: \(sender.title)")
         menuTitle           = "\(sender.title)"
         menuIdentifier      = "\(sender.identifier?.rawValue ?? "")"
-//        print("menuIdent: \(menuIdentifier)")
         
         switch menuIdentifier {
         case "mac_passcode","mac_network","mac_vpn","mac_cert","mac_scep","mac_dir","mac_kext","mac_su","mac_restrict","mac_loginitems","mac_loginwindow","mac_dock","mac_mobility","mac_print","mac_sec-priv","mac_ad-cert","mac_sysext":
@@ -256,11 +275,11 @@ class ViewController: NSViewController, URLSessionDelegate {
 
                 WriteToLog().message(stringOfText: ["[get]       apiCall for endpoint: \(endpointXmlTag)"])
                 WriteToLog().message(stringOfText: ["[get] apiCall for menuIdentifier: \(menuIdentifier)"])
-
+                
                 apiCall(endpoint: "\(endpointXmlTag)") {
                     (result: String) in
                     WriteToLog().message(stringOfText: ["[get] returned from apiCall - result:\n\(result)"])
-
+                    
                     self.results_TextView.string = "\(result)"
                     if self.menuIdentifier == "Packages" || self.menuIdentifier == "Scripts" || self.menuIdentifier == "scg" || self.menuIdentifier == "sdg" || self.menuIdentifier == "cea" || self.menuIdentifier == "mdea" {
                         
@@ -500,7 +519,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                 if localCounter == endpointInfo.count { //i == (endpointInfo.count-1) {
                                                     // display packages and script not attached to any policies
                                                     for unused in self.pkgScrArray {
-                                                        self.summaryArray.append(endpointData(column1: unused, column2: "", column3: "", column4: "", column5: "", column6: ""))
+                                                        self.summaryArray.append(endpointData(column1: unused, column2: "", column3: "", column4: "", column5: "", column6: "", column7: ""))
                                                     }
                                                 }
                                             }
@@ -539,7 +558,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                 if localCounter == endpointInfo.count { //i == (endpointInfo.count-1) {
                                                     // display packages and script not attached to any policies
                                                     for unused in self.pkgScrArray {
-                                                        self.summaryArray.append(endpointData(column1: unused, column2: "", column3: "", column4: "", column5: "", column6: ""))
+                                                        self.summaryArray.append(endpointData(column1: unused, column2: "", column3: "", column4: "", column5: "", column6: "", column7: ""))
                                                     }
                                                 }
                                             }
@@ -669,7 +688,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             let encodedURL          = NSURL(string: idUrl)
             let request             = NSMutableURLRequest(url: encodedURL! as URL)
 
-            var thePackageArray     = [Dictionary<String, Any>]()
+            var thePackageArray     = [[String: Any]]()
             var objectDict          = [String: Any]()
             
             var searchStringArray        = [String]()
@@ -693,7 +712,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             let serverConf = URLSessionConfiguration.ephemeral
             serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "User-Agent" : self.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
             let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
-            let task = serverSession.dataTask(with: request as URLRequest, completionHandler: {
+            let task = serverSession.dataTask(with: request as URLRequest, completionHandler: { [self]
                 (data, response, error) -> Void in
                 if let httpResponse = response as? HTTPURLResponse {
                     if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
@@ -703,6 +722,22 @@ class ViewController: NSViewController, URLSessionDelegate {
                         WriteToLog().message(stringOfText: ["[getDetails]       menuIdentifier: \(self.menuIdentifier)"])
 
                         self.progressBar.increment(by: self.increment)
+                        
+                        switch self.menuIdentifier {
+                        case "Policies-all":
+                            self.singleEndpointXmlTag = "policy"
+                        case "apps_macOS":
+                            self.singleEndpointXmlTag = "mac_application"
+                        case "apps_iOS":
+                            self.singleEndpointXmlTag = "mobile_device_application"
+                        case "cp_all_macOS":
+                            self.singleEndpointXmlTag = "os_x_configuration_profile"
+                        case "cp_all_iOS":
+                            self.singleEndpointXmlTag = "configuration_profile"
+                        default:
+                            break
+                        }
+                        
 
                         let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
                         if let endpointJSON = json as? [String: Any] {
@@ -711,14 +746,18 @@ class ViewController: NSViewController, URLSessionDelegate {
                             if let endpointInfo = endpointJSON["\(self.singleEndpointXmlTag)"] as? [String : AnyObject] {
 //                                print("[ViewController.getDetails] endpointInfo: \(endpointInfo)")
 //                                print("[getDetails] self.singleEndpointXmlTag: \(self.singleEndpointXmlTag)")
-                                switch self.singleEndpointXmlTag {
+                                if self.menuIdentifier.prefix(5) == "apps_" || self.menuIdentifier.prefix(5) == "cp_al" { self.singleEndpointXmlTag = self.menuIdentifier }
+                                
+//                                print("[getDetails] singleEndpointXmlTag: \(singleEndpointXmlTag)")
+                                
+                                switch singleEndpointXmlTag {
                                 case "network_segment":
-                                    recordName           = endpointInfo["name"] as! String
-                                    let starting         = endpointInfo["starting_address"] as! String
-                                    let ending           = endpointInfo["ending_address"] as! String
-                                    let dp               = endpointInfo["distribution_point"] as! String
-                                    let url              = endpointInfo["url"] as! String
-                                    self.detailedResults = "\(recordName) \t\(starting) \t\(ending) \t\(dp) \t\(url)"
+                                    recordName      = endpointInfo["name"] as! String
+                                    let starting    = endpointInfo["starting_address"] as! String
+                                    let ending      = endpointInfo["ending_address"] as! String
+                                    let dp          = endpointInfo["distribution_point"] as! String
+                                    let url         = endpointInfo["url"] as! String
+                                    detailedResults = "\(recordName) \t\(starting) \t\(ending) \t\(dp) \t\(url)"
                                 case "os_x_configuration_profile","mac_application","configuration_profile","mobile_device_application":
                                     if let generalTag = endpointInfo["general"] as? [String : AnyObject] {
 //                                        print("endpointInfo: \(endpointInfo)")
@@ -789,7 +828,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                             }
 
                                             WriteToLog().message(stringOfText: ["[searchResults] looking for \(self.menuTitle)"])
-                                            if self.searchResult(payload: payload, critereaArray: searchStringArray) {
+                                            if searchResult(payload: payload, critereaArray: searchStringArray) {
                                                 WriteToLog().message(stringOfText: ["[searchResults] \(self.menuTitle) found in \(recordName)"])
                                                 self.detailedResults = "\(self.menuTitle) \t\(recordName)"
                                                 switch self.endpointType {
@@ -809,7 +848,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                         switch self.menuIdentifier {
                                             case "scg":
                                                 let packageConfigTag = endpointInfo["scope"] as! [String:AnyObject]
-                                                thePackageArray      = packageConfigTag["computer_groups"] as! [Dictionary<String, Any>]
+                                                thePackageArray      = packageConfigTag["computer_groups"] as! [[String: Any]]
                                                 if packageConfigTag["all_computers"] as! Bool {
                                                     thePackageArray.append(["id": 1, "name": "All Computers"])
                                                 }
@@ -817,7 +856,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                             case "sdg": // added 201207 lnh
                                                 WriteToLog().message(stringOfText: ["[getDetails] Checking scope for \(self.singleEndpointXmlTag)"])
                                                 let packageConfigTag = endpointInfo["scope"] as! [String:AnyObject]
-                                                thePackageArray      = packageConfigTag["mobile_device_groups"] as! [Dictionary<String, Any>]
+                                                thePackageArray      = packageConfigTag["mobile_device_groups"] as! [[String: Any]]
                                                 if packageConfigTag["all_mobile_devices"] as! Bool {
                                                     thePackageArray.append(["id": 1, "name": "All iOS Devicces"])
                                                 }
@@ -828,7 +867,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 
                                     }
 
-                                case "policy","computer_configuration":
+                                case "policy","computer_configuration","apps_macOS","apps_iOS","cp_all_macOS","cp_all_iOS":
                                     if let generalTag = endpointInfo["general"] as? [String : AnyObject] {
                                         recordName = generalTag["name"] as! String
                                         self.detailedResults = "\(recordName)"
@@ -836,7 +875,11 @@ class ViewController: NSViewController, URLSessionDelegate {
                                         // get triggers
                                         if self.selectedEndpoint == "policies" {
                                             triggers = self.triggersAsString(generalTag: generalTag)
-                                            freq     = generalTag["frequency"] as! String
+                                            if generalTag["enabled"] as! Bool {
+                                                freq = generalTag["frequency"] as! String
+                                            } else {
+                                                freq = "[disabled]"
+                                            }
                                         }
                                     }
                                     switch self.menuIdentifier {
@@ -852,22 +895,69 @@ class ViewController: NSViewController, URLSessionDelegate {
                                     case "Packages":
                                         if self.selectedEndpoint == "policies" {
                                             let packageConfigTag = endpointInfo["package_configuration"] as! [String:AnyObject]
-                                            thePackageArray      = packageConfigTag["packages"] as! [Dictionary<String, Any>]
+                                            thePackageArray      = packageConfigTag["packages"] as! [[String: Any]]
                                         } else {
                                             // packages in computerconfigurations
-                                            thePackageArray = endpointInfo["packages"] as! [Dictionary<String, Any>]
+                                            thePackageArray = endpointInfo["packages"] as! [[String: Any]]
                                         }
 
                                     case "Scripts":
-                                        thePackageArray = endpointInfo["scripts"] as! [Dictionary<String, Any>]
+                                        thePackageArray = endpointInfo["scripts"] as! [[String: Any]]
 
                                     case "scg":
                                         let packageConfigTag = endpointInfo["scope"] as! [String:AnyObject]
-                                        thePackageArray      = packageConfigTag["computer_groups"] as! [Dictionary<String, Any>]
+                                        thePackageArray      = packageConfigTag["computer_groups"] as! [[String: Any]]
                                         if packageConfigTag["all_computers"] as! Bool {
                                             thePackageArray.append(["id": 1, "name": "All Computers"])
                                         }
                                         
+                                    case "Policies-all","apps_macOS","apps_iOS","cp_all_macOS","cp_all_iOS":
+                                        if let generalTag = endpointInfo["general"] as? [String : AnyObject] {
+                                            recordName = generalTag["name"] as! String
+            
+                                            WriteToLog().message(stringOfText: ["[getDetails] case all items (\(menuIdentifier)) - Name: \(recordName)"])
+                                            
+                                            switch menuIdentifier {
+                                            case "Policies-all":
+                                                let enabled = generalTag["enabled"] as! Bool
+                                                if !enabled {
+                                                    recordName = "[Disabled]-\(recordName)"
+                                                }
+                                                payloadArray = policyPayloads(xml: endpointInfo)
+                                            case "apps_macOS","apps_iOS":
+                                                managedDist = false
+                                                if let vpp = endpointInfo["vpp"] as? [String : AnyObject] {
+                                                    if let md = vpp["assign_vpp_device_based_licenses"] as? Bool {
+                                                        managedDist = md
+                                                    }
+                                                }
+                                            case "cp_all_macOS","cp_all_iOS":
+                                                payloadArray = profilePayloads(payloadXML: generalTag["payloads"] as? String ?? "", platform: menuIdentifier)
+                                            default:
+                                                break
+                                            }
+                                            
+                                            thePackageArray = [["id": "\(String(describing: generalTag["id"]))", "name": recordName]]
+                                            
+                                            if menuIdentifier.contains("iOS") {
+                                                scopeableObjectsArray = ["mobile_devices", "mobile_device_groups", "buildings", "departments", "users", "user_groups", "network_segments"]
+                                            } else {
+                                                scopeableObjectsArray = ["computers", "computer_groups", "buildings", "departments", "users", "user_groups", "network_segments"]
+                                            }
+                                            
+                                            self.getScope(endpointInfo: endpointInfo, scopeObjects: scopeableObjectsArray)
+                                            limitationsExclusions = self.getLimitationsExceptions(endpointInfo: endpointInfo, endpointType: selectedEndpoint)
+                                            
+                                            switch self.menuIdentifier {
+                                            case "Policies-all":
+                                                self.detailedResults = "\(recordName) \t\(thePackageArray) \t\(triggers) \t\(freq) \t\(self.theScope) \t\(limitationsExclusions["limitations"] ?? [])\t\(limitationsExclusions["exclusions"] ?? [])"
+                                            case "apps_macOS","apps_iOS":
+                                                self.detailedResults = "\(recordName) \t\(managedDist) \t\(self.theScope) \t\(limitationsExclusions["limitations"] ?? [])\t\(limitationsExclusions["exclusions"] ?? [])"
+                                            default:
+                                                break
+                                            }
+                                        }
+
                                     default:
                                         break
                                     }
@@ -893,9 +983,10 @@ class ViewController: NSViewController, URLSessionDelegate {
                                     break
                                 }
 
-                                WriteToLog().message(stringOfText: ["[getDetails] singleEndpointXmlTag: \(self.singleEndpointXmlTag)"])
-                                WriteToLog().message(stringOfText: ["[getDetails]     selectedEndpoint: \(self.selectedEndpoint)"])
-                                switch self.singleEndpointXmlTag {
+                                WriteToLog().message(stringOfText: ["[getDetails] singleEndpointXmlTag: \(singleEndpointXmlTag)"])
+                                WriteToLog().message(stringOfText: ["[getDetails]     selectedEndpoint: \(selectedEndpoint)"])
+
+                                switch singleEndpointXmlTag {
                                 case "policy","computer_configuration","mac_application","os_x_configuration_profile","configuration_profile","mobile_device_application":
                                     for i in (0..<thePackageArray.count) {
 
@@ -908,39 +999,62 @@ class ViewController: NSViewController, URLSessionDelegate {
                                         if let pkgIndex = self.pkgScrArray.index(of: "\(currentPayload)") {
                                             self.pkgScrArray.remove(at: pkgIndex)
                                         }
-                                        switch self.selectedEndpoint {
+                                        
+                                        switch selectedEndpoint {
                                         // format the data to the columns in the table
                                         case "policies":
-                                            if self.menuIdentifier == "Packages" || self.menuIdentifier == "Scripts" {
+                                            
+                                            switch self.menuIdentifier {
+                                            case "Packages", "Scripts":
                                                 if self.selectedEndpoint != "computerconfigurations" {
-                                                    self.summaryArray.append(endpointData(column1: "\(currentPayload)-\(currentPayloadID)nsmenu", column2: "\(recordName)", column3: "\(triggers)", column4: "\(freq)", column5: "", column6: ""))
+                                                    self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "\(triggers)", column4: "\(freq)", column5: "", column6: "", column7: ""))
                                                     self.details_TextView.string.append("\(currentPayload)\t\(recordName)\t\(triggers)\t\(freq)\n")
                                                 } else {
-                                                    self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "\(triggers)", column4: "", column5: "\(freq)", column6: ""))
+                                                    self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "\(triggers)", column4: "", column5: "\(freq)", column6: "", column7: ""))
+                                                    self.details_TextView.string.append("\(currentPayload)\t\(recordName)\t\(triggers)\t\t\(freq)\n")
+                                                }
+                                            case "Policies-all":
+                                                self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(payloadArray)", column3: "\(triggers)", column4: "\(freq)", column5: "\(theScope)", column6: "\(limitationsExclusions["limitations"] ?? [])", column7: "\(limitationsExclusions["exclusions"] ?? [])"))
+                                                self.details_TextView.string.append("\(currentPayload)\t\(self.payloadArray)\t\(triggers)\t\(freq)\t\(self.theScope)\t\(limitationsExclusions["limitations"] ?? [])\t\(limitationsExclusions["exclusions"] ?? [])\n")
+                                            case "apps_macOS","apps_iOS":
+                                                self.summaryArray.append(endpointData(column1: "\(recordName)", column2: "\(managedDist)", column3: "\(self.theScope)", column4: "\(limitationsExclusions["limitations"] ?? [])", column5: "\(limitationsExclusions["exclusions"] ?? [])", column6: "", column7: ""))
+                                                self.details_TextView.string.append("\(recordName)\t\(managedDist)\t\(theScope)\t\(limitationsExclusions["limitations"] ?? [])\t\(limitationsExclusions["exclusions"] ?? [])\n")
+                                            default:
+                                                self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "", column4: "\(triggers)", column5: "\(freq)", column6: "", column7: ""))
+                                                self.details_TextView.string.append("\(currentPayload)\t\(recordName)\t\t\(triggers)\t\(freq)\n")
+                                            }
+                                            /*
+                                            if self.menuIdentifier == "Packages" || self.menuIdentifier == "Scripts" {
+                                                if self.selectedEndpoint != "computerconfigurations" {
+                                                    self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "\(triggers)", column4: "\(freq)", column5: "", column6: "", column7: ""))
+                                                    self.details_TextView.string.append("\(currentPayload)\t\(recordName)\t\(triggers)\t\(freq)\n")
+                                                } else {
+                                                    self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "\(triggers)", column4: "", column5: "\(freq)", column6: "", column7: ""))
                                                     self.details_TextView.string.append("\(currentPayload)\t\(recordName)\t\(triggers)\t\t\(freq)\n")
                                                 }
                                             } else {
-                                                self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "", column4: "\(triggers)", column5: "\(freq)", column6: ""))
+                                                self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "", column4: "\(triggers)", column5: "\(freq)", column6: "", column7: ""))
                                                 self.details_TextView.string.append("\(currentPayload)\t\(recordName)\t\t\(triggers)\t\(freq)\n")
 
                                             }
+                                            */
                                         case "macapplications":
-                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "", column3: "", column4: "", column5: "", column6: "\(recordName)"))
+                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "", column3: "", column4: "", column5: "", column6: "\(recordName)", column7: ""))
                                             self.details_TextView.string.append("\(currentPayload)\t\t\t\t\t\(recordName)\n")
                                         case "mobiledeviceconfigurationprofiles":
-                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "", column4: "", column5: "", column6: ""))
+                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "", column4: "", column5: "", column6: "", column7: ""))
                                             self.details_TextView.string.append("\(currentPayload)\t\(recordName)\t\t\(triggers)\n")
                                         case "mobiledeviceapplications":
-                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "", column3: "\(recordName)", column4: "", column5: "", column6: ""))
+                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "", column3: "\(recordName)", column4: "", column5: "", column6: "", column7: ""))
                                             self.details_TextView.string.append("\(currentPayload)\t\t\(recordName)\n")
                                         case "osxconfigurationprofiles":
-                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "", column3: "\(recordName)", column4: "", column5: "", column6: ""))
+                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "", column3: "\(recordName)", column4: "", column5: "", column6: "", column7: ""))
                                             self.details_TextView.string.append("\(currentPayload)\t\t\(recordName)\n")
                                         case "computerconfigurations":
-                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "", column3: "", column4: "", column5: "\(recordName)", column6: ""))
+                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "", column3: "", column4: "", column5: "\(recordName)", column6: "", column7: ""))
                                             self.details_TextView.string.append("\(currentPayload)\t\t\t\t\(recordName)\n")
                                         default:
-                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "", column3: "", column4: "\(recordName)", column5: "", column6: ""))
+                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "", column3: "", column4: "\(recordName)", column5: "", column6: "", column7: ""))
                                             self.details_TextView.string.append("\(currentPayload)\t\t\t\(recordName)\n")
                                         }
 
@@ -949,18 +1063,21 @@ class ViewController: NSViewController, URLSessionDelegate {
                                         }
                                     }
 //                                case "os_x_configuration_profile":
-//                                    self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "", column4: "", column5: "", column6: ""))
+//                                    self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "", column4: "", column5: "", column6: "", column7: ""))
 //                                    self.details_TextView.string.append("\(currentPayload)\t\t\(recordName)\n")
                                 case "computer_group", "mobile_device_group":
                                     for theCriteriaName in criteriaArray {
-                                        self.summaryArray.append(endpointData(column1: "\(theCriteriaName)", column2: "\(recordName)", column3: "", column4: "", column5: "", column6: ""))
+                                        self.summaryArray.append(endpointData(column1: "\(theCriteriaName)", column2: "\(recordName)", column3: "", column4: "", column5: "", column6: "", column7: ""))
                                         self.details_TextView.string.append("\(theCriteriaName)\t\(recordName)\t\t\n")
                                     }
                                 case "advanced_computer_search", "advanced_mobile_device_search":
                                     for theCriteriaName in criteriaArray {
-                                        self.summaryArray.append(endpointData(column1: "\(theCriteriaName)", column2: "", column3: "\(recordName)", column4: "", column5: "", column6: ""))
+                                        self.summaryArray.append(endpointData(column1: "\(theCriteriaName)", column2: "", column3: "\(recordName)", column4: "", column5: "", column6: "", column7: ""))
                                         self.details_TextView.string.append("\(theCriteriaName)\t\t\(recordName)\t\n")
                                     }
+                                case "cp_all_iOS","cp_all_macOS":
+                                    self.summaryArray.append(endpointData(column1: "\(recordName)", column2: "\(payloadArray)", column3: "\(self.theScope)", column4: "\(limitationsExclusions["limitations"] ?? [])", column5: "\(limitationsExclusions["exclusions"] ?? [])", column6: "", column7: ""))
+                                    self.details_TextView.string.append("\(recordName)\t\(payloadArray)\t\(theScope)\t\(limitationsExclusions["limitations"] ?? [])\t\(limitationsExclusions["exclusions"] ?? [])\n")
                                 default:
                                     break
                                 }
@@ -977,23 +1094,23 @@ class ViewController: NSViewController, URLSessionDelegate {
                         let theRecord: [String] = "\(self.detailedResults)".components(separatedBy: "\t")
                         WriteToLog().message(stringOfText: ["[getDetails] theRecord: \(theRecord)"])
 
-                        if self.endpointType != "Packages" && self.endpointType != "Scripts" && self.menuIdentifier != "scg" && self.menuIdentifier != "sdg" {
+                        if self.endpointType != "Policies-all" && self.endpointType != "Packages" && self.endpointType != "Scripts" && self.menuIdentifier != "scg" && self.menuIdentifier != "sdg" && self.menuIdentifier != "cp_all_iOS" && self.menuIdentifier != "cp_all_macOS" {
                             WriteToLog().message(stringOfText: ["[getDetails] \(recordName) is using theRecord with theRecord.count = \(theRecord.count)"])
                             switch theRecord.count {
                             case 5:
-                                self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "\(theRecord[3])", column5: "\(theRecord[4])", column6: ""))
+                                self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "\(theRecord[3])", column5: "\(theRecord[4])", column6: "", column7: ""))
                                 self.details_TextView.string.append("\(theRecord[0])\t\(theRecord[1])\t\(theRecord[2])\t\(theRecord[3])\t\(theRecord[4])\n")
                             case 4:
-                                self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "\(theRecord[3])", column5: "", column6: ""))
+                                self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "\(theRecord[3])", column5: "", column6: "", column7: ""))
                                 self.details_TextView.string.append("\(theRecord[0])\t\(theRecord[1])\t\(theRecord[2])\t\(theRecord[3])\n")
                             case 3:
                                 if theRecord[0] != "" {
-                                    self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "", column5: "", column6: ""))
+                                    self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "", column5: "", column6: "", column7: ""))
                                     self.details_TextView.string.append("\(theRecord[0])\t\(theRecord[1])\t\(theRecord[2])\n")
                                 }
                             case 2:
                                 if theRecord[0] != "" {
-                                    self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "", column4: "", column5: "", column6: ""))
+                                    self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "", column4: "", column5: "", column6: "", column7: ""))
                                     self.details_TextView.string.append("\(theRecord[0])\t\(theRecord[1])\n")
                                 }
                             default: break
@@ -1081,13 +1198,13 @@ class ViewController: NSViewController, URLSessionDelegate {
         var elementList = ""
         
         var elementArray = [String]()
-        generalTag["trigger_checkin"] as? Bool ?? false ? elementArray.append("checkin"):print("")
-        generalTag["trigger_enrollment_complete"] as? Bool ?? false ? elementArray.append("Enrollment Complete"):print("")
-        generalTag["trigger_login"] as? Bool ?? false ? elementArray.append("login"):print("")
-        generalTag["trigger_logout"] as? Bool ?? false ? elementArray.append("logout"):print("")
-        generalTag["trigger_network_state_changed"] as? Bool ?? false ? elementArray.append("Network State Change"):print("")
-        generalTag["trigger_startup"] as? Bool ?? false ? elementArray.append("startup"):print("")
-        generalTag["trigger_other"] as? String != nil ? elementArray.append("\(String(describing: generalTag["trigger_other"]!))"):print("")
+        generalTag["trigger_checkin"] as? Bool ?? false ? elementArray.append("checkin"):(_ = "")
+        generalTag["trigger_enrollment_complete"] as? Bool ?? false ? elementArray.append("Enrollment Complete"):(_ = "")
+        generalTag["trigger_login"] as? Bool ?? false ? elementArray.append("login"):(_ = "")
+        generalTag["trigger_logout"] as? Bool ?? false ? elementArray.append("logout"):(_ = "")
+        generalTag["trigger_network_state_changed"] as? Bool ?? false ? elementArray.append("Network State Change"):(_ = "")
+        generalTag["trigger_startup"] as? Bool ?? false ? elementArray.append("startup"):(_ = "")
+        generalTag["trigger_other"] as? String != nil ? elementArray.append("\(String(describing: generalTag["trigger_other"]!))"):(_ = "")
         
         for element in elementArray {
             if elementList != "" && element != "" {
@@ -1144,28 +1261,59 @@ class ViewController: NSViewController, URLSessionDelegate {
     // remove policy entries generated by jamf remote - end
     
     func formatTableView(columnHeaders: [String]) {
-        //print("columnHeaders: \(columnHeaders)")/*
         let tableWidth = CGFloat(tableView.frame.size.width)
         var tableColumn: NSTableColumn?
         var columnHeader: NSTableHeaderCell
         let numberOfColumns = columnHeaders.count
-        let columnScale = (numberOfColumns != 6) ? numberOfColumns:5
-        let columnWidth     = tableWidth/CGFloat(numberOfColumns)
+        
         for i in (0..<numberOfColumns) {
             tableColumn = tableView.tableColumn(withIdentifier: NSUserInterfaceItemIdentifier(rawValue: "column\(i+1)"))
             columnHeader = (tableColumn?.headerCell)!
             columnHeader.title = "\(columnHeaders[i])"
-            tableColumn?.width = columnWidth/CGFloat(6-columnScale)
+            columnHeader.alignment = .center
+            if columnHeader.title == "Limitations" || columnHeader.title == "Exclusions" {
+                tableColumn?.headerToolTip = "user groups only"
+            }
+            tableColumn?.self.tableView!.alignment = .natural
+            tableColumn?.width = tableWidth/CGFloat(numberOfColumns+1)
+//            tableColumn?.tableView?.alignment = .natural
             tableColumn?.isHidden = false
         }
-        for j in (numberOfColumns..<6) {
-//                tableView.removeTableColumn(tableView.tableColumns[numberOfColumns])
+        for j in (numberOfColumns..<7) {
             tableColumn  = tableView.tableColumn(withIdentifier: NSUserInterfaceItemIdentifier(rawValue: "column\(j+1)"))
             columnHeader = (tableColumn?.headerCell)!
             columnHeader.title = ""
-            tableColumn?.width = 10.0
+            tableColumn?.tableView?.alignment = .natural
+            tableColumn?.width = 0.0
             tableColumn?.isHidden = true
         }
+    }
+    
+    func getLimitationsExceptions(endpointInfo: [String : AnyObject], endpointType: String) -> [String:[String]] {
+//        WriteToLog().message(stringOfText: ["[getLimitationsExceptions] endpointInfo: \(endpointInfo)"])
+//        WriteToLog().message(stringOfText: ["[getLimitationsExceptions] scopeObjects: \(scopeObjects)"])
+        
+        var limitationsExclusionsDict = [String:[String]]()
+
+        WriteToLog().message(stringOfText: ["[getLimitationsExceptions] endpointType: \(endpointType)"])
+
+        if let scope = endpointInfo["scope"] as? [String : AnyObject] {
+            for lore in ["limitations", "exclusions"] {
+                var currentList = [String]()
+                if let limitationsExclusions = scope[lore] as? [String: AnyObject] {
+                    if let groupDict = limitationsExclusions["user_groups"] as? [[String:String]] {
+                        for groupInfo in groupDict {
+                            if let groupName = groupInfo["name"] {
+                                currentList.append(groupName)
+                            }
+                        }
+                    }
+                }
+                limitationsExclusionsDict[lore] = currentList
+            }
+            
+        }
+        return limitationsExclusionsDict
     }
     
     func getScope(endpointInfo: [String : AnyObject], scopeObjects: [String]) {
@@ -1178,7 +1326,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         WriteToLog().message(stringOfText: ["[getScope] endpointType: \(endpointType)"])
 
         switch endpointType {
-        case "ios_cp","sdg":    // added sdg lnh - 201205
+        case "ios_cp","sdg","apps_iOS","cp_all_iOS":
             allScope = "all_mobile_devices"
             self.theScope = "All iOS Devices"
         default:
@@ -1271,7 +1419,6 @@ class ViewController: NSViewController, URLSessionDelegate {
         } // savePanel.begin - end
     }
     
-    
     func queueCheck(completion: @escaping (_ result: Bool) -> Void) {
         theGeneralQ.async {
             while self.pendingCount > 10 {
@@ -1288,18 +1435,6 @@ class ViewController: NSViewController, URLSessionDelegate {
         } else {
             preferencesDict["save_pwd"] = 0 as AnyObject
         }
-    }
-    
-    
-    func searchResult(payload: String, critereaArray: [String]) -> Bool {
-//        print("\n[searchResult] payload: \(payload)\ncriteriaArray: \(critereaArray)\n")
-        for criterea in critereaArray {
-            if payload.range(of:criterea, options: .regularExpression) == nil {
-//                print("\n[searchResult] criteria not found: \(criterea)\n")
-                return false
-            }
-        }
-        return true
     }
     
     @IBAction func showLogFolder(_ sender: Any) {
