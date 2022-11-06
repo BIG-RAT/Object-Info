@@ -849,6 +849,12 @@ DQ
                                                     <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="UbB-B5-Yf5"/>
                                                 </connections>
                                             </menuItem>
+                                            <menuItem title="Policies" identifier="Policies-all" id="o9Q-g2-df1">
+                                                <modifierMask key="keyEquivalentModifierMask"/>
+                                                <connections>
+                                                    <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="fbS-dd-73m"/>
+                                                </connections>
+                                            </menuItem>
                                             <menuItem title="Scripts" identifier="Scripts" toolTip="How scripts are scoped" id="Ds7-YQ-gbJ">
                                                 <modifierMask key="keyEquivalentModifierMask"/>
                                                 <connections>
@@ -882,16 +888,46 @@ DQ
                                                             <modifierMask key="keyEquivalentModifierMask"/>
                                                             <menu key="submenu" title="Computer" id="guh-RE-SEv">
                                                                 <items>
+                                                                    <menuItem title="Accessibilty" identifier="mac_access" id="lfN-IY-VLE">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="MOs-Zh-LdQ"/>
+                                                                        </connections>
+                                                                    </menuItem>
                                                                     <menuItem title="AD Certificate" identifier="mac_ad-cert" id="ylf-aE-oGB">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                         <connections>
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="lsJ-tA-e7Y"/>
                                                                         </connections>
                                                                     </menuItem>
+                                                                    <menuItem title="AirPlay" identifier="mac_airplay" id="01a-oQ-Hdn">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="8MM-ox-hFF"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="App &amp; Custom Settings" identifier="mac_acs" id="rCZ-Yk-go3">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="WG3-qr-LJi"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="App-To-Per-App VPN" identifier="mac_atpavpn" id="x4M-IU-d9O">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="Vev-iQ-GRv"/>
+                                                                        </connections>
+                                                                    </menuItem>
                                                                     <menuItem title="Certificate" identifier="mac_cert" id="Ybg-Wx-EkF">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                         <connections>
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="mhq-cB-CWZ"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Content Filter" identifier="mac_cf" id="Bkm-pq-rj2">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="VEj-sG-mgi"/>
                                                                         </connections>
                                                                     </menuItem>
                                                                     <menuItem title="Directory" identifier="mac_dir" id="AMM-eM-mxV">
@@ -912,10 +948,28 @@ DQ
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="0bX-LY-kvA"/>
                                                                         </connections>
                                                                     </menuItem>
+                                                                    <menuItem title="Finder" identifier="mac_finder" id="cAv-VT-zmg">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="J19-OH-KEx"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Font" identifier="mac_font" id="td3-Hn-pHJ">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="NTd-aX-zc4"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Identification" identifier="mac_ident" id="D4o-IE-lyf">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="BWp-5b-F4i"/>
+                                                                        </connections>
+                                                                    </menuItem>
                                                                     <menuItem title="Kernel Extensions" identifier="mac_kext" id="KcA-f4-5Z4">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                         <connections>
-                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="8lV-a8-9Om"/>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="ocM-bJ-1Je"/>
                                                                         </connections>
                                                                     </menuItem>
                                                                     <menuItem title="Login Items" identifier="mac_loginitems" id="G0J-cm-w54">
@@ -942,16 +996,40 @@ DQ
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="JI5-pg-X4T"/>
                                                                         </connections>
                                                                     </menuItem>
+                                                                    <menuItem title="Notifications" identifier="mac_notifications" id="eod-hL-8gl">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="Ohx-n1-vOI"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Parental Controls" identifier="mac_parental" id="p5T-qi-ifQ">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="3l4-IC-D1v"/>
+                                                                        </connections>
+                                                                    </menuItem>
                                                                     <menuItem title="Passcode" identifier="mac_passcode" id="g3i-DK-UE0">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                         <connections>
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="kG2-2B-2Wa"/>
                                                                         </connections>
                                                                     </menuItem>
+                                                                    <menuItem title="PPPC" identifier="mac_pppc" id="1FU-dz-nsT">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="44b-mG-med"/>
+                                                                        </connections>
+                                                                    </menuItem>
                                                                     <menuItem title="Printing" identifier="mac_print" id="WHE-FA-idC">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                         <connections>
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="1wW-Sw-uhV"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Proxies" identifier="mac_proxies" id="nWs-aC-gFT">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="69R-lL-iQX"/>
                                                                         </connections>
                                                                     </menuItem>
                                                                     <menuItem title="Restrictions" identifier="mac_restrict" id="moe-Dw-JaN">
@@ -966,7 +1044,13 @@ DQ
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="HoA-V5-Vo0"/>
                                                                         </connections>
                                                                     </menuItem>
-                                                                    <menuItem title="Security &amp; Privacy" identifier="mac_sec-priv" id="sWX-gn-x8U">
+                                                                    <menuItem title="Security &amp; Privacy:FileVault" identifier="mac_sec-priv-filevault" id="4ga-El-HBd">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="f6q-Dh-NGe"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Security &amp; Privacy:General&amp;Firewall" identifier="mac_sec-priv-genfire" id="sWX-gn-x8U">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                         <connections>
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="Nfl-lI-ZJh"/>
@@ -984,10 +1068,22 @@ DQ
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="L72-aw-pcO"/>
                                                                         </connections>
                                                                     </menuItem>
+                                                                    <menuItem title="Time Machine" identifier="mac_tm" id="j8x-Qv-728">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="74y-lX-LzC"/>
+                                                                        </connections>
+                                                                    </menuItem>
                                                                     <menuItem title="VPN" identifier="mac_vpn" id="sqR-Z8-Asg">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                         <connections>
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="yIb-r8-6DZ"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Xsan" identifier="mac_xsan" id="2Qm-mR-tog">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="sAf-JO-jgO"/>
                                                                         </connections>
                                                                     </menuItem>
                                                                 </items>
@@ -997,10 +1093,106 @@ DQ
                                                             <modifierMask key="keyEquivalentModifierMask"/>
                                                             <menu key="submenu" title="Mobile Device" id="Beg-nY-2F5">
                                                                 <items>
+                                                                    <menuItem title="AirPlay" identifier="ios_airplay" id="JGe-Fn-cj2">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="Bog-bW-NHd"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="AirPlay Security" identifier="ios_airplaysec" id="yXr-VY-zXq">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="4LW-vV-xoc"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="AirPrint" identifier="ios_airprint" id="vRd-um-z7K">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="SMe-va-ukd"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="APN" identifier="ios_apn" id="FYX-Jn-KUs">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="H79-Ix-6hJ"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Calendar" identifier="ios_cal" id="es2-nR-eLx">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="KIc-1p-Hki"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Cellular" identifier="ios_cell" id="d9q-K8-IF3">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="VvQ-8C-B2o"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Certificate Transparency" identifier="ios_certt" id="QLK-aD-hd6">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="n5y-fl-ZUF"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Certificates" identifier="ios_certs" id="oAr-32-8kX">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="5XC-CC-Jfj"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Conference Room Display" identifier="ios_crd" id="Hd5-j2-aSq">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="4Rs-Xl-zcg"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Contacts" identifier="ios_contacts" id="kCh-LZ-JqM">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="olk-es-plW"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Content Filter" identifier="ios_cf" id="UFN-YK-YIu">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="J6Z-m3-ajV"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="DNS Settings" identifier="ios_dnss" id="lBk-fH-Vyc">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="h8O-l1-mIy"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="DNS Proxy" identifier="ios_dnsp" id="vei-4a-P7e">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="98Y-Qf-1Mo"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Domains" identifier="ios_domains" id="Ah3-1I-FfK">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="X2Z-T8-jum"/>
+                                                                        </connections>
+                                                                    </menuItem>
                                                                     <menuItem title="Exchange ActiveSync" identifier="ios_eas" id="WCu-Td-4zJ">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                         <connections>
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="u9G-3b-UDu"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Font" identifier="ios_font" id="xnM-l9-6wX">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="1JD-BC-wbo"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Global HTTP Proxy" identifier="ios_global" id="HWo-KF-cMO">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="hSF-0F-Dff"/>
                                                                         </connections>
                                                                     </menuItem>
                                                                     <menuItem title="Google Account" identifier="ios_google" id="Xkk-5g-C3W">
@@ -1015,10 +1207,34 @@ DQ
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="tfA-iY-8O3"/>
                                                                         </connections>
                                                                     </menuItem>
+                                                                    <menuItem title="LDAP" identifier="ios_ldap" id="Vp3-Ku-sqW">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="AFV-fc-BBz"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Lock Screen Message" identifier="ios_lsm" id="JgY-0Q-RsC">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="GoB-YH-xfY"/>
+                                                                        </connections>
+                                                                    </menuItem>
                                                                     <menuItem title="Mail" identifier="ios_mail" id="bay-Up-u0P">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                         <connections>
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="w9c-1n-RNH"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Network Usage Rules" identifier="ios_nur" id="JY6-yq-puO">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="CZg-Bx-H2Q"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Notifications" identifier="ios_not" id="32T-zq-ROP">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="CrV-hO-gyy"/>
                                                                         </connections>
                                                                     </menuItem>
                                                                     <menuItem title="Passcode" identifier="ios_passcode" id="0zX-Kf-RP9">
@@ -1033,10 +1249,46 @@ DQ
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="6Jc-nI-6OD"/>
                                                                         </connections>
                                                                     </menuItem>
+                                                                    <menuItem title="SCEP" identifier="ios_scep" id="qxj-25-8BK">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="6N4-yZ-Uc6"/>
+                                                                        </connections>
+                                                                    </menuItem>
                                                                     <menuItem title="Single App Mode" identifier="ios_sam" id="Uo3-me-4TL">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                         <connections>
-                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="0yJ-oz-ff3"/>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="2dE-lp-m3a"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Single Sign-On" identifier="ios_sso" id="jgW-4p-D5G">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="HiM-9G-0J5"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Single Sign-On Extensions" identifier="ios_ssoe" id="pLb-os-scj">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="lmP-JQ-Hea"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Skip Setup Items" identifier="ios_skip" id="rK8-00-KXN">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="SqJ-Sw-ORm"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Subscribed Calendars" identifier="ios_subcal" id="nIg-ks-7s2">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="mnV-Q9-E1R"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="TV Remote" identifier="ios_tvr" id="vfV-2w-We9">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="4rU-kb-9Hj"/>
                                                                         </connections>
                                                                     </menuItem>
                                                                     <menuItem title="VPN" identifier="ios_vpn" id="2QS-xS-wSU">
@@ -1045,7 +1297,7 @@ DQ
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="WEO-yr-1KO"/>
                                                                         </connections>
                                                                     </menuItem>
-                                                                    <menuItem title="WebClip" identifier="ios_webclip" id="tbG-gd-rrH" userLabel="WebClip">
+                                                                    <menuItem title="Web Clips" identifier="ios_webclip" id="tbG-gd-rrH" userLabel="WebClip">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                         <connections>
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="Yxo-am-BTs"/>
@@ -1179,15 +1431,15 @@ DQ
                                     <rect key="frame" x="1" y="1" width="715" height="351"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" alternatingRowBackgroundColors="YES" columnSelection="YES" autosaveColumns="NO" rowSizeStyle="automatic" headerView="p4V-OZ-3qL" viewBased="YES" id="Lo3-IF-hlX">
-                                            <rect key="frame" x="0.0" y="0.0" width="809" height="326"/>
+                                        <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" alternatingRowBackgroundColors="YES" columnSelection="YES" autosaveColumns="NO" rowSizeStyle="automatic" headerView="p4V-OZ-3qL" viewBased="YES" id="Lo3-IF-hlX">
+                                            <rect key="frame" x="0.0" y="0.0" width="715" height="326"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             <tableViewGridLines key="gridStyleMask" vertical="YES"/>
                                             <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                             <tableColumns>
-                                                <tableColumn identifier="column1" width="120" minWidth="40" maxWidth="1000" id="X0O-xN-wPn">
+                                                <tableColumn identifier="column1" width="85" minWidth="40" maxWidth="1000" id="X0O-xN-wPn">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
@@ -1201,11 +1453,11 @@ DQ
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="9no-uy-YcU">
-                                                            <rect key="frame" x="1" y="1" width="125" height="17"/>
+                                                            <rect key="frame" x="1" y="1" width="90" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8I3-ad-aOt">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="125" height="17"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="90" height="17"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                                     <textFieldCell key="cell" selectable="YES" sendsActionOnEndEditing="YES" title="Table View Cell" id="Mg9-Eg-CX8">
                                                                         <font key="font" metaFont="system"/>
@@ -1227,7 +1479,7 @@ DQ
                                                         </binding>
                                                     </connections>
                                                 </tableColumn>
-                                                <tableColumn identifier="column2" width="119" minWidth="40" maxWidth="1000" id="yLx-tA-vBi">
+                                                <tableColumn identifier="column2" width="85" minWidth="40" maxWidth="1000" id="yLx-tA-vBi">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
@@ -1241,11 +1493,11 @@ DQ
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="eLh-vZ-pEE">
-                                                            <rect key="frame" x="129" y="1" width="119" height="17"/>
+                                                            <rect key="frame" x="94" y="1" width="85" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XkM-BP-Zy2">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="119" height="17"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="85" height="17"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                                     <textFieldCell key="cell" selectable="YES" sendsActionOnEndEditing="YES" title="Table View Cell" id="dXI-jR-J0B">
                                                                         <font key="font" metaFont="system"/>
@@ -1263,7 +1515,7 @@ DQ
                                                         </tableCellView>
                                                     </prototypeCellViews>
                                                 </tableColumn>
-                                                <tableColumn identifier="column3" width="119" minWidth="1" maxWidth="3.4028234663852886e+38" id="idL-Qh-BWC">
+                                                <tableColumn identifier="column3" width="85" minWidth="1" maxWidth="3.4028234663852886e+38" id="idL-Qh-BWC">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -1277,11 +1529,11 @@ DQ
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="NPj-A7-5gt">
-                                                            <rect key="frame" x="251" y="1" width="119" height="17"/>
+                                                            <rect key="frame" x="182" y="1" width="85" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PKj-vX-SUm">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="119" height="17"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="85" height="17"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="Jdb-j1-2Ev">
                                                                         <font key="font" metaFont="system"/>
@@ -1306,7 +1558,7 @@ DQ
                                                         </binding>
                                                     </connections>
                                                 </tableColumn>
-                                                <tableColumn identifier="column4" width="119" minWidth="1" maxWidth="3.4028234663852886e+38" id="8KS-VK-7qL">
+                                                <tableColumn identifier="column4" width="85" minWidth="1" maxWidth="3.4028234663852886e+38" id="8KS-VK-7qL">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -1320,11 +1572,11 @@ DQ
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="zSQ-rV-iiR">
-                                                            <rect key="frame" x="373" y="1" width="119" height="17"/>
+                                                            <rect key="frame" x="270" y="1" width="85" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="UGM-3E-bKj">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="119" height="17"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="85" height="17"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="Pdt-H6-DE8">
                                                                         <font key="font" metaFont="system"/>
@@ -1342,7 +1594,7 @@ DQ
                                                         </tableCellView>
                                                     </prototypeCellViews>
                                                 </tableColumn>
-                                                <tableColumn identifier="column5" width="119" minWidth="1" maxWidth="3.4028234663852886e+38" id="7cC-Aj-YDm" userLabel="column5">
+                                                <tableColumn identifier="column5" width="85" minWidth="1" maxWidth="3.4028234663852886e+38" id="7cC-Aj-YDm" userLabel="column5">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -1356,11 +1608,11 @@ DQ
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="HK5-FF-VR2">
-                                                            <rect key="frame" x="495" y="1" width="119" height="17"/>
+                                                            <rect key="frame" x="358" y="1" width="85" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4t2-vi-0OK">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="119" height="16"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="85" height="16"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="U3A-BI-9oF">
                                                                         <font key="font" usesAppearanceFont="YES"/>
@@ -1378,7 +1630,7 @@ DQ
                                                         </tableCellView>
                                                     </prototypeCellViews>
                                                 </tableColumn>
-                                                <tableColumn identifier="column6" width="119" minWidth="1" maxWidth="3.4028234663852886e+38" id="rUX-fR-mNY" userLabel="column6">
+                                                <tableColumn identifier="column6" width="85" minWidth="1" maxWidth="3.4028234663852886e+38" id="rUX-fR-mNY" userLabel="column6">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -1392,11 +1644,11 @@ DQ
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="k0N-d9-gHH">
-                                                            <rect key="frame" x="617" y="1" width="119" height="17"/>
+                                                            <rect key="frame" x="446" y="1" width="85" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TUV-ez-d3R">
-                                                                    <rect key="frame" x="0.0" y="1" width="119" height="16"/>
+                                                                    <rect key="frame" x="0.0" y="1" width="85" height="16"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="TTC-r7-SoA">
                                                                         <font key="font" usesAppearanceFont="YES"/>
@@ -1414,7 +1666,7 @@ DQ
                                                         </tableCellView>
                                                     </prototypeCellViews>
                                                 </tableColumn>
-                                                <tableColumn identifier="column7" width="64" minWidth="10" maxWidth="3.4028234663852886e+38" id="nMf-6H-Oyw" userLabel="column7">
+                                                <tableColumn identifier="column7" width="85" minWidth="10" maxWidth="3.4028234663852886e+38" id="nMf-6H-Oyw" userLabel="column7">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -1428,17 +1680,20 @@ DQ
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="IaM-UY-Pz5">
-                                                            <rect key="frame" x="739" y="1" width="68" height="17"/>
+                                                            <rect key="frame" x="534" y="1" width="89" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ahz-Xt-pHh">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="68" height="16"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="89" height="16"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="DMF-gg-54s">
                                                                         <font key="font" usesAppearanceFont="YES"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                     </textFieldCell>
+                                                                    <connections>
+                                                                        <binding destination="IaM-UY-Pz5" name="value" keyPath="objectValue.column7" id="XpC-Fb-tCa"/>
+                                                                    </connections>
                                                                 </textField>
                                                             </subviews>
                                                             <connections>
@@ -1455,7 +1710,7 @@ DQ
                                         </tableView>
                                     </subviews>
                                 </clipView>
-                                <scroller key="horizontalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="DdZ-8u-Gfn">
+                                <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="DdZ-8u-Gfn">
                                     <rect key="frame" x="1" y="336" width="715" height="16"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
@@ -1464,7 +1719,7 @@ DQ
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <tableHeaderView key="headerView" wantsLayer="YES" id="p4V-OZ-3qL">
-                                    <rect key="frame" x="0.0" y="0.0" width="809" height="25"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="715" height="25"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
@@ -1545,6 +1800,7 @@ DQ
                             <constraint firstItem="Edd-TY-WUJ" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="31" id="C7c-1E-L1T"/>
                             <constraint firstItem="fh3-0q-7bE" firstAttribute="leading" secondItem="ltN-VW-Es9" secondAttribute="trailing" constant="11" id="Cqn-8O-nsr"/>
                             <constraint firstItem="Ni1-N3-6aa" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="28" id="F8D-s5-2c0"/>
+                            <constraint firstItem="ReU-E4-0zD" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="JAp-4w-tnI" secondAttribute="trailing" constant="5" id="GAO-IR-lIg"/>
                             <constraint firstItem="XYK-g2-TTf" firstAttribute="top" secondItem="Lrf-aK-USD" secondAttribute="bottom" constant="3" id="GTv-g4-sLb"/>
                             <constraint firstItem="heu-Js-b8d" firstAttribute="leading" secondItem="970-f2-vt2" secondAttribute="trailing" constant="34" id="HPK-Hg-yMw"/>
                             <constraint firstItem="ReU-E4-0zD" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="27" id="HZp-G6-KDY"/>

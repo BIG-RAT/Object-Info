@@ -8,10 +8,16 @@
 
 import Foundation
 
+public var isRunning        = false
+public var detailQ          = OperationQueue()
+public var objectByNameDict = [String:[String:AnyObject]]()
+
 struct appInfo {
     static let dict    = Bundle.main.infoDictionary!
     static let version = dict["CFBundleShortVersionString"] as! String
     static let name    = dict["CFBundleExecutable"] as! String
+    
+    static let userAgentHeader = "\(String(describing: name.addingPercentEncoding(withAllowedCharacters: .alphanumerics)!))/\(appInfo.version)"
 }
 
 struct Log {
@@ -27,16 +33,70 @@ struct JamfProServer {
     static var majorVersion = 0
     static var minorVersion = 0
     static var patchVersion = 0
+    static var version      = ""
     static var build        = ""
     static var authType     = "Basic"
+    static var base64Creds  = ""
     static var authCreds    = ""
+    static var server       = ""
+    static var username     = ""
+    static var password     = ""
 }
 
 struct token {
     static var refreshInterval:UInt32 = 20*60  // 20 minutes
-    static var stringValue = ""
     static var expires     = ""
+    static var isValid     = false
+    static var created:Date?
 }
+
+let endpointDefDict = ["policy":"policies",
+                       "network_segment":"network segments",
+                       "package":"packages",
+                       "script":"scripts",
+                       "computer_group":"computer groups",
+                       "macapplication":"mac applications",
+                       "mobiledeviceapplication":"mobile device applications",
+                       "mobile_device_group":"mobile device groups",
+                       "os_x_configuration_profile":"macOS config profiles",
+                       "configuration_profile":"iOS config profiles",
+                       "computer_extension_attribute":"macOS extension attribtes",
+                       "mobiledeviceconfigurationprofile":"mobile device configuration profiles",
+                       "mobile_device_extension_attribute":"iOS extension attribtes",
+                       "advanced_computer_search":"advanced computer searches",
+                       "advanced_mobile_device_search":"advanced mobile device searches"]
+
+var endpointDict = ["recon":            ["policies","policies","policy"],
+                    "apps_macOS":       ["macapplications","mac_applications","mac_application"],
+                    "apps_iOS":         ["mobiledeviceapplications","mobile_device_applications","mobile_device_application"],
+                    "Network Segments": ["networksegments","network_segments","network_segment"],
+                    "Packages":         ["packages","packages","package"],
+                    "Policies-all":     ["policies","policies","policies"],
+                    "Scripts":          ["scripts","scripts","script"],
+                    "scg":              ["computergroups","computer_groups","computer_group"],
+                    "sdg":              ["mobiledevicegroups","mobile_device_groups","mobile_device_group"],
+                    "mac_cp":           ["osxconfigurationprofiles","os_x_configuration_profiles","os_x_configuration_profile"],
+                    "cp_all_macOS":     ["osxconfigurationprofiles","os_x_configuration_profiles","os_x_configuration_profile"],
+                    "ios_cp":           ["mobiledeviceconfigurationprofiles","configuration_profiles","configuration_profile"],
+                    "cp_all_iOS":       ["mobiledeviceconfigurationprofiles","configuration_profiles","configuration_profile"],
+                    "cea":              ["computerextensionattributes","computer_extension_attributes","computer_extension_attribute"],
+                    "mdea":             ["mobiledeviceextensionattributes","mobile_device_extension_attributes","mobile_device_extension_attributes"],
+                    "acs":              ["advancedcomputersearches","advanced_computer_searches","advanced_computer_search"],
+                    "ams":              ["advancedmobiledevicesearches","advanced_mobile_device_searches","advanced_mobile_device_search"]]
+
+var headersDict = ["recon":             ["Policy","Trigger","Frequency","Scope"],
+                   "Network Segments":  ["Segment Name","Start Address","End Address","Default Share","URL"],
+                   "apps_iOS":          ["App Name", "Managed Dist.","Scope","Limitations","Exclusions"],
+                   "apps_macOS":        ["App Name", "Managed Dist.","Scope","Limitations","Exclusions"],
+                   "cp_all_iOS":        ["Profile Name", "Payloads","Scope","Limitations","Exclusions"],
+                   "cp_all_macOS":      ["Profile Name", "Payloads","Scope","Limitations","Exclusions"],
+                   "Packages":          ["Package Name","Policy","Trigger","Frequency","Configuration"],
+                   "Policies-all":      ["Policy Name","Payloads","Trigger","Frequency","Scope","Limitations","Exclusions"],
+                   "Scripts":           ["Script Name","Policy","Trigger","Frequency","Configuration"],
+                   "scg":               ["Group Name","Policy","Profile","Trigger","Frequency","App"],
+                   "sdg":               ["Group Name","Profile","App"],
+                   "mac_cp":            ["Payload Type","Profile Name","Scope","Limitations","Exclusions"],
+                   "cea":               ["Extension Attribute","Smart Group","Advanced Search","EA Type"]]
 
 let configProfilePayloads = ["Passcode":["<string>com.apple.mobiledevice.passwordpolicy</string>"],
                             "Wi-Fi": ["<key>HIDDEN_NETWORK</key>"],
@@ -53,6 +113,7 @@ let configProfilePayloads = ["Passcode":["<string>com.apple.mobiledevice.passwor
                             "Google Account":["<key>PayloadDisplayName</key><string>com.apple.google-oauth</string>","<key>PayloadType</key><string>com.apple.google-oauth</string>"],
                              "LDAP":["<key>PayloadDisplayName</key><string>com.apple.ldap.account</string>","<key>PayloadType</key><string>com.apple.ldap.account</string>"],
                              "Calendar":["<key>PayloadDisplayName</key><string>CalDAV</string>","<key>PayloadType</key><string>com.apple.caldav.account</string>"],
+                             "Contacts":["<key>PayloadDisplayName</key><string>com.apple.carddav.account</string>","<key>PayloadType</key><string>com.apple.carddav.account</string>"],
                              "Subscribed Calendars":["<key>PayloadDisplayName</key><string>com.apple.subscribedcalendar.account</string>","<key>PayloadType</key><string>com.apple.subscribedcalendar.account</string>"],
                              "Web Clips":["<key>PayloadDisplayName</key><string>Web Clip</string>","<key>PayloadType</key><string>com.apple.webClip.managed</string>"],
                              "Skip Setup Items":["<key>PayloadDisplayName</key><string>Setup Assistant</string>","<key>PayloadType</key><string>com.apple.SetupAssistant.managed</string>"],
@@ -90,7 +151,7 @@ let configProfilePayloads = ["Passcode":["<string>com.apple.mobiledevice.passwor
                             "PPPC":["<key>PayloadType</key><string>com.apple.TCC.configuration-profile-policy</string>"],
                             "AD Certificate":["<string>com.apple.ADCertificate.managed</string>","<key>PayloadDisplayName</key><string>AD Certificate</string>"],
                             "Energy":["<key>PayloadDisplayName</key><string>MCX</string>","<key>com.apple.EnergySaver.desktop.ACPower</key>","<key>com.apple.EnergySaver.portable.ACPower-ProfileNumber</key>"],
-                            "Custom Settings":["<key>PayloadDisplayName</key><string>Custom Settings</string>","<key>PayloadType</key><string>com.apple.ManagedClient.preferences</string>"],
+                            "App & Custom Settings":["<key>PayloadDisplayName</key><string>Custom Settings</string>","<key>PayloadType</key><string>com.apple.ManagedClient.preferences</string>"],
                             "Identification":["<key>PayloadDisplayName</key><string>Identity</string>","<key>PayloadType</key><string>com.apple.configurationprofile.identification</string>"],
                             "Time Machine":["<key>PayloadDisplayName</key><string>Time Machine</string>","<key>PayloadType</key><string>com.apple.MCX.TimeMachine</string>"],
                             "Finder":["<key>PayloadType</key><string>com.apple.finder</string>","<key>InterfaceLevel</key><string>Full</string>"],
@@ -170,7 +231,7 @@ public func policyPayloads(xml: [String:Any]) -> [String] {
             
         case "disk_encryption":
             let dePayload = xml[payload] as! [String:Any]
-            if "\(dePayload)" == "apply" {
+            if dePayload["action"] as! String != "none" {
                 payloadList.append(payloadType)
             }
         case "reboot":
@@ -247,3 +308,20 @@ func tagValue(xmlString:String, xmlTag:String) -> String {
     }
     return rawValue
 }
+
+public func timeDiff(forWhat: String) -> (Int,Int,Int) {
+    var components:DateComponents?
+    switch forWhat {
+//    case "runTime":
+//        components = Calendar.current.dateComponents([.second, .nanosecond], from: History.startTime, to: Date())
+    case "tokenAge":
+        components = Calendar.current.dateComponents([.second, .nanosecond], from: (token.created ?? Date())!, to: Date())
+    default:
+        break
+    }
+    let timeDifference = Int(components?.second! ?? 0)
+    let (h,r) = timeDifference.quotientAndRemainder(dividingBy: 3600)
+    let (m,s) = r.quotientAndRemainder(dividingBy: 60)
+    return(h,m,s)
+}
+
