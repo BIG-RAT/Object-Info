@@ -263,7 +263,6 @@ class ViewController: NSViewController, URLSessionDelegate {
                         }
                         
                         if menuIdentifier == "cea" || menuIdentifier == "mdea" {
-                            print("build EA dictionary")
                             switch menuIdentifier {
                             case "cea":
                                 selectedEndpoint     = "computergroups"
@@ -274,11 +273,10 @@ class ViewController: NSViewController, URLSessionDelegate {
                                 singleEndpointXmlTag = "mobile_device_group"
                                 action_textField.stringValue = "Querying mobile device extension attributes"
                             }
-                            print("[JamfPro().objectByName] call")
+
                             JamfPro().objectByName(endpoint: menuIdentifier, endpointData: idNameDict) { [self]
 //                            JamfPro().objectByName(endpoint: menuIdentifier, endpointData: packageScriptArray) { [self]
                                 (result: String) in
-                                print("[JamfPro().objectByName] result: \(result)")
                                 // switch lookup to eas scoped to groups - start
                                 WriteToLog().message(stringOfText: ["[get] apiCall (\(singleEndpointXmlTag)s) for endpoint: Groups"])
                                 apiCall(endpoint: "\(singleEndpointXmlTag)s") { [self]
@@ -291,7 +289,6 @@ class ViewController: NSViewController, URLSessionDelegate {
                             }
                         } else if menuIdentifier != "sdg" {
                             // switch lookup to packages/scripts scoped to policies - start
-                            print("check policies")
                             WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: policies"])
                             selectedEndpoint     = "policies"
                             singleEndpointXmlTag = "policy"
