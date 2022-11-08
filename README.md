@@ -1,6 +1,6 @@
 # Object Info
 
-Wondering what packages or scripts are scoped to what policies?  Or what configuration profiles contain a certain payload?  Need an overview of all your network segments?  How about finding out what object(s) smart/static groups are attached to?  Object info looks to summarize these things.
+Wondering what packages or scripts are scoped to what policies?  Or what configuration profiles contain a certain payload?  Need an overview of all your network segments?  How about finding out what object(s) smart/static groups are attached to?  Object info looks to summarize these things and more.
 
 Download: [Object Info](https://github.com/BIG-RAT/Object-Info/releases/download/current/Object.Info.zip)
 
@@ -11,17 +11,19 @@ Download: [Object Info](https://github.com/BIG-RAT/Object-Info/releases/download
 * Find policies that update inventory.
 * Find what triggers are used in what policies.
 * Find IP range, default share name, and URL associated with a network segment.
-* Find what policies and computer configurations a package is associated with.
-* Find what policies and computer configurations a script is associated with.
+* Find what policies and prestages a package is associated with.
+* Find what policies and prestages a script is associated with.
 * Find what policies, configuration profiles, and apps a computer group is associated with.
 * Find what configuration profiles, and apps a device group is associated with.
 * Find macOS configuration profiles containing a particular payload.
-* Find where extension attributes (computer/mobile device) are used in groups and advanced searches along with the type of EA (script, pop-up, LDAP..).
 * Find iOS configuration profiles containing a particular payload.  
+* Find where extension attributes (computer/mobile device) are used in groups and advanced searches along with the type of EA (script, pop-up, LDAP..).
 	
 <hr>
 
 **History**
+
+2022-10-08: Version 2.0.0 - Additional details on various objects. Summary of policies and profiles that include scope, limitations, and exclusions - imitations and exclusions for LDAP user groups only. Extension attribute usage along with the type of attribute. PreStages are now scanned for profiles and packages.
 
 2022-03-08: Version 1.5.2 - Resolve app hanging due to computerconfigurations being removed.
 
