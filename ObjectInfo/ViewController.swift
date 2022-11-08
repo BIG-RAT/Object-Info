@@ -706,7 +706,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         
         self.username = self.uname_TextField.stringValue
         self.password = self.passwd_TextField.stringValue
-        let jamfCreds = "\(self.username):\(self.password)"
+//        let jamfCreds = "\(self.username):\(self.password)"
         
 //        let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
 //        let jamfBase64Creds = (jamfUtf8Creds?.base64EncodedString())!
@@ -723,7 +723,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             var thePackageArray     = [[String: Any]]()
             var objectDict          = [String: Any]()
             
-            var searchStringArray        = [String]()
+            var searchStringArray   = [String]()
             var recordName          = ""
             var currentPayload      = ""
             var triggers            = ""

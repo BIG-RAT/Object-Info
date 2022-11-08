@@ -19,6 +19,7 @@ Download: [Object Info](https://github.com/BIG-RAT/Object-Info/releases/download
 * Find iOS configuration profiles containing a particular payload.  
 * Find where extension attributes (computer/mobile device) are used in groups and advanced searches along with the type of EA (script, pop-up, LDAP..).
 	
+Unused objects are not displayed.  For example, if a package is not used in either a policy or prestage it will not be listed.  Policies that are disabled can be identified with the text [disabled] displayed in the frequency column.
 <hr>
 
 **History**
