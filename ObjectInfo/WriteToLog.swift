@@ -21,7 +21,8 @@ class WriteToLog {
     }
     
     // func logCleanup - start
-    func logCleanup(completionHandler: @escaping (_ result: String) -> Void) {
+    func logCleanup() {
+//    func logCleanup(completionHandler: @escaping (_ result: String) -> Void) {
             var logArray: [String] = []
             var logCount: Int = 0
             do {
@@ -60,7 +61,7 @@ class WriteToLog {
 //                            print("zipIt result: \(result)")
                             self.createLogFile() {
                                 (result: String) in
-                                completionHandler(result)
+//                                completionHandler(result)
                                 return
                             }
                         }
@@ -68,10 +69,10 @@ class WriteToLog {
                 }
             } catch {
 //                print("no history")
-                completionHandler("")
+//                completionHandler("")
                 return
             }
-            completionHandler("")
+//            completionHandler("")
     }
     // func logCleanup - end
 
@@ -84,10 +85,10 @@ class WriteToLog {
                 print("failed to create log file at \(Log.path!)\(Log.file)")
             }
         }
-        createLogFile() { [self]
-            (result: String) in
-            logCleanup() {
-                (result: String) in
+//        createLogFile() { [self]
+//            (result: String) in
+//            logCleanup() {
+//                (result: String) in
                 self.writeToLogQ.sync {
                     for theString in stringOfText {
                         let logString = "\(self.logDate()) \(theString)\n"
@@ -97,10 +98,9 @@ class WriteToLog {
                         let logText = (logString as NSString).data(using: String.Encoding.utf8.rawValue)
                         self.logFileW?.write(logText!)
                     }
-    //                self.logFileW?.closeFile()
                 }
-            }
-        }
+//            }
+//        }
     }
     
     func getCurrentTime() -> String {

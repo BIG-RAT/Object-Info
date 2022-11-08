@@ -16,44 +16,9 @@ Download: [Object Info](https://github.com/BIG-RAT/Object-Info/releases/download
 * Find what policies, configuration profiles, and apps a computer group is associated with.
 * Find what configuration profiles, and apps a device group is associated with.
 * Find macOS configuration profiles containing a particular payload.
-* Find where extension attributes (computer/mobile device) are used in groups and advanced searches.
-
-	**Currently available payloads**:
-	
-	* AD Certificate
-	* Certificate
-	* Directory
-	* Dock
-	* Energy Saver
-	* Kernel Extensions
-	* Login Items
-	* Login Window
-	* Mobility
-	* Network
-	* Printing
-	* Passcode
-	* Restrictions
-	* SCEP
-	* Security & Privacy 
-	* Software Update
-	* System Extensions
-	* VPN
-
+* Find where extension attributes (computer/mobile device) are used in groups and advanced searches along with the type of EA (script, pop-up, LDAP..).
 * Find iOS configuration profiles containing a particular payload.  
-	**Currently available payloads:**
 	
-	* Exchange ActiveSync
-	* Google Account
-	* Home Screen Layout
-	* Mail
-	* Passcode
-	* Restrictions
-	* Single App Mode
-	* VPN
-	* WebClip
-	* Wi-Fi
-
-**Note:** prestages are not queried for objects like packages or profiles.
 <hr>
 
 **History**

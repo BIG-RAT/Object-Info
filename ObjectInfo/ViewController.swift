@@ -76,10 +76,8 @@ class ViewController: NSViewController, URLSessionDelegate {
     var username                = ""
     var password                = ""
     var jamfBase64Creds         = ""
-    
-    var userAgentHeader         = ""
-    
-    var displayResults          = ""
+        
+//    var displayResults          = ""
     var detailedResults         = ""
     var allDetailedResults      = ""
     var theScope                = ""
@@ -102,10 +100,11 @@ class ViewController: NSViewController, URLSessionDelegate {
     var increment               = 0.0
     var pendingCount            = 0     // number of requests waiting for a response
     
-    var payloadArray      = [String]()
+    var payloadArray            = [String]()
     var limitationsExclusions   = [String:[String]]()
     var managedDist             = false
     var scopeableObjectsArray   = [String]()
+    var exportTitleSuffix       = ""
     
     var apiQ            = OperationQueue()
 //    var detailQ         = OperationQueue()
@@ -120,53 +119,54 @@ class ViewController: NSViewController, URLSessionDelegate {
         menuTitle           = "\(sender.title)"
         menuIdentifier      = "\(sender.identifier?.rawValue ?? "")"
         
-        switch menuIdentifier {
-        case "mac_access", "mac_ad-cert", "mac_airplay", "mac_acs", "mac_atpavpn", "mac_cert", "mac_dir", "mac_dock", "mac_energy", "mac_finder", "mac_font", "mac_ident", "mac_kext", "mac_loginitems", "mac_loginwindow", "mac_mobility", "mac_network", "mac_notifications", "mac_parental", "mac_passcode", "mac_pppc", "mac_print", "mac_proxies", "mac_restrict", "mac_scep", "mac_sec-priv-filevault", "mac_sec-priv-genfire", "mac_su", "mac_sysext", "mac_tm", "mac_vpn", "mac_xsan":
-            endpointType = "mac_cp"
-            select_MenuItem.title = "macOS-"+menuTitle
-        case "ios_airplay", "ios_airplaysec", "ios_airprint", "ios_apn", "ios_cal", "ios_cell", "ios_certt", "ios_certs", "ios_crd", "ios_contacts", "ios_cf", "ios_dnss", "ios_dnsp", "ios_domains", "ios_eas", "ios_font", "ios_global", "ios_google", "ios_hsl", "ios_ldap", "ios_lsm", "ios_mail", "ios_nur", "ios_not", "ios_passcode", "ios_restrict", "ios_scep", "ios_sam", "ios_sso", "ios_ssoe", "ios_skip", "ios_subcal", "ios_tvr", "ios_vpn", "ios_webclip", "ios_wifi":
-            endpointType = "ios_cp"
-            select_MenuItem.title = "iOS-"+menuTitle
-            headersDict["ios_cp"]  = headersDict["mac_cp"]
-        case "scg","sdg":    // added sdg lnh - 201205
-            endpointType = menuIdentifier
-            select_MenuItem.title = menuTitle+" Groups"
-        case "cea","mdea":
-            endpointType = menuIdentifier
-            select_MenuItem.title = menuTitle+" EA"
-            headersDict["mdea"]  = headersDict["cea"]
-        case "trigger_checkin","trigger_enrollment_complete","trigger_login","trigger_logout","trigger_network_state_changed","trigger_startup","trigger_other":
-            endpointType = menuIdentifier
-            select_MenuItem.title = menuTitle
-            endpointDict[endpointType] = endpointDict["recon"]!
-            headersDict[endpointType]  = headersDict["recon"]!
-        case "apps_iOS","apps_macOS":
-            endpointType = menuIdentifier
-            select_MenuItem.title = menuTitle+" Apps"
-        case "cp_all_iOS","cp_all_macOS":
-            endpointType = menuIdentifier
-            select_MenuItem.title = menuTitle+" Config Profiles"
-        default:
-            print("menuIdentifier: \(menuIdentifier)")
-            print("menuTitle: \(menuTitle)")
-            endpointType = menuIdentifier
-            select_MenuItem.title = menuTitle
-        }
-
         if menuIdentifier != "" {
+            
             get_button.isEnabled    = true
             export_button.isEnabled = false
-//            if menuIdentifier.prefix(8) != "trigger_" {
-                selection = endpointDict[endpointType]!
-//            } else {
-//                selection = endpointDict["trigger"]!
-//            }
-
-            WriteToLog().message(stringOfText: ["endpointDict[\(endpointType)]: \(endpointDict[endpointType]!)"])
-
+            exportTitleSuffix       = ""
+            
+            switch menuIdentifier {
+            case "mac_access", "mac_ad-cert", "mac_airplay", "mac_acs", "mac_atpavpn", "mac_cert", "mac_dir", "mac_dock", "mac_energy", "mac_finder", "mac_font", "mac_ident", "mac_kext", "mac_loginitems", "mac_loginwindow", "mac_mobility", "mac_network", "mac_notifications", "mac_parental", "mac_passcode", "mac_pppc", "mac_print", "mac_proxies", "mac_restrict", "mac_scep", "mac_sec-priv-filevault", "mac_sec-priv-genfire", "mac_su", "mac_sysext", "mac_tm", "mac_vpn", "mac_xsan":
+                endpointType = "mac_cp"
+                select_MenuItem.title = "macOS-"+menuTitle
+                exportTitleSuffix = "-" + menuIdentifier
+            case "ios_airplay", "ios_airplaysec", "ios_airprint", "ios_apn", "ios_cal", "ios_cell", "ios_certt", "ios_certs", "ios_crd", "ios_contacts", "ios_cf", "ios_dnss", "ios_dnsp", "ios_domains", "ios_eas", "ios_font", "ios_global", "ios_google", "ios_hsl", "ios_ldap", "ios_lsm", "ios_mail", "ios_nur", "ios_not", "ios_passcode", "ios_restrict", "ios_scep", "ios_sam", "ios_sso", "ios_ssoe", "ios_skip", "ios_subcal", "ios_tvr", "ios_vpn", "ios_webclip", "ios_wifi":
+                endpointType = "ios_cp"
+                select_MenuItem.title = "iOS-"+menuTitle
+                headersDict["ios_cp"]  = headersDict["mac_cp"]
+                exportTitleSuffix = "-" + menuIdentifier
+            case "scg","sdg":    // added sdg lnh - 201205
+                endpointType = menuIdentifier
+                select_MenuItem.title = menuTitle+" Groups"
+            case "cea","mdea":
+                endpointType = menuIdentifier
+                select_MenuItem.title = menuTitle+" EA"
+                headersDict["mdea"]  = headersDict["cea"]
+            case "trigger_checkin","trigger_enrollment_complete","trigger_login","trigger_logout","trigger_network_state_changed","trigger_startup","trigger_other":
+                endpointType = menuIdentifier
+                select_MenuItem.title = menuTitle
+                endpointDict[endpointType] = endpointDict["recon"]!
+                headersDict[endpointType]  = headersDict["recon"]!
+                exportTitleSuffix = "-" + menuIdentifier
+            case "apps_iOS","apps_macOS":
+                endpointType = menuIdentifier
+                select_MenuItem.title = menuTitle+" Apps"
+            case "cp_all_iOS","cp_all_macOS":
+                endpointType = menuIdentifier
+                select_MenuItem.title = menuTitle+" Config Profiles"
+            default:
+    //            print("menuIdentifier: \(menuIdentifier)")
+    //            print("menuTitle: \(menuTitle)")
+                endpointType = menuIdentifier
+                select_MenuItem.title = menuTitle
+            }
+            
+            selection               = endpointDict[endpointType]!
             oSelectedEndpoint       = "\(selection[0])"
             oEndpointXmlTag         = "\(selection[1])"
             oSingleEndpointXmlTag   = "\(selection[2])"
+
+            WriteToLog().message(stringOfText: ["endpointDict[\(endpointType)]: \(endpointDict[endpointType]!)"])
             
             self.action_textField.stringValue = ""
             formatTableView(columnHeaders: headersDict[endpointType]!)
@@ -206,8 +206,8 @@ class ViewController: NSViewController, URLSessionDelegate {
         password       = self.passwd_TextField.stringValue
         let jamfCreds  = "\(self.username):\(self.password)"
         
-        let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
-        jamfBase64Creds = (jamfUtf8Creds?.base64EncodedString())!
+        let jamfUtf8Creds = jamfCreds.data(using: String.Encoding.utf8)
+        jamfBase64Creds   = (jamfUtf8Creds?.base64EncodedString())!
         
         JamfPro().getToken(serverUrl: jamfServer_TextField.stringValue, base64creds: jamfBase64Creds) { [self]
             (result: (Int,String)) in
@@ -227,7 +227,6 @@ class ViewController: NSViewController, URLSessionDelegate {
             singleEndpointXmlTag   = oSingleEndpointXmlTag
             if endpointXmlTag != "" {
                 get_button.isEnabled = false
-                var theRecordArray   = [String]()
                 
                 summaryArray.removeAll()
                 self.details_TextView.string = ""
@@ -238,7 +237,9 @@ class ViewController: NSViewController, URLSessionDelegate {
                 self.details_TextView.string.append("\n")
 
                 self.results_TextView.string = ""
-                displayResults               = ""
+//                displayResults               = ""
+                idNameDict.removeAll()
+                objectByNameDict.removeAll()
                 allDetailedResults           = ""
                 packageScriptArray.removeAll()
                 pkgScrArray.removeAll()
@@ -246,70 +247,108 @@ class ViewController: NSViewController, URLSessionDelegate {
                 WriteToLog().message(stringOfText: ["[get]       apiCall for endpoint: \(endpointXmlTag)"])
                 WriteToLog().message(stringOfText: ["[get] apiCall for menuIdentifier: \(menuIdentifier)"])
                 
-                print("[get] calling endpointXmlTag: \(endpointXmlTag)")
+//                print("[get] calling endpointXmlTag: \(endpointXmlTag)")
                 
-                apiCall(endpoint: "\(endpointXmlTag)") {
-                    (result: String) in
+                apiCall(endpoint: "\(endpointXmlTag)") { [self]
+                    (result: [Int:String]) in
                     WriteToLog().message(stringOfText: ["[get] returned from apiCall - result:\n\(result)"])
                     
-                    self.results_TextView.string = "\(result)"
-                    if self.menuIdentifier == "Packages" || self.menuIdentifier == "Scripts" || self.menuIdentifier == "scg" || self.menuIdentifier == "sdg" || self.menuIdentifier == "cea" || self.menuIdentifier == "mdea" {
+                    results_TextView.string = "\(result)"
+                    if menuIdentifier == "Packages" || menuIdentifier == "Scripts" || menuIdentifier == "scg" || menuIdentifier == "sdg" || menuIdentifier == "cea" || menuIdentifier == "mdea" {
                         
-                        self.packageScriptArray = "\(result)".components(separatedBy: "\n")
-    //                    WriteToLog().message(stringOfText: ["packageScriptArray: \(self.packageScriptArray)")
-                        for theRecord in self.packageScriptArray {
-                            theRecordArray = theRecord.components(separatedBy: "\t")
-                            if theRecordArray.count == 2 {
-                                WriteToLog().message(stringOfText: ["[get] theRecord: \(theRecordArray[1])"])
-    //                            print("\(self.singleEndpointXmlTag) name: \(theRecordArray[1])")
-                                self.pkgScrArray.append("\(theRecordArray[1])")
-                            }
+                        for (_, objectName) in idNameDict {
+                            WriteToLog().message(stringOfText: ["[get] theRecord: \(objectName)"])
+
+                            pkgScrArray.append("\(objectName)")
                         }
                         
-                        if self.menuIdentifier == "cea" || self.menuIdentifier == "mdea" {
+                        if menuIdentifier == "cea" || menuIdentifier == "mdea" {
                             print("build EA dictionary")
-                            JamfPro().objectByName(endpoint: self.menuIdentifier, endpointData: self.packageScriptArray) {
+                            switch menuIdentifier {
+                            case "cea":
+                                selectedEndpoint     = "computergroups"
+                                singleEndpointXmlTag = "computer_group"
+                                action_textField.stringValue = "Querying macOS extension attributes"
+                            default:
+                                selectedEndpoint     = "mobiledevicegroups"
+                                singleEndpointXmlTag = "mobile_device_group"
+                                action_textField.stringValue = "Querying mobile device extension attributes"
+                            }
+                            print("[JamfPro().objectByName] call")
+                            JamfPro().objectByName(endpoint: menuIdentifier, endpointData: idNameDict) { [self]
+//                            JamfPro().objectByName(endpoint: menuIdentifier, endpointData: packageScriptArray) { [self]
                                 (result: String) in
                                 print("[JamfPro().objectByName] result: \(result)")
                                 // switch lookup to eas scoped to groups - start
-                                WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: Groups"])
-                                switch self.menuIdentifier {
-                                case "cea":
-                                    self.selectedEndpoint     = "computergroups"
-                                    self.singleEndpointXmlTag = "computer_group"
-                                default:
-                                    self.selectedEndpoint     = "mobiledevicegroups"
-                                    self.singleEndpointXmlTag = "mobile_device_group"
-                                }
-                                self.apiCall(endpoint: "\(self.singleEndpointXmlTag)s") {
-                                    (result: String) in
-                                    self.results_TextView.string = "\(result)"
-                                    print("[get-self.menuIdentifier] result: \(result)")
+                                WriteToLog().message(stringOfText: ["[get] apiCall (\(singleEndpointXmlTag)s) for endpoint: Groups"])
+                                apiCall(endpoint: "\(singleEndpointXmlTag)s") { [self]
+                                    (result: [Int:String]) in
+                                    // need to fix
+                                    results_TextView.string = "\(result)"
+//                                    print("[get-menuIdentifier] result: \(result)")
                                 }
                                 // switch lookup to eas scoped to groups - end
                             }
-                        } else if self.menuIdentifier != "sdg" {
+                        } else if menuIdentifier != "sdg" {
                             // switch lookup to packages/scripts scoped to policies - start
+                            print("check policies")
                             WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: policies"])
-                            self.selectedEndpoint     = "policies"
-                            self.singleEndpointXmlTag = "policy"
-                            self.apiCall(endpoint: "policies") {
-                                (result: String) in
-                                self.results_TextView.string = "\(result)"
+                            selectedEndpoint     = "policies"
+                            singleEndpointXmlTag = "policy"
+                            apiCall(endpoint: "policies") { [self]
+                                (result: [Int:String]) in
+                                // need to fix
+                                results_TextView.string = "\(result)"
         //                        print("apiCall done with policies?\n\(result)\n")
                             }
                             // switch lookup to packages/scripts scoped to policies - end
                         } else {
                             // switch lookup to mobile device groups scoped to configuration profiles - start
                             WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: configuration_profiles"])
-                            self.selectedEndpoint     = "mobiledeviceconfigurationprofiles"
-                            self.singleEndpointXmlTag = "configuration_profile"
-                            self.apiCall(endpoint: "configuration_profiles") {
-                                (result: String) in
-                                self.results_TextView.string = "\(result)"
+                            selectedEndpoint     = "mobiledeviceconfigurationprofiles"
+                            singleEndpointXmlTag = "configuration_profile"
+                            apiCall(endpoint: "configuration_profiles") { [self]
+                                (result: [Int:String]) in
+                                // need to fix
+                                results_TextView.string = "\(result)"
     //                            print("apiCall done with policies?\n\(result)\n")
                             }
                             // switch lookup to mobile device groups scoped to configuration profiles - end
+                        }
+                    } else if menuIdentifier == "cp_all_macOS" {
+                        // start looping through computer PreStages - start
+                        selectedEndpoint = "computer-prestages"
+                        prestages(currentPage: 0, pageSize: 200, objectCount: 0, endpoint: selectedEndpoint, subsearch: "prestageInstalledProfileIds")
+                    } else if menuIdentifier == "cp_all_iOS" {
+                        // mobile-device-prestages
+                        selectedEndpoint = "mobile-device-prestages"
+                        prestages(currentPage: 0, pageSize: 200, objectCount: 0, endpoint: selectedEndpoint, subsearch: "prestageInstalledProfileIds")
+                    }
+                }
+            }
+        }
+    }
+    
+    func prestages(currentPage: Int, pageSize: Int, objectCount: Int, endpoint: String, subsearch: String) {
+        JamfPro().jpapiGET(endpoint: endpoint, apiData: [:], id: "", token: "") {
+            (result: [String:Any]) in
+//            print("prestage results: \(result)")
+            let prestageCount = result["totalCount"] as! Int
+//            print("total prestages: \(prestageCount)")
+            let allprestages = result["results"] as? [[String:Any]]
+            for i in 0..<min(prestageCount,pageSize) {
+                let prestageInfo = allprestages?[i]
+                let prestageProfiles = prestageInfo?[subsearch] as? [String]
+                if prestageProfiles?.count ?? 0 > 0 {
+                    let objectDisplayName = prestageInfo!["displayName"] as! String
+                    for prestageID in prestageProfiles! {
+                        let profileName = idNameDict[Int(prestageID)!]
+                        if subsearch == "prestageInstalledProfileIds" {
+                            self.summaryArray.append(endpointData(column1: "\(String(describing: profileName!))", column2: "", column3: "", column4: "", column5: "", column6: "\(objectDisplayName)", column7: ""))
+                            self.details_TextView.string.append("\(String(describing: profileName!))\t\t\t\t\t\(String(describing: objectDisplayName))\n")
+                        } else {
+                            self.summaryArray.append(endpointData(column1: "\(String(describing: profileName!))", column2: "", column3: "", column4: "", column5: "\(objectDisplayName)", column6: "", column7: ""))
+                            self.details_TextView.string.append("\(String(describing: profileName!))\t\t\t\t\(String(describing: objectDisplayName))\n")
                         }
                     }
                 }
@@ -321,7 +360,8 @@ class ViewController: NSViewController, URLSessionDelegate {
         NSApplication.shared.terminate(self)
     }
     
-    func apiCall(endpoint: String, completion: @escaping (_ result: String) -> Void) {
+    func apiCall(endpoint: String, completion: @escaping (_ result: [Int:String]) -> Void) {
+//    func apiCall(endpoint: String, completion: @escaping (_ result: String) -> Void) {
         WriteToLog().message(stringOfText: ["[apiCall] endpoint: \(endpoint)"])
 
         completeCounter[endpoint] = 0
@@ -338,7 +378,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             endpointUrl = endpointUrl.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
             WriteToLog().message(stringOfText: ["[apiCall] endpointURL: \(endpointUrl)"])
         } else {
-            completion("no endpoint selected")
+            completion([0:"no endpoint selected"])
         }
         
         apiQ.addOperation {
@@ -349,11 +389,12 @@ class ViewController: NSViewController, URLSessionDelegate {
             request.httpMethod = "GET"
             let serverConf = URLSessionConfiguration.ephemeral
             
-            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "User-Agent" : self.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
+            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "User-Agent" : appInfo.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
             URLCache.shared.removeAllCachedResponses()
             let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = serverSession.dataTask(with: request as URLRequest, completionHandler: {
                 (data, response, error) -> Void in
+                serverSession.finishTasksAndInvalidate()
                 if let httpResponse = response as? HTTPURLResponse {
 //                    if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
                     WriteToLog().message(stringOfText: ["[apiCall] completion - HTTP status code for \(self.endpointUrl): \(httpResponse.statusCode)"])
@@ -420,7 +461,7 @@ class ViewController: NSViewController, URLSessionDelegate {
     //                                    self.apiDetailCount = self.completeCounter
                                         self.queryComplete()
                                     }
-                                    completion("")
+                                    completion([:])
                                 }
                     
                                 for i in (0..<endpointInfo.count) {
@@ -429,7 +470,8 @@ class ViewController: NSViewController, URLSessionDelegate {
                                     let recordId   = theRecord["id"] as! Int
                                     let recordName = theRecord["name"] as! String
                                 
-                                    self.displayResults.append("\(recordId)\t\(recordName)\n")
+                                    idNameDict[recordId] = recordName
+//                                    self.displayResults.append("\(recordId)\t\(recordName)\n")
 
     //                                print("[apiCall] switch endpoint: \(endpoint)")
                                     switch endpoint {
@@ -443,7 +485,8 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                     self.selectedEndpoint     = "macapplications"
                                                     self.singleEndpointXmlTag = "mac_application"
                                                     self.apiCall(endpoint: "mac_applications") {
-                                                        (result: String) in
+                                                        (result: [Int:String]) in
+                                                        // need to fix
                                                         self.results_TextView.string = "\(result)"
     //                                                  print("apiCall done with mobile device applications?\n\(result)\n")
                                                     }
@@ -456,32 +499,41 @@ class ViewController: NSViewController, URLSessionDelegate {
                                             }
                                         case "policies":    // used for packages and scripts
         //                                        print("policy: \(recordName)")
-                                            self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl, theEndpoint: endpoint) {
+                                        self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl, theEndpoint: endpoint) { [self]
                                                 (result: String) in
-                                                self.allDetailedResults.append("\(result)")
+                                                allDetailedResults.append("\(result)")
                                                 localCounter+=1
         //                                                print("localCounter: \(localCounter) \tarray count: \(endpointInfo.count)")
                                                 if localCounter == endpointInfo.count {
                                                     // display packages and script not attached to any policies
                                                     
         //                                            if self.menuIdentifier != "recon" {
-                                                    switch self.menuIdentifier {
-                                                        case "Packages","Scripts":
-                                                            // start looping through configurations - start
-                                                            self.selectedEndpoint = "computerconfigurations"
-                                                            self.singleEndpointXmlTag = "computer_configuration"
-                                                            self.apiCall(endpoint: "computer_configurations") {
-                                                                (result: String) in
-                                                                self.results_TextView.string = "\(result)"
-        //                                                      print("apiCall done with configurations?\n\(result)\n")
-                                                            }
+                                                    switch menuIdentifier {
+//                                                    case "Packages","Scripts":
+                                                        case "Packages":
+                                                            // start looping through computer PreStages - start
+                                                        print("[Packages] call prestages query")
+                                                            selectedEndpoint = "computer-prestages"
+                                                        prestages(currentPage: 0, pageSize: 200, objectCount: 0, endpoint: selectedEndpoint, subsearch: "customPackageIds")
+//                                                        JamfPro().jpapiGET(endpoint: "computer-prestages", apiData: [:], id: "", token: "") {
+//                                                            (result: [String:Any]) in
+//                                                            print("prestage results: \(result)")
+//                                                        }
+//                                                            self.selectedEndpoint = "computerconfigurations"
+//                                                            self.singleEndpointXmlTag = "computer_configuration"
+//                                                            self.apiCall(endpoint: "computer_configurations") {
+//                                                                (result: String) in
+//                                                                self.results_TextView.string = "\(result)"
+//        //                                                      print("apiCall done with configurations?\n\(result)\n")
+//                                                            }
                                                         case "scg":
                                                             // start looping through configurations - start
-                                                            self.selectedEndpoint = "osxconfigurationprofiles"
-                                                            self.singleEndpointXmlTag = "os_x_configuration_profile"
-                                                            self.apiCall(endpoint: "os_x_configuration_profiles") {
-                                                                (result: String) in
-                                                                self.results_TextView.string = "\(result)"
+                                                            selectedEndpoint = "osxconfigurationprofiles"
+                                                            singleEndpointXmlTag = "os_x_configuration_profile"
+                                                        apiCall(endpoint: "os_x_configuration_profiles") { [self]
+                                                                (result: [Int:String]) in
+                                                                // need to fix
+                                                                results_TextView.string = "\(result)"
             //                                                  print("apiCall done with configurations?\n\(result)\n")
                                                                 }
                                                         default:
@@ -518,7 +570,8 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                              self.selectedEndpoint     = "mobiledeviceapplications"
                                                              self.singleEndpointXmlTag = "mobile_device_application"
                                                              self.apiCall(endpoint: "mobile_device_applications") {
-                                                                 (result: String) in
+                                                                 (result: [Int:String]) in
+                                                                 // need to fix
                                                                  self.results_TextView.string = "\(result)"
              //                                                  print("apiCall done with mobile device applications?\n\(result)\n")
                                                                  }
@@ -555,7 +608,8 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                                  self.selectedEndpoint     = "advancedcomputersearches"
                                                                  self.singleEndpointXmlTag = "advanced_computer_search"
                                                                  self.apiCall(endpoint: "advanced_computer_searches") {
-                                                                     (result: String) in
+                                                                     (result: [Int:String]) in
+                                                                     // need to fix
                                                                      self.results_TextView.string = "\(result)"
                                                                 }
                                                              default:
@@ -563,7 +617,8 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                                 self.selectedEndpoint     = "advancedmobiledevicesearches"
                                                                 self.singleEndpointXmlTag = "advanced_mobile_device_search"
                                                                 self.apiCall(endpoint: "advanced_mobile_device_searches") {
-                                                                    (result: String) in
+                                                                    (result: [Int:String]) in
+                                                                    // need to fix
                                                                     self.results_TextView.string = "\(result)"
                                                                }
                                                          }
@@ -594,7 +649,8 @@ class ViewController: NSViewController, URLSessionDelegate {
                         if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
 
                             WriteToLog().message(stringOfText: ["[apiCall] completion - status code: \(httpResponse.statusCode)"])
-                            completion(self.displayResults)
+                            completion(idNameDict)
+                            
                             if self.username != self.preferencesDict["username"] as? String || self.currentServer != self.preferencesDict["jps_url"] as! String {
                                 self.preferencesDict["username"] = self.username as AnyObject
                                 self.preferencesDict["jps_url"]  = self.currentServer as AnyObject
@@ -619,7 +675,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                 break
                             }
                             self.spinner.stopAnimation(self)
-                            completion(self.displayResults)
+                            completion(idNameDict)
                         }   // if httpResponse.statusCode - end
                     
 //                    } else {
@@ -630,7 +686,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                 } else {  // if let httpResponse = response - end
                     WriteToLog().message(stringOfText: ["[apiCall] completion - No response to \(self.endpointUrl)"])
                     self.alert_dialog(header: "Alert", message: "No response to:\n\(self.endpointUrl)")
-                    completion("")
+                    completion([:])
                 }
                 semaphore.signal()
             })   // let task = serverSession.dataTask - end
@@ -655,8 +711,8 @@ class ViewController: NSViewController, URLSessionDelegate {
         self.password = self.passwd_TextField.stringValue
         let jamfCreds = "\(self.username):\(self.password)"
         
-        let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
-        let jamfBase64Creds = (jamfUtf8Creds?.base64EncodedString())!
+//        let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
+//        let jamfBase64Creds = (jamfUtf8Creds?.base64EncodedString())!
         
         detailQ.addOperation { [self] in
 //        let idUrl = self.endpointUrl+"/id/\(id)"
@@ -686,7 +742,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                 self.stop_button.isHidden = false
                 self.action_textField.stringValue = "Getting details for \(endpointDefDict[self.singleEndpointXmlTag] ?? self.singleEndpointXmlTag)"
             }
-            
+                                    
             if menuIdentifier.lowercased().contains("ios") {
                 scopeableObjectsArray = ["mobile_devices", "mobile_device_groups", "buildings", "departments", "users", "user_groups", "network_segments"]
             } else {
@@ -695,10 +751,11 @@ class ViewController: NSViewController, URLSessionDelegate {
 
             request.httpMethod = "GET"
             let serverConf = URLSessionConfiguration.ephemeral
-            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "User-Agent" : self.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
+            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "User-Agent" : appInfo.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
             let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = serverSession.dataTask(with: request as URLRequest, completionHandler: { [self]
                 (data, response, error) -> Void in
+                serverSession.finishTasksAndInvalidate()
                 if let httpResponse = response as? HTTPURLResponse {
                     if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
 //                    do {
@@ -1063,7 +1120,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 //                                        print("      selectedEndpoint: \(String(describing: self.selectedEndpoint))")
 
                                         currentPayload = "\(String(describing: thePackageArray[i]["name"]!))"
-                                        let currentPayloadID = "\(String(describing: thePackageArray[i]["id"]!))"
+//                                        let currentPayloadID = "\(String(describing: thePackageArray[i]["id"]!))"
                                         currentPolicyArray.append("\(recordName)")
                                         if let pkgIndex = self.pkgScrArray.index(of: "\(currentPayload)") {
                                             self.pkgScrArray.remove(at: pkgIndex)
@@ -1483,7 +1540,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         
         let savePanel = NSSavePanel()
         
-        savePanel.nameFieldStringValue = oSelectedEndpoint+".txt"
+        savePanel.nameFieldStringValue = oSelectedEndpoint+exportTitleSuffix+".txt"
         
         savePanel.begin { (result) -> Void in
             if result.rawValue == NSFileHandlingPanelOKButton {
@@ -1564,11 +1621,6 @@ class ViewController: NSViewController, URLSessionDelegate {
         let additional = "-._~/?"
         let allowed = NSMutableCharacterSet.alphanumeric()
         allowed.addCharacters(in: additional)
-        
-        let appName     = appInfo.name.addingPercentEncoding(withAllowedCharacters: allowed as CharacterSet)
-        userAgentHeader = "\(String(describing: appName!))/\(appInfo.version)"
-//        print("userAgentInfo: \(userAgentHeader)")
-
     }
     
     override func viewDidAppear() {

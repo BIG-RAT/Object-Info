@@ -11,6 +11,7 @@ import Foundation
 public var isRunning        = false
 public var detailQ          = OperationQueue()
 public var objectByNameDict = [String:[String:AnyObject]]()
+public var idNameDict       = [Int:String]()
 
 struct appInfo {
     static let dict    = Bundle.main.infoDictionary!
@@ -60,6 +61,8 @@ let endpointDefDict = ["policy":"policies",
                        "mobile_device_group":"mobile device groups",
                        "os_x_configuration_profile":"macOS config profiles",
                        "configuration_profile":"iOS config profiles",
+                       "cp_all_macOS":"macOS config profiles",
+                       "cp_all_iOS":"iOS config profiles",
                        "computer_extension_attribute":"macOS extension attribtes",
                        "mobiledeviceconfigurationprofile":"mobile device configuration profiles",
                        "mobile_device_extension_attribute":"iOS extension attribtes",
@@ -80,7 +83,7 @@ var endpointDict = ["recon":            ["policies","policies","policy"],
                     "ios_cp":           ["mobiledeviceconfigurationprofiles","configuration_profiles","configuration_profile"],
                     "cp_all_iOS":       ["mobiledeviceconfigurationprofiles","configuration_profiles","configuration_profile"],
                     "cea":              ["computerextensionattributes","computer_extension_attributes","computer_extension_attribute"],
-                    "mdea":             ["mobiledeviceextensionattributes","mobile_device_extension_attributes","mobile_device_extension_attributes"],
+                    "mdea":             ["mobiledeviceextensionattributes","mobile_device_extension_attributes","mobile_device_extension_attribute"],
                     "acs":              ["advancedcomputersearches","advanced_computer_searches","advanced_computer_search"],
                     "ams":              ["advancedmobiledevicesearches","advanced_mobile_device_searches","advanced_mobile_device_search"]]
 
@@ -89,10 +92,10 @@ var headersDict = ["recon":             ["Policy","Trigger","Frequency","Scope"]
                    "apps_iOS":          ["App Name", "Managed Dist.","Scope","Limitations","Exclusions"],
                    "apps_macOS":        ["App Name", "Managed Dist.","Scope","Limitations","Exclusions"],
                    "cp_all_iOS":        ["Profile Name", "Payloads","Scope","Limitations","Exclusions"],
-                   "cp_all_macOS":      ["Profile Name", "Payloads","Scope","Limitations","Exclusions"],
-                   "Packages":          ["Package Name","Policy","Trigger","Frequency","Configuration"],
+                   "cp_all_macOS":      ["Profile Name", "Payloads","Scope","Limitations","Exclusions","PreStage"],
+                   "Packages":          ["Package Name","Policy","Trigger","Frequency","PreStage"],
                    "Policies-all":      ["Policy Name","Payloads","Trigger","Frequency","Scope","Limitations","Exclusions"],
-                   "Scripts":           ["Script Name","Policy","Trigger","Frequency","Configuration"],
+                   "Scripts":           ["Script Name","Policy","Trigger","Frequency"],
                    "scg":               ["Group Name","Policy","Profile","Trigger","Frequency","App"],
                    "sdg":               ["Group Name","Profile","App"],
                    "mac_cp":            ["Payload Type","Profile Name","Scope","Limitations","Exclusions"],
@@ -228,7 +231,6 @@ public func policyPayloads(xml: [String:Any]) -> [String] {
                 }
                 
             }
-            
         case "disk_encryption":
             let dePayload = xml[payload] as! [String:Any]
             if dePayload["action"] as! String != "none" {
@@ -324,4 +326,3 @@ public func timeDiff(forWhat: String) -> (Int,Int,Int) {
     let (m,s) = r.quotientAndRemainder(dividingBy: 60)
     return(h,m,s)
 }
-
