@@ -1,2 +1,4 @@
 localOnly/
 .DS_Store
+*.xcuserstate
+*.xcbkptlist
