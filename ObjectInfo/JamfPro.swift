@@ -29,7 +29,7 @@ class JamfPro: NSObject, URLSessionDelegate {
             let request        = NSMutableURLRequest(url: encodedURL! as URL)
             request.httpMethod = "GET"
             let configuration  = URLSessionConfiguration.default
-            configuration.httpAdditionalHeaders = ["Authorization" : "Bearer \(token)", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : appInfo.userAgentHeader]
+            configuration.httpAdditionalHeaders = ["Authorization" : "Bearer \(token)", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
             let session = Foundation.URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main)
             let task = session.dataTask(with: request as URLRequest, completionHandler: {
                 (data, response, error) -> Void in
@@ -100,6 +100,7 @@ class JamfPro: NSObject, URLSessionDelegate {
         
         let tokenUrl       = URL(string: "\(tokenUrlString)")
         let configuration  = URLSessionConfiguration.ephemeral
+        configuration.timeoutIntervalForRequest = 20
         var request        = URLRequest(url: tokenUrl!)
         request.httpMethod = "POST"
         
@@ -108,7 +109,7 @@ class JamfPro: NSObject, URLSessionDelegate {
         if !token.isValid || (minutesOld > 25) {
             WriteToLog().message(stringOfText: ["[JamfPro.getToken] Attempting to retrieve token from \(String(describing: tokenUrl!)) for version look-up"])
             
-            configuration.httpAdditionalHeaders = ["Authorization" : "Basic \(base64creds)", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : appInfo.userAgentHeader]
+            configuration.httpAdditionalHeaders = ["Authorization" : "Basic \(base64creds)", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
             let session = Foundation.URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main)
             let task = session.dataTask(with: request as URLRequest, completionHandler: { [self]
                 (data, response, error) -> Void in
@@ -257,7 +258,7 @@ class JamfPro: NSObject, URLSessionDelegate {
              
              request.httpMethod = "GET"
              let serverConf = URLSessionConfiguration.ephemeral
-             serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "User-Agent" : appInfo.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
+             serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "User-Agent" : AppInfo.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
              let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
              let task = serverSession.dataTask(with: request as URLRequest, completionHandler: {
                  (data, response, error) -> Void in
@@ -344,7 +345,7 @@ class JamfPro: NSObject, URLSessionDelegate {
         
 //        configuration.httpAdditionalHeaders = ["Authorization" : "Bearer \(token)", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : appInfo.userAgentHeader]
         
-        configuration.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "User-Agent" : appInfo.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
+        configuration.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "User-Agent" : AppInfo.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
         
         let session = Foundation.URLSession(configuration: configuration, delegate: self as URLSessionDelegate, delegateQueue: OperationQueue.main)
         let task = session.dataTask(with: request as URLRequest, completionHandler: {

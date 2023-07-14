@@ -40,7 +40,7 @@ class Credentials2 {
                                      kSecAttrService as String: service,
                                      kSecMatchLimit as String: kSecMatchLimitOne,
                                      kSecReturnAttributes as String: true]
-                    let updateStatus = SecItemUpdate(keychainQuery as CFDictionary, [kSecAttrAccountString:account,kSecValueDataString:password] as CFDictionary)
+                    let updateStatus = SecItemUpdate(keychainQuery as CFDictionary, [kSecAttrAccountString:account,kSecValueDataString:password] as [NSString : Any] as CFDictionary)
                     if (updateStatus != errSecSuccess) {
                         if let updateErr = SecCopyErrorMessageString(updateStatus, nil) {
                             print("[updateStatus] Update failed for existing credentials: \(updateErr)")

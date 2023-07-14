@@ -10,7 +10,7 @@ import Cocoa
 import Foundation
 //import WebKit
 
-class endpointData: NSObject {
+class EndpointData: NSObject {
     @objc dynamic var column1: String
     @objc dynamic var column2: String
     @objc dynamic var column3: String
@@ -32,10 +32,9 @@ class endpointData: NSObject {
 
 class ViewController: NSViewController, URLSessionDelegate {
 
-    @objc dynamic var summaryArray: [endpointData] = [endpointData(column1: "", column2: "", column3: "", column4: "", column5: "", column6: "", column7: "")]
+    @objc dynamic var summaryArray: [EndpointData] = [EndpointData(column1: "", column2: "", column3: "", column4: "", column5: "", column6: "", column7: "")]
 
     // keychain access
-//    let Creds = Credentials()
     let Creds = Credentials2()
     
     @IBOutlet weak var saveCreds_button: NSButton!
@@ -201,6 +200,12 @@ class ViewController: NSViewController, URLSessionDelegate {
             return
         }
         
+        
+        // start things in motion
+        spinner.isHidden = false
+        spinner.startAnimation(self)
+        get_button.isEnabled = false
+        
         currentServer  = self.jamfServer_TextField.stringValue
         username       = self.uname_TextField.stringValue
         password       = self.passwd_TextField.stringValue
@@ -212,9 +217,14 @@ class ViewController: NSViewController, URLSessionDelegate {
         JamfPro().getToken(serverUrl: jamfServer_TextField.stringValue, base64creds: jamfBase64Creds) { [self]
             (result: (Int,String)) in
             
-            let (_,tokenResult) = result
+            let (statusCode,tokenResult) = result
             if tokenResult == "failed" {
                 WriteToLog().message(stringOfText: ["[get] failed to get token"])
+                let response = ( statusCode == 0 ) ? "No response from the server.":"\(statusCode)"
+                _ = alert.display(header: "", message: "Failed to get authentication token.\n Status code: \(response)", secondButton: "")
+                spinner.isHidden = true
+                spinner.stopAnimation(self)
+                get_button.isEnabled = true
                 return
             }
 //        }
@@ -226,7 +236,6 @@ class ViewController: NSViewController, URLSessionDelegate {
             endpointXmlTag         = oEndpointXmlTag
             singleEndpointXmlTag   = oSingleEndpointXmlTag
             if endpointXmlTag != "" {
-                get_button.isEnabled = false
                 
                 summaryArray.removeAll()
                 self.details_TextView.string = ""
@@ -341,10 +350,10 @@ class ViewController: NSViewController, URLSessionDelegate {
                     for prestageID in prestageProfiles! {
                         let profileName = idNameDict[Int(prestageID)!]
                         if subsearch == "prestageInstalledProfileIds" {
-                            self.summaryArray.append(endpointData(column1: "\(String(describing: profileName!))", column2: "", column3: "", column4: "", column5: "", column6: "\(objectDisplayName)", column7: ""))
+                            self.summaryArray.append(EndpointData(column1: "\(String(describing: profileName!))", column2: "", column3: "", column4: "", column5: "", column6: "\(objectDisplayName)", column7: ""))
                             self.details_TextView.string.append("\(String(describing: profileName!))\t\t\t\t\t\(String(describing: objectDisplayName))\n")
                         } else {
-                            self.summaryArray.append(endpointData(column1: "\(String(describing: profileName!))", column2: "", column3: "", column4: "", column5: "\(objectDisplayName)", column6: "", column7: ""))
+                            self.summaryArray.append(EndpointData(column1: "\(String(describing: profileName!))", column2: "", column3: "", column4: "", column5: "\(objectDisplayName)", column6: "", column7: ""))
                             self.details_TextView.string.append("\(String(describing: profileName!))\t\t\t\t\(String(describing: objectDisplayName))\n")
                         }
                     }
@@ -386,7 +395,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             request.httpMethod = "GET"
             let serverConf = URLSessionConfiguration.ephemeral
             
-            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "User-Agent" : appInfo.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
+            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "User-Agent" : AppInfo.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
             URLCache.shared.removeAllCachedResponses()
             let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = serverSession.dataTask(with: request as URLRequest, completionHandler: {
@@ -398,7 +407,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                         do {
                             let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
                             
-                            let fixedJson = (httpResponse.statusCode > 199 && httpResponse.statusCode <= 299) ? json:["\(endpoint)":[]]
+                            let fixedJson = (httpResponse.statusCode > 199 && httpResponse.statusCode <= 299) ? json:["\(endpoint)":[AnyObject.self]]
 //                            if let endpointJSON = json as? [String: Any] {
                             if let endpointJSON = fixedJson as? [String: Any] {
     //                            print("[ViewController.apiCall] endpoint: \(endpoint)")
@@ -409,9 +418,6 @@ class ViewController: NSViewController, URLSessionDelegate {
 
                                 self.apiDetailCount[endpoint] = endpointInfo.count
                                 if (self.apiDetailCount[endpoint] ?? 0 > 0) {
-                                    // start things in motion
-                                    self.spinner.isHidden = false
-                                    self.spinner.startAnimation(self)
 
                                     self.stop_button.isHidden = false
                                     self.progressBar.isHidden = false
@@ -546,7 +552,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                 if localCounter == endpointInfo.count { //i == (endpointInfo.count-1) {
                                                     // display packages and script not attached to any policies
                                                     for unused in self.pkgScrArray {
-                                                        self.summaryArray.append(endpointData(column1: unused, column2: "", column3: "", column4: "", column5: "", column6: "", column7: ""))
+                                                        self.summaryArray.append(EndpointData(column1: unused, column2: "", column3: "", column4: "", column5: "", column6: "", column7: ""))
                                                     }
                                                 }
                                             }
@@ -586,7 +592,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                 if localCounter == endpointInfo.count { //i == (endpointInfo.count-1) {
                                                     // display packages and script not attached to any policies
                                                     for unused in self.pkgScrArray {
-                                                        self.summaryArray.append(endpointData(column1: unused, column2: "", column3: "", column4: "", column5: "", column6: "", column7: ""))
+                                                        self.summaryArray.append(EndpointData(column1: unused, column2: "", column3: "", column4: "", column5: "", column6: "", column7: ""))
                                                     }
                                                 }
                                             }
@@ -731,6 +737,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             var currentPolicyArray  = [String]()
             var criteriaName        = ""
             var criteriaArray       = [String]()
+            var displayFieldsArray  = [String]()
             
             DispatchQueue.main.async {
                 self.spinner.isHidden = false
@@ -748,7 +755,8 @@ class ViewController: NSViewController, URLSessionDelegate {
 
             request.httpMethod = "GET"
             let serverConf = URLSessionConfiguration.ephemeral
-            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "User-Agent" : appInfo.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
+            serverConf.timeoutIntervalForRequest = 30
+            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "User-Agent" : AppInfo.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
             let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = serverSession.dataTask(with: request as URLRequest, completionHandler: { [self]
                 (data, response, error) -> Void in
@@ -1098,6 +1106,18 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                 }
                                             }
                                         }
+                                    
+                                        if let displayFields = endpointInfo["display_fields"] as? [[String: Any]] {
+                                            for theDisplayField in displayFields {
+                                                let displayFieldName = theDisplayField["name"] as! String
+                                                if self.pkgScrArray.firstIndex(of: displayFieldName) != nil {
+                                                    if displayFieldsArray.firstIndex(of: displayFieldName) == nil {
+                                                        displayFieldsArray.append(displayFieldName)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        
                                         self.detailedResults = "\(recordName)"
                                         WriteToLog().message(stringOfText: ["[getDetails] case computer_group - Group Name: \(recordName)"])
                                     }
@@ -1119,7 +1139,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                         currentPayload = "\(String(describing: thePackageArray[i]["name"]!))"
 //                                        let currentPayloadID = "\(String(describing: thePackageArray[i]["id"]!))"
                                         currentPolicyArray.append("\(recordName)")
-                                        if let pkgIndex = self.pkgScrArray.index(of: "\(currentPayload)") {
+                                        if let pkgIndex = self.pkgScrArray.firstIndex(of: "\(currentPayload)") {
                                             self.pkgScrArray.remove(at: pkgIndex)
                                         }
                                         
@@ -1130,20 +1150,20 @@ class ViewController: NSViewController, URLSessionDelegate {
                                             switch self.menuIdentifier {
                                             case "Packages", "Scripts":
                                                 if self.selectedEndpoint != "computerconfigurations" {
-                                                    self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "\(triggers)", column4: "\(freq)", column5: "", column6: "", column7: ""))
+                                                    self.summaryArray.append(EndpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "\(triggers)", column4: "\(freq)", column5: "", column6: "", column7: ""))
                                                     self.details_TextView.string.append("\(currentPayload)\t\(recordName)\t\(triggers)\t\(freq)\n")
                                                 } else {
-                                                    self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "\(triggers)", column4: "", column5: "\(freq)", column6: "", column7: ""))
+                                                    self.summaryArray.append(EndpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "\(triggers)", column4: "", column5: "\(freq)", column6: "", column7: ""))
                                                     self.details_TextView.string.append("\(currentPayload)\t\(recordName)\t\(triggers)\t\t\(freq)\n")
                                                 }
                                             case "Policies-all":
-                                                summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(payloadArray)", column3: "\(triggers)", column4: "\(freq)", column5: "\(theScope)", column6: "\(limitationsExclusions["limitations"] ?? [])", column7: "\(limitationsExclusions["exclusions"] ?? [])"))
+                                                summaryArray.append(EndpointData(column1: "\(currentPayload)", column2: "\(payloadArray)", column3: "\(triggers)", column4: "\(freq)", column5: "\(theScope)", column6: "\(limitationsExclusions["limitations"] ?? [])", column7: "\(limitationsExclusions["exclusions"] ?? [])"))
                                                 self.details_TextView.string.append("\(currentPayload)\t\(self.payloadArray)\t\(triggers)\t\(freq)\t\(self.theScope)\t\(limitationsExclusions["limitations"] ?? [])\t\(limitationsExclusions["exclusions"] ?? [])\n")
                                             case "apps_macOS","apps_iOS":
-                                                self.summaryArray.append(endpointData(column1: "\(recordName)", column2: "\(managedDist)", column3: "\(self.theScope)", column4: "\(limitationsExclusions["limitations"] ?? [])", column5: "\(limitationsExclusions["exclusions"] ?? [])", column6: "", column7: ""))
+                                                self.summaryArray.append(EndpointData(column1: "\(recordName)", column2: "\(managedDist)", column3: "\(self.theScope)", column4: "\(limitationsExclusions["limitations"] ?? [])", column5: "\(limitationsExclusions["exclusions"] ?? [])", column6: "", column7: ""))
                                                 self.details_TextView.string.append("\(recordName)\t\(managedDist)\t\(theScope)\t\(limitationsExclusions["limitations"] ?? [])\t\(limitationsExclusions["exclusions"] ?? [])\n")
                                             default:
-                                                self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "", column4: "\(triggers)", column5: "\(freq)", column6: "", column7: ""))
+                                                self.summaryArray.append(EndpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "", column4: "\(triggers)", column5: "\(freq)", column6: "", column7: ""))
                                                 self.details_TextView.string.append("\(currentPayload)\t\(recordName)\t\t\(triggers)\t\(freq)\n")
                                             }
                                             /*
@@ -1162,22 +1182,22 @@ class ViewController: NSViewController, URLSessionDelegate {
                                             }
                                             */
                                         case "macapplications":
-                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "", column3: "", column4: "", column5: "", column6: "\(recordName)", column7: ""))
+                                            self.summaryArray.append(EndpointData(column1: "\(currentPayload)", column2: "", column3: "", column4: "", column5: "", column6: "\(recordName)", column7: ""))
                                             self.details_TextView.string.append("\(currentPayload)\t\t\t\t\t\(recordName)\n")
                                         case "mobiledeviceconfigurationprofiles":
-                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "", column4: "", column5: "", column6: "", column7: ""))
+                                            self.summaryArray.append(EndpointData(column1: "\(currentPayload)", column2: "\(recordName)", column3: "", column4: "", column5: "", column6: "", column7: ""))
                                             self.details_TextView.string.append("\(currentPayload)\t\(recordName)\t\t\(triggers)\n")
                                         case "mobiledeviceapplications":
-                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "", column3: "\(recordName)", column4: "", column5: "", column6: "", column7: ""))
+                                            self.summaryArray.append(EndpointData(column1: "\(currentPayload)", column2: "", column3: "\(recordName)", column4: "", column5: "", column6: "", column7: ""))
                                             self.details_TextView.string.append("\(currentPayload)\t\t\(recordName)\n")
                                         case "osxconfigurationprofiles":
-                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "", column3: "\(recordName)", column4: "", column5: "", column6: "", column7: ""))
+                                            self.summaryArray.append(EndpointData(column1: "\(currentPayload)", column2: "", column3: "\(recordName)", column4: "", column5: "", column6: "", column7: ""))
                                             self.details_TextView.string.append("\(currentPayload)\t\t\(recordName)\n")
                                         case "computerconfigurations":
-                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "", column3: "", column4: "", column5: "\(recordName)", column6: "", column7: ""))
+                                            self.summaryArray.append(EndpointData(column1: "\(currentPayload)", column2: "", column3: "", column4: "", column5: "\(recordName)", column6: "", column7: ""))
                                             self.details_TextView.string.append("\(currentPayload)\t\t\t\t\(recordName)\n")
                                         default:
-                                            self.summaryArray.append(endpointData(column1: "\(currentPayload)", column2: "", column3: "", column4: "\(recordName)", column5: "", column6: "", column7: ""))
+                                            self.summaryArray.append(EndpointData(column1: "\(currentPayload)", column2: "", column3: "", column4: "\(recordName)", column5: "", column6: "", column7: ""))
                                             self.details_TextView.string.append("\(currentPayload)\t\t\t\(recordName)\n")
                                         }
 
@@ -1198,12 +1218,14 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                 eaType = "unknown"
                                             }
                                         }
-                                        self.summaryArray.append(endpointData(column1: "\(theCriteriaName)", column2: "\(recordName)", column3: "", column4: "\(eaType)", column5: "", column6: "", column7: ""))
+                                        self.summaryArray.append(EndpointData(column1: "\(theCriteriaName)", column2: "\(recordName)", column3: "", column4: "\(eaType)", column5: "", column6: "", column7: ""))
                                         self.details_TextView.string.append("\(theCriteriaName)\t\(recordName)\t\t\(eaType)\n")
                                     }
                                 case "advanced_computer_search", "advanced_mobile_device_search":
                                     var eaType = ""
                                     for theCriteriaName in criteriaArray {
+                                        print("\(theCriteriaName)")
+                                        print("\(oSingleEndpointXmlTag)\n")
                                         if oSingleEndpointXmlTag.contains("_extension_attribute") {
                                             if let _ = objectByNameDict[theCriteriaName]?["input_type"]?["type"] {
                                                 eaType = objectByNameDict[theCriteriaName]!["input_type"]!["type"] as! String
@@ -1211,11 +1233,28 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                 eaType = "unknown"
                                             }
                                         }
-                                        self.summaryArray.append(endpointData(column1: "\(theCriteriaName)", column2: "", column3: "\(recordName)", column4: "\(eaType)", column5: "", column6: "", column7: ""))
-                                        self.details_TextView.string.append("\(theCriteriaName)\t\t\(recordName)\t\(eaType)\n")
+                                        self.summaryArray.append(EndpointData(column1: "\(theCriteriaName)", column2: "", column3: "\(recordName) (criteria)", column4: "\(eaType)", column5: "", column6: "", column7: ""))
+                                        self.details_TextView.string.append("\(theCriteriaName)\t\t\(recordName) (criteria)\t\(eaType)\n")
                                     }
+                                    // see if EA is used as a display field
+                                    for displayFieldName in displayFieldsArray {
+                                        print("[dispay field] name: \(displayFieldName)")
+                                        print("[dispay field] oSingleEndpointXmlTag: \(oSingleEndpointXmlTag)")
+                                        if oSingleEndpointXmlTag.contains("_extension_attribute") {
+                                            if let _ = objectByNameDict[displayFieldName]?["input_type"]?["type"] {
+                                                eaType = objectByNameDict[displayFieldName]!["input_type"]!["type"] as! String
+                                            } else {
+                                                eaType = "unknown"
+                                            }
+                                        }
+                                        if summaryArray.firstIndex(where: { $0.column1 == displayFieldName && $0.column3 == "\(recordName) (criteria)" }) == nil {
+                                            self.summaryArray.append(EndpointData(column1: "\(displayFieldName)", column2: "", column3: "\(recordName) (display)", column4: "\(eaType)", column5: "", column6: "", column7: ""))
+                                            self.details_TextView.string.append("\(displayFieldName)\t\t\(recordName) (display)\t\(eaType)\n")
+                                        }
+                                    }
+                                    
                                 case "cp_all_iOS","cp_all_macOS":
-                                    self.summaryArray.append(endpointData(column1: "\(recordName)", column2: "\(payloadArray)", column3: "\(self.theScope)", column4: "\(limitationsExclusions["limitations"] ?? [])", column5: "\(limitationsExclusions["exclusions"] ?? [])", column6: "", column7: ""))
+                                    self.summaryArray.append(EndpointData(column1: "\(recordName)", column2: "\(payloadArray)", column3: "\(self.theScope)", column4: "\(limitationsExclusions["limitations"] ?? [])", column5: "\(limitationsExclusions["exclusions"] ?? [])", column6: "", column7: ""))
                                     self.details_TextView.string.append("\(recordName)\t\(payloadArray)\t\(theScope)\t\(limitationsExclusions["limitations"] ?? [])\t\(limitationsExclusions["exclusions"] ?? [])\n")
 //                                case "osxconfigurationprofiles":
 //                                    self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "\(limitationsExclusions["limitations"] ?? [])", column5: "\(limitationsExclusions["exclusions"] ?? [])", column6: "", column7: ""))
@@ -1240,20 +1279,20 @@ class ViewController: NSViewController, URLSessionDelegate {
                             WriteToLog().message(stringOfText: ["[getDetails] \(recordName) is using theRecord with theRecord.count = \(theRecord.count)"])
                             switch theRecord.count {
                             case 5:
-                                self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "\(theRecord[3])", column5: "\(theRecord[4])", column6: "", column7: ""))
+                                self.summaryArray.append(EndpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "\(theRecord[3])", column5: "\(theRecord[4])", column6: "", column7: ""))
                                 self.details_TextView.string.append("\(theRecord[0])\t\(theRecord[1])\t\(theRecord[2])\t\(theRecord[3])\t\(theRecord[4])\n")
                             case 4:
-                                self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "\(theRecord[3])", column5: "", column6: "", column7: ""))
+                                self.summaryArray.append(EndpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "\(theRecord[3])", column5: "", column6: "", column7: ""))
                                 self.details_TextView.string.append("\(theRecord[0])\t\(theRecord[1])\t\(theRecord[2])\t\(theRecord[3])\n")
                             case 3:
                                 print("case 3")
                                 if theRecord[0] != "" {
-                                    self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "", column5: "", column6: "", column7: ""))
+                                    self.summaryArray.append(EndpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "", column5: "", column6: "", column7: ""))
                                     self.details_TextView.string.append("\(theRecord[0])\t\(theRecord[1])\t\(theRecord[2])\n")
                                 }
                             case 2:
                                 if theRecord[0] != "" {
-                                    self.summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "", column4: "", column5: "", column6: "", column7: ""))
+                                    self.summaryArray.append(EndpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "", column4: "", column5: "", column6: "", column7: ""))
                                     self.details_TextView.string.append("\(theRecord[0])\t\(theRecord[1])\n")
                                 }
                             default: break
@@ -1540,7 +1579,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         savePanel.nameFieldStringValue = oSelectedEndpoint+exportTitleSuffix+".txt"
         
         savePanel.begin { (result) -> Void in
-            if result.rawValue == NSFileHandlingPanelOKButton {
+            if result.rawValue == NSApplication.ModalResponse.OK.rawValue {
                 let exportedFileURL  = savePanel.url
                 var exportPathString = exportedFileURL?.absoluteString.replacingOccurrences(of: "file://", with: "")
                 exportPathString     = exportPathString?.replacingOccurrences(of: "%20", with: " ")
