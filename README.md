@@ -24,6 +24,8 @@ Unused objects are not displayed.  For example, if a package is not used in eith
 
 **History**
 
+2024-01-24: Version 2.0.2 - Fix issue with version lookup on Jamf Pro 11.
+
 2023-07-14: Version 2.0.1 - Add scan of extension attributes in advanced searches display (issue #14).  Provide information if an EA is used in an advanced search for criteria and/or display.
 
 2022-10-08: Version 2.0.0 - Additional details on various objects. Summary of policies and profiles that include scope, limitations, and exclusions - imitations and exclusions for LDAP user groups only. Extension attribute usage along with the type of attribute. PreStages are now scanned for profiles and packages.
