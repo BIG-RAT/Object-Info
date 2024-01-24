@@ -1,5 +1,8 @@
 # Object Info
 
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/BIG-RAT/Object-Info?display_name=tag) ![GitHub all releases](https://img.shields.io/github/downloads/BIG-RAT/Object-Info/total) ![GitHub latest releases](https://img.shields.io/github/downloads/BIG-RAT/Object-Info/latest/total)
+ ![GitHub issues](https://img.shields.io/github/issues-raw/BIG-RAT/Object-Info) ![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/BIG-RAT/Object-Info) ![GitHub pull requests](https://img.shields.io/github/issues-pr-raw/BIG-RAT/Object-Info) ![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed-raw/BIG-RAT/Object-Info)
+
 Wondering what packages or scripts are scoped to what policies?  Or what configuration profiles contain a certain payload?  Need an overview of all your network segments?  How about finding out what object(s) smart/static groups are attached to?  Object info looks to summarize these things and more.
 
 Download: [Object Info](https://github.com/BIG-RAT/Object-Info/releases/download/current/Object.Info.zip)
