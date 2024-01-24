@@ -47,7 +47,7 @@ struct JamfProServer {
 }
 
 struct token {
-    static var refreshInterval:UInt32 = 20*60  // 20 minutes
+    static var refreshInterval:UInt32 = UInt32(20*0.8)  // 20 minutes * 0.8
     static var expires     = ""
     static var isValid     = false
     static var created:Date?

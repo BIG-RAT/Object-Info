@@ -29,6 +29,17 @@ class EndpointData: NSObject {
         self.column7 = column7
     }
 }
+class getInfo: NSObject {
+    @objc var id             : String
+    @objc var endpointAddress: String
+    @objc var theEndpoint    : String
+    
+    init(id: String, endpointAddress: String, theEndpoint: String) {
+        self.id              = id
+        self.endpointAddress = endpointAddress
+        self.theEndpoint     = theEndpoint
+    }
+}
 
 class ViewController: NSViewController, URLSessionDelegate {
 
@@ -70,6 +81,11 @@ class ViewController: NSViewController, URLSessionDelegate {
     @IBOutlet weak var select_MenuItem: NSMenuItem!
     
     var selection = [String]()
+    
+    var getDetailsQ          = DispatchQueue(label: "com.jamf.getDetails", qos: DispatchQoS.utility)
+    var getDetailsArray      = [getInfo]()
+    var pendingGetCount      = 0
+    var maxConcurrentThreads = 3
     
     var currentServer           = ""
     var username                = ""
@@ -185,6 +201,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         
         Log.lookupFailed = false
         Log.FailedCount  = 0
+        pendingGetCount  = 0
         
         if jamfServer_TextField.stringValue == "" {
             alert_dialog(header: "Alert", message: "Jamf server URL is required.")
@@ -479,7 +496,7 @@ class ViewController: NSViewController, URLSessionDelegate {
     //                                print("[apiCall] switch endpoint: \(endpoint)")
                                     switch endpoint {
                                         case "network_segments","os_x_configuration_profiles":
-                                        self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl, theEndpoint: endpoint) {
+                                        self.getDetailsQueue(id: "\(recordId)", endpointAddress: self.endpointUrl, theEndpoint: endpoint) {
                                                 (result: String) in
                                                 self.allDetailedResults.append("\(result)")
                                                 localCounter+=1
@@ -496,13 +513,13 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                 }
                                             }
                                         case "mac_applications":
-                                            self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl, theEndpoint: endpoint) {
+                                            self.getDetailsQueue(id: "\(recordId)", endpointAddress: self.endpointUrl, theEndpoint: endpoint) {
                                                 (result: String) in
                                                 self.allDetailedResults.append("\(result)")
                                             }
                                         case "policies":    // used for packages and scripts
         //                                        print("policy: \(recordName)")
-                                        self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl, theEndpoint: endpoint) { [self]
+                                        self.getDetailsQueue(id: "\(recordId)", endpointAddress: self.endpointUrl, theEndpoint: endpoint) { [self]
                                                 (result: String) in
                                                 allDetailedResults.append("\(result)")
                                                 localCounter+=1
@@ -546,7 +563,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                 }
                                             }
                                         case "computer_configurations":
-                                            self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl, theEndpoint: endpoint) {
+                                            self.getDetailsQueue(id: "\(recordId)", endpointAddress: self.endpointUrl, theEndpoint: endpoint) {
                                                 (result: String) in
                                                 self.allDetailedResults.append("\(result)")
                                                 if localCounter == endpointInfo.count { //i == (endpointInfo.count-1) {
@@ -558,7 +575,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                             }
 
                                         case "configuration_profiles":  // added 201207 lnh
-                                             self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl, theEndpoint: endpoint) {
+                                             self.getDetailsQueue(id: "\(recordId)", endpointAddress: self.endpointUrl, theEndpoint: endpoint) {
                                                  (result: String) in
                                                  self.allDetailedResults.append("\(result)")
                                                  localCounter+=1
@@ -586,7 +603,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                              }
 
                                         case "mobile_device_applications":
-                                            self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl, theEndpoint: endpoint) {
+                                            self.getDetailsQueue(id: "\(recordId)", endpointAddress: self.endpointUrl, theEndpoint: endpoint) {
                                                 (result: String) in
                                                 self.allDetailedResults.append("\(result)")
                                                 if localCounter == endpointInfo.count { //i == (endpointInfo.count-1) {
@@ -599,7 +616,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                 
                                         case "computer_groups","mobile_device_groups":
                                             if self.menuIdentifier != "scg" && self.menuIdentifier != "sdg" {
-                                                 self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl, theEndpoint: endpoint) {
+                                                 self.getDetailsQueue(id: "\(recordId)", endpointAddress: self.endpointUrl, theEndpoint: endpoint) {
                                                     (result: String) in
                                                     self.allDetailedResults.append("\(result)")
                                                     localCounter+=1
@@ -630,7 +647,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                             }
                                             
                                         case "advanced_computer_searches", "advanced_mobile_device_searches":
-                                             self.getDetails(id: "\(recordId)", endpointAddress: self.endpointUrl, theEndpoint: endpoint) {
+                                             self.getDetailsQueue(id: "\(recordId)", endpointAddress: self.endpointUrl, theEndpoint: endpoint) {
                                                 (result: String) in
                                                 self.allDetailedResults.append("\(result)")
                                                 localCounter+=1
@@ -699,28 +716,55 @@ class ViewController: NSViewController, URLSessionDelegate {
         
     }   // func apiCall - end
     
-
+    
+    func getDetailsQueue(id: String, endpointAddress: String, theEndpoint: String, completion: @escaping (_ result: String) -> Void) {
+        
+        getDetailsQ.async { [self] in
+            
+//            print("[endPointByIDQueue] queue \(endpoint) with name \(destEpName) for get")
+            getDetailsArray.append(getInfo(id: id, endpointAddress: endpointAddress, theEndpoint: theEndpoint))
+            
+            while pendingGetCount > 0 || getDetailsArray.count > 0 {
+                if pendingGetCount < maxConcurrentThreads && getDetailsArray.count > 0 {
+                    pendingGetCount += 1
+                    let nextEndpoint = getDetailsArray[0]
+                    getDetailsArray.remove(at: 0)
+                    
+                    getDetails(id: nextEndpoint.id, endpointAddress: nextEndpoint.endpointAddress, theEndpoint: nextEndpoint.theEndpoint) { [self]
+                            (result: String) in
+                            pendingGetCount -= 1
+                        completion(result)
+                    }
+                } else {
+                    usleep(5000)
+                }
+            }
+        }
+    }
     func getDetails(id: String, endpointAddress: String, theEndpoint: String, completion: @escaping (_ result: String) -> Void) {
-        get_button.isEnabled = false
-        isRunning            = true
-        URLCache.shared.removeAllCachedResponses()
-//        let semaphore = DispatchSemaphore(value: 1)
-        detailQ.maxConcurrentOperationCount = 4
-        let semaphore   = DispatchSemaphore(value: 0)
-        
-//        let safeCharSet = CharacterSet.alphanumerics
-        
-        self.username = self.uname_TextField.stringValue
-        self.password = self.passwd_TextField.stringValue
-//        let jamfCreds = "\(self.username):\(self.password)"
-        
-//        let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
-//        let jamfBase64Creds = (jamfUtf8Creds?.base64EncodedString())!
+        DispatchQueue.main.async { [self] in
+            get_button.isEnabled = false
+            isRunning            = true
+            URLCache.shared.removeAllCachedResponses()
+            
+            detailQ.maxConcurrentOperationCount = 4
+            //        let semaphore   = DispatchSemaphore(value: 0)
+            
+            //        let safeCharSet = CharacterSet.alphanumerics
+            
+            self.username = self.uname_TextField.stringValue
+            self.password = self.passwd_TextField.stringValue
+            //        let jamfCreds = "\(self.username):\(self.password)"
+            
+            //        let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
+            //        let jamfBase64Creds = (jamfUtf8Creds?.base64EncodedString())!
+        }
+        usleep(1000)
         
         detailQ.addOperation { [self] in
 //        let idUrl = self.endpointUrl+"/id/\(id)"
-        let idUrl = "\(endpointAddress)/id/\(id)"
-        WriteToLog().message(stringOfText: ["[getDetails] idUrl: \(idUrl)"])
+            let idUrl = "\(endpointAddress)/id/\(id)"
+            WriteToLog().message(stringOfText: ["[getDetails] idUrl: \(idUrl)"])
         
 
             let encodedURL          = NSURL(string: idUrl)
@@ -754,8 +798,8 @@ class ViewController: NSViewController, URLSessionDelegate {
             }
 
             request.httpMethod = "GET"
-            let serverConf = URLSessionConfiguration.ephemeral
-            serverConf.timeoutIntervalForRequest = 30
+            let serverConf = URLSessionConfiguration.default
+            serverConf.timeoutIntervalForRequest = 15
             serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "User-Agent" : AppInfo.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
             let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = serverSession.dataTask(with: request as URLRequest, completionHandler: { [self]
@@ -1320,7 +1364,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                     Log.FailedCount+=1
                     Log.lookupFailed = true
                 }
-                semaphore.signal()
+//                semaphore.signal()
                 self.completeCounter[theEndpoint]!+=1
                 WriteToLog().message(stringOfText: ["[getDetails] completeCounter: \(String(describing: self.completeCounter[theEndpoint]!)) of \(self.apiDetailCount[theEndpoint]!)"])
 
@@ -1332,7 +1376,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                 }
             })   // let task = serverSession.dataTask - end
             task.resume()
-            semaphore.wait()
+//            semaphore.wait()
         }   // detailQ - end
     }   // func getDetails - end
     

@@ -19,7 +19,7 @@ class JamfPro: NSObject, URLSessionDelegate {
             return
         }
 
-        let semaphore      = DispatchSemaphore(value: 0)
+//        let semaphore      = DispatchSemaphore(value: 0)
         
         OperationQueue().addOperation {
 //            let encodedURL     = NSURL(string: "\(jpURL)/JSSCheckConnection")
@@ -81,7 +81,7 @@ class JamfPro: NSObject, URLSessionDelegate {
                
             })  // let task = session - end
             task.resume()
-            semaphore.wait()
+//            semaphore.wait()
         }
     }
     
@@ -106,7 +106,7 @@ class JamfPro: NSObject, URLSessionDelegate {
         
         let (_, minutesOld, _) = timeDiff(forWhat: "tokenAge")
 //        print("[JamfPro] \(whichServer) tokenAge: \(minutesOld) minutes")
-        if !token.isValid || (minutesOld > 25) {
+        if !token.isValid || (minutesOld > token.refreshInterval) {
             WriteToLog().message(stringOfText: ["[JamfPro.getToken] Attempting to retrieve token from \(String(describing: tokenUrl!)) for version look-up"])
             
             configuration.httpAdditionalHeaders = ["Authorization" : "Basic \(base64creds)", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
@@ -137,20 +137,34 @@ class JamfPro: NSObject, URLSessionDelegate {
                                     (JamfProServer.majorVersion,JamfProServer.minorVersion,JamfProServer.patchVersion) = result
 
                                     if JamfProServer.majorVersion != 0 {
-                                        if ( JamfProServer.majorVersion > 9 && JamfProServer.minorVersion > 34 ) {
+                                        if ( JamfProServer.majorVersion > 10 || (JamfProServer.majorVersion > 9 && JamfProServer.minorVersion > 34) ) {
                                             JamfProServer.authType = "Bearer"
-                                            WriteToLog().message(stringOfText: ["[JamfPro.getVersion] \(serverUrl) set to use Bearer Token"])
+                                            WriteToLog().message(stringOfText: ["[JamfPro.getVersion] \(serverUrl) set to use OAuth"])
                                             
                                         } else {
                                             JamfProServer.authType  = "Basic"
-                                            JamfProServer.authCreds = base64creds
-                                            WriteToLog().message(stringOfText: ["[JamfPro.getVersion] \(serverUrl) set to use Basic Authentication"])
+//                                            JamfProServer.accessToken = base64creds
+                                            WriteToLog().message(stringOfText: ["[JamfPro.getVersion] \(serverUrl) set to use Basic"])
                                         }
-                                        if JamfProServer.authType == "Bearer" {
-                                            self.refresh(server: serverUrl, b64Creds: JamfProServer.base64Creds)
-                                        }
+                                        
                                         completion((200, "success"))
                                         return
+                                        
+                                        
+//                                        if ( JamfProServer.majorVersion > 9 && JamfProServer.minorVersion > 34 ) {
+//                                            JamfProServer.authType = "Bearer"
+//                                            WriteToLog().message(stringOfText: ["[JamfPro.getVersion] \(serverUrl) set to use Bearer Token"])
+//                                            
+//                                        } else {
+//                                            JamfProServer.authType  = "Basic"
+//                                            JamfProServer.authCreds = base64creds
+//                                            WriteToLog().message(stringOfText: ["[JamfPro.getVersion] \(serverUrl) set to use Basic Authentication"])
+//                                        }
+//                                        if JamfProServer.authType == "Bearer" {
+//                                            self.refresh(server: serverUrl, b64Creds: JamfProServer.base64Creds)
+//                                        }
+//                                        completion((200, "success"))
+//                                        return
                                     } else {   // if let versionString - end
                                         WriteToLog().message(stringOfText: ["[JamfPro.getToken] failed to get version information from \(String(describing: serverUrl))"])
                                         token.isValid  = false
@@ -161,13 +175,33 @@ class JamfPro: NSObject, URLSessionDelegate {
                                 }
                                 // get Jamf Pro version - end
                             } else {
-                                if JamfProServer.authType == "Bearer" {
-                                    WriteToLog().message(stringOfText: ["[JamfPro.getVersion] call token refresh process for \(serverUrl)"])
-                                    self.refresh(server: serverUrl, b64Creds: JamfProServer.base64Creds)
-                                }
-                                completion((200, "success"))
-                                return
+                                
+//                                if JamfProServer.authType == "Bearer" {
+//                                    WriteToLog().message(stringOfText: ["[JamfPro.getVersion] call token refresh process for \(serverUrl)"])
+//                                    self.refresh(server: serverUrl, b64Creds: JamfProServer.base64Creds)
+//                                }
+//                                completion((200, "success"))
+//                                return
                             }
+                            
+                            // call token refresh
+                            if JamfProServer.authType == "Bearer" {
+                                WriteToLog().message(stringOfText: ["[JamfPro.getToken] call token refresh process after \(token.refreshInterval) minutes for \(serverUrl)"])
+                                DispatchQueue.main.asyncAfter(deadline: .now() + Double(token.refreshInterval)*60) { [self] in
+                                    if !isRunning {
+                                        token.isValid = false
+                                        WriteToLog().message(stringOfText: ["[JamfPro.getToken] terminated token refresh"])
+                                        return
+                                    } else {
+                                        getToken(serverUrl: serverUrl, base64creds: base64creds) {
+                                            (result: (Int, String)) in
+                            //                print("[JamfPro.refresh] returned: \(result)")
+                                        }
+                                    }
+                                }
+//                                                    WriteToLog().message(stringOfText: "[JamfPro.getVersion] call token refresh process for \(serverUrl)")
+                            }
+                            
                         } else {    // if let endpointJSON error
                             WriteToLog().message(stringOfText: ["[JamfPro.getToken] JSON error.\n\(String(describing: json))"])
                             token.isValid = false
