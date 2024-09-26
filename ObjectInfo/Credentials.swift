@@ -14,7 +14,7 @@ let kSecValueDataString            = NSString(format: kSecValueData)
 let kSecClassGenericPasswordString = NSString(format: kSecClassGenericPassword)
 let keychainQ                      = DispatchQueue(label: "com.jamf.objectinfo", qos: DispatchQoS.background)
 
-class Credentials2 {
+class Credentials {
     
     func save(service: String, account: String, data: String) {
         keychainQ.async { [self] in
