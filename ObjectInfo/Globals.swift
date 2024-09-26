@@ -9,11 +9,22 @@
 import Foundation
 
 public var isRunning        = false
+public var stopScan         = false
 public var detailQ          = OperationQueue()
 public var objectByNameDict = [String:[String:AnyObject]]()
 public var idNameDict       = [Int:String]()
+public var didRun           = false
+public var showLoginWindow  = true
+public var useApiClient     = 0
+public var accountDict      = [String:String]()
 
-let alert: Alert            = Alert()
+let defaults                = UserDefaults.standard
+var saveServers            = true
+var maxServerList          = 40
+var appsGroupId            = "group.PS2F6S478M.jamfie.SharedJPMA"
+let sharedDefaults         = UserDefaults(suiteName: appsGroupId)
+let sharedContainerUrl     = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appsGroupId)
+let sharedSettingsPlistUrl = (sharedContainerUrl?.appendingPathComponent("Library/Preferences/\(appsGroupId).plist"))!
 
 struct AppInfo {
     static let dict    = Bundle.main.infoDictionary!
@@ -24,26 +35,36 @@ struct AppInfo {
 }
 
 struct Log {
-    static var path: String? = (NSHomeDirectory() + "/Library/Logs/ObjectInfo/")
+    static var path: String? = (NSHomeDirectory() + "/Library/Logs/")
     static var file  = "ObjectInfo.log"
-    static var maxFiles = 10
+    static var maxFiles = 42
     static var maxSize  = 5000000 // 5MB
     static var lookupFailed = false
     static var FailedCount  = 0
 }
 
 struct JamfProServer {
+    static var accessToken  = ""
+    static var authExpires  = 30.0
+    static var currentCred  = ""
+    static var tokenCreated = Date()
     static var majorVersion = 0
     static var minorVersion = 0
     static var patchVersion = 0
-    static var version      = ""
     static var build        = ""
+    static var version      = ""
     static var authType     = "Basic"
-    static var base64Creds  = ""
-    static var authCreds    = ""
-    static var server       = ""
+//    static var destination  = ""
+    static var displayName  = ""
     static var username     = ""
     static var password     = ""
+    static var useApiClient = 0
+    static var authCreds    = ""
+    static var base64Creds  = ""        // used if we want to auth with a different account
+    static var validToken   = false
+    static var tokenExpires = ""
+    
+    static var server       = ""
 }
 
 struct token {
@@ -172,6 +193,73 @@ let configProfilePayloads = ["Passcode":["<string>com.apple.mobiledevice.passwor
                             "System Extensions":["<key>PayloadDisplayName</key><string>System Extensions</string>","<key>PayloadType</key><string>com.apple.system-extension-policy</string>"],
                             "Content Filter-mac":["<key>PayloadDisplayName</key><string>Web Content Filter Payload</string>"]]
 
+
+// func cleanup - start
+func cleanup() {
+    var logArray: [String] = []
+    var logCount: Int = 0
+    do {
+        let logFiles = try FileManager.default.contentsOfDirectory(atPath: Log.path!)
+        
+        for logFile in logFiles {
+            let filePath: String = Log.path! + logFile
+//            print("filePath: \(filePath)")
+            logArray.append(filePath)
+        }
+        logArray.sort()
+        logCount = logArray.count
+        if didRun {
+            // remove old history files
+            if logCount > Log.maxFiles {
+                for i in (0..<logCount-Log.maxFiles) {                    
+                    do {
+                        try FileManager.default.removeItem(atPath: logArray[i])
+                    }
+                    catch let error as NSError {
+                        WriteToLog.shared.message(stringOfText: "Error deleting log file:\n    " + logArray[i] + "\n    \(error)")
+                    }
+                }
+            }
+        } else {
+            // delete empty log file
+            if logCount > 0 {
+                
+            }
+            do {
+                try FileManager.default.removeItem(atPath: logArray[0])
+            }
+            catch let error as NSError {
+                WriteToLog.shared.message(stringOfText: "Error deleting log file:    \n" + Log.path! + logArray[0] + "    \(error)")
+            }
+        }
+    } catch {
+        WriteToLog.shared.message(stringOfText: "no log files found")
+    }
+}
+// get current time
+public func getCurrentTime() -> String {
+    let current = Date()
+    let localCalendar = Calendar.current
+    let dateObjects: Set<Calendar.Component> = [.year, .month, .day, .hour, .minute, .second]
+    let dateTime = localCalendar.dateComponents(dateObjects, from: current)
+    let currentMonth  = leadingZero(value: dateTime.month!)
+    let currentDay    = leadingZero(value: dateTime.day!)
+    let currentHour   = leadingZero(value: dateTime.hour!)
+    let currentMinute = leadingZero(value: dateTime.minute!)
+    let currentSecond = leadingZero(value: dateTime.second!)
+    let stringDate = "\(dateTime.year!)\(currentMonth)\(currentDay)_\(currentHour)\(currentMinute)\(currentSecond)"
+    return stringDate
+}
+// add leading zero to single digit integers
+public func leadingZero(value: Int) -> String {
+    var formattedValue = ""
+    if value < 10 {
+        formattedValue = "0\(value)"
+    } else {
+        formattedValue = "\(value)"
+    }
+    return formattedValue
+}
 public func policyPayloads(xml: [String:Any]) -> [String] {
     var payloadList = [String]()
     let policyPayloadList = [ "package_configuration":"packages", "scripts":"scripts", "printers":"printers", "dock_items":"dock items", "account_maintenance":"accounts", "maintenance":"maintenance", "files_processes":"files & processes" , "disk_encryption":"disk encryption", "reboot":"restart"]
@@ -306,25 +394,54 @@ func tagValue(xmlString:String, xmlTag:String) -> String {
         let end  = xmlString.range(of: "</\(xmlTag)", range: start.upperBound..<xmlString.endIndex) {
         rawValue.append(String(xmlString[start.upperBound..<end.lowerBound]))
     } else {
-        WriteToLog().message(stringOfText: ["[tagValue] invalid input for tagValue function or tag not found."])
-        WriteToLog().message(stringOfText: ["\t[tagValue] tag: \(xmlTag)"])
-        WriteToLog().message(stringOfText: ["\t[tagValue] xml: \(xmlString)"])
+        WriteToLog.shared.message(stringOfText: "[tagValue] invalid input for tagValue function or tag not found.")
+        WriteToLog.shared.message(stringOfText: "\t[tagValue] tag: \(xmlTag)")
+        WriteToLog.shared.message(stringOfText: "\t[tagValue] xml: \(xmlString)")
     }
     return rawValue
 }
 
-public func timeDiff(forWhat: String) -> (Int,Int,Int) {
-    var components:DateComponents?
-    switch forWhat {
-//    case "runTime":
-//        components = Calendar.current.dateComponents([.second, .nanosecond], from: History.startTime, to: Date())
-    case "tokenAge":
-        components = Calendar.current.dateComponents([.second, .nanosecond], from: (token.created ?? Date())!, to: Date())
-    default:
-        break
+public func timeDiff(startTime: Date) -> (Int, Int, Int, Double) {
+    let endTime = Date()
+//                    let components = Calendar.current.dateComponents([.second, .nanosecond], from: startTime, to: endTime)
+//                    let timeDifference = Double(components.second!) + Double(components.nanosecond!)/1000000000
+//                    WriteToLog.shared.message(stringOfText: "[ViewController.download] time difference: \(timeDifference) seconds")
+    let components = Calendar.current.dateComponents([
+        .hour, .minute, .second, .nanosecond], from: startTime, to: endTime)
+    var diffInSeconds = Double(components.hour!)*3600 + Double(components.minute!)*60 + Double(components.second!) + Double(components.nanosecond!)/1000000000
+    diffInSeconds = Double(round(diffInSeconds * 1000) / 1000)
+//    let timeDifference = Int(components.second!) //+ Double(components.nanosecond!)/1000000000
+//    let (h,r) = timeDifference.quotientAndRemainder(dividingBy: 3600)
+//    let (m,s) = r.quotientAndRemainder(dividingBy: 60)
+//    WriteToLog.shared.message(stringOfText: "[ViewController.download] download time: \(h):\(m):\(s) (h:m:s)")
+    return (Int(components.hour!), Int(components.minute!), Int(components.second!), diffInSeconds)
+}
+
+extension String {
+    var fqdnFromUrl: String {
+        get {
+            var fqdn = ""
+            let nameArray = self.components(separatedBy: "/")
+            if nameArray.count > 2 {
+                fqdn = nameArray[2]
+            } else {
+                fqdn =  self
+            }
+            if fqdn.contains(":") {
+                let fqdnArray = fqdn.components(separatedBy: ":")
+                fqdn = fqdnArray[0]
+            }
+            return fqdn
+        }
     }
-    let timeDifference = Int(components?.second! ?? 0)
-    let (h,r) = timeDifference.quotientAndRemainder(dividingBy: 3600)
-    let (m,s) = r.quotientAndRemainder(dividingBy: 60)
-    return(h,m,s)
+    var trimTrailingSlash: String {
+        get {
+            var newString = self
+                
+            while newString.last == "/" {
+                newString = "\(newString.dropLast(1))"
+            }
+            return newString
+        }
+    }
 }

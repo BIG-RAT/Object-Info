@@ -1,6 +1,6 @@
 //
 //  LoginVC.swift
-//  SYM-Helper
+//  Object Info
 //
 
 import Cocoa
@@ -16,23 +16,16 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
     
     @IBOutlet weak var spinner_PI: NSProgressIndicator!
     
-//    @IBOutlet weak var header_TextField: NSTextField!
     @IBOutlet weak var displayName_Label: NSTextField!
     @IBOutlet weak var displayName_TextField: NSTextField!
     @IBOutlet weak var selectServer_Button: NSPopUpButton!
     
-    @IBOutlet weak var selectedServer_ButtonCell: NSPopUpButtonCell!
     @IBOutlet weak var useApiClient_button: NSButton!
     
     @IBAction func selectServer_Action(_ sender: Any) {
-        if selectedServer_ButtonCell.titleOfSelectedItem == "Add Server..." {
+        if selectServer_Button.titleOfSelectedItem == "Add Server..." {
             
             displayName_TextField.becomeFirstResponder()
-        
-//            header_TextField.isHidden = false
-//            header_TextField.wantsLayer = true
-//            header_TextField.stringValue = "Enter the information for the Jamf Pro server you'd like to manage."
-//            header_TextField.frame.size.height = 41.0
             
             displayName_TextField.insertText("hello")
             displayName_Label.stringValue = "Display Name:"
@@ -53,49 +46,93 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
             
             setWindowSize(setting: 2)
         } else {
-//            header_TextField.isHidden = true
-//            header_TextField.wantsLayer = true
-//            header_TextField.stringValue = ""
-//            header_TextField.frame.size.height = 0.0
             if NSEvent.modifierFlags.contains(.option) {
-                    let selectedServer =  selectServer_Button.titleOfSelectedItem!
-                    let response = Alert().display(header: "", message: "Are you sure you want to remove \(selectedServer) from the list?", secondButton: "Cancel")
-                    if response == "Cancel" {
-                        return
-                    } else {
-                        for (displayName, _) in availableServersDict {
-                            if displayName == selectedServer {
-                                availableServersDict[displayName] = nil
-                                selectServer_Button.removeItem(withTitle: selectedServer)
-                                sortedDisplayNames.removeAll(where: {$0 == displayName})
-                            }
+                let selectedServer =  selectServer_Button.titleOfSelectedItem!
+                print("[selectServer_Action]       selectedServer: \(selectedServer)")
+                print("[selectServer_Action] availableServersDict: \(availableServersDict)")
+                if let selectedServerInfo = availableServersDict[selectedServer] {
+                    print("[selectServer_Action] selectedServerInfo: \(selectedServerInfo)")
+                    jamfProServer_textfield.stringValue = selectedServerInfo["server"] as? String ?? ""
+                    jamfProUsername_textfield.stringValue = selectedServerInfo["account"] as? String ?? ""
+                    jamfProPassword_textfield.stringValue = ""
+                    jamfProUsername_textfield.becomeFirstResponder()
+                } else {
+                    jamfProServer_textfield.stringValue = ""
+                    jamfProUsername_textfield.stringValue = ""
+                    jamfProPassword_textfield.stringValue = ""
+                }
+                let response = Alert.shared.display(header: "", message: "Are you sure you want to remove \(selectedServer) from the list?", secondButton: "Cancel")
+                if response == "Cancel" {
+                    return
+                } else {
+                    if availableServersDict[selectedServer] != nil {
+                        let serverIndex = selectServer_Menu.indexOfItem(withTitle: selectedServer)
+                        selectServer_Menu.removeItem(at: serverIndex)
+                        if defaults.string(forKey: "currentServer") == selectedServer {
+                            print("[login_Action] blank currentServer")
+                            defaults.set("", forKey: "currentServer")
                         }
+                        availableServersDict[selectedServer]  = nil
+                        lastServer                            = ""
+                        jamfProServer_textfield.stringValue   = ""
+                        jamfProUsername_textfield.stringValue = ""
+                        jamfProPassword_textfield.stringValue = ""
                         if saveServers {
                             sharedDefaults!.set(availableServersDict, forKey: "serversDict")
                         }
-                        if sortedDisplayNames.firstIndex(of: lastServerDN) != nil {
-                            selectServer_Button.selectItem(withTitle: lastServerDN)
-                        } else {
-                            selectServer_Button.selectItem(withTitle: "")
-                            jamfProServer_textfield.stringValue   = ""
-                            jamfProUsername_textfield.stringValue = ""
-                            jamfProPassword_textfield.stringValue = ""
-                            selectServer_Button.selectItem(withTitle: "")
-                        }
+                        selectServer_Button.selectItem(withTitle: "")
                     }
+                    
+//                        for (displayName, _) in availableServersDict {
+//                            if displayName == selectedServer {
+//                                availableServersDict[displayName] = nil
+//                                selectServer_Button.removeItem(withTitle: selectedServer)
+//                                sortedDisplayNames.removeAll(where: {$0 == displayName})
+//                            }
+//                        }
+//                        sharedDefaults!.set(availableServersDict, forKey: "serversDict")
+
+                    if sortedDisplayNames.firstIndex(of: lastServer) != nil {
+                        selectServer_Button.selectItem(withTitle: lastServer)
+                    } else {
+                        jamfProServer_textfield.stringValue   = ""
+                        jamfProUsername_textfield.stringValue = ""
+                        jamfProPassword_textfield.stringValue = ""
+                        selectServer_Button.selectItem(withTitle: "")
+                    }
+                }
                 
                 return
             }
+            hideCreds_button.isHidden = false
             displayName_Label.stringValue = "Server:"
             selectServer_Button.isHidden = false
-            displayName_TextField.isHidden = true
-            serverURL_Label.isHidden = false
-            jamfProServer_textfield.isHidden = false
-            jamfProServer_textfield.isEditable = false
-            hideCreds_button.isHidden = false
-            displayName_TextField.stringValue = selectedServer_ButtonCell.title
-            jamfProServer_textfield.stringValue = (availableServersDict[selectedServer_ButtonCell.title]?["server"])! as! String
-            credentialsCheck()
+            if hideCreds_button.state == .on {
+                displayName_TextField.isHidden = true
+                serverURL_Label.isHidden = false
+                jamfProServer_textfield.isHidden = false
+                jamfProServer_textfield.isEditable = false
+                saveCreds_button.isHidden = false
+                useApiClient_button.isHidden = false
+            } else {
+                displayName_TextField.isHidden = true
+                serverURL_Label.isHidden = true
+                jamfProServer_textfield.isHidden = true
+                jamfProServer_textfield.isEditable = true
+                saveCreds_button.isHidden = true
+                useApiClient_button.isHidden = true
+            }
+            displayName_TextField.stringValue = selectServer_Button.titleOfSelectedItem ?? ""
+            
+//            print("[LoginVC.viewDidLoad] displayName_TextField.stringValue: \(displayName_TextField.stringValue)")
+//            print("[LoginVC.viewDidLoad] availableServersDict: \(availableServersDict)")
+            
+            if let loginInfo = availableServersDict[selectServer_Button.titleOfSelectedItem ?? ""], let serverUrl = loginInfo["server"] as? String {
+                let theAccount = loginInfo["account"] as? String ?? ""
+                jamfProServer_textfield.stringValue = "\(serverUrl)"
+                jamfProUsername_textfield.stringValue = "\(theAccount)"
+                credentialsCheck()
+            }
             quit_Button.title  = "Quit"
             login_Button.title = "Login"
             
@@ -117,13 +154,8 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
     
     @IBOutlet weak var login_Button: NSButton!
     @IBOutlet weak var quit_Button: NSButton!
-    //    @IBOutlet weak var upload_progressIndicator: NSProgressIndicator!
-//    @IBOutlet weak var continueButton: NSButton!
     
     var availableServersDict   = [String:[String:AnyObject]]()
-    
-//    var sourcePlistsURL        = URL(string: "/")
-//    var xmlFileNames           = [String]()
         
     var accountDict            = [String:String]()
     var currentServer          = ""
@@ -133,7 +165,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
     var uploadsComplete        = false
     var sortedDisplayNames     = [String]()
     var lastServer             = ""
-    var lastServerDN           = ""
+//    var lastServerDN           = ""
 
     @IBOutlet weak var saveCreds_button: NSButton!
     
@@ -156,29 +188,30 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
         } else {
             theSender = sender as! String
         }
-        print("[login_action] sender: \(theSender)")
+//        print("[login_action] sender: \(theSender)")
         if theSender == "Add" {
-            JamfProServer.destination = jamfProServer_textfield.stringValue
+            JamfProServer.server      = jamfProServer_textfield.stringValue.trimTrailingSlash
             JamfProServer.username    = jamfProUsername_textfield.stringValue
             JamfProServer.password    = jamfProPassword_textfield.stringValue
         }
-//        print("[login_action] destination: \(JamfProServer.destination)")
+//        print("[login_action] destination: \(JamfProServer.server)")
 //        print("[login_action] username: \(JamfProServer.username)")
 //        print("[login_action] userpass: \(JamfProServer.password)")
         
         // check for update/removal of server display name
         if jamfProServer_textfield.stringValue == "" {
             let serverToRemove = (theSender == "Login") ? "\(selectServer_Button.titleOfSelectedItem ?? "")":displayName_TextField.stringValue
-            let deleteReply = Alert().display(header: "Attention:", message: "Do you wish to remove \(serverToRemove) from the list?", secondButton: "Cancel")
+            let deleteReply = Alert.shared.display(header: "Attention:", message: "Do you wish to remove \(serverToRemove) from the list?", secondButton: "Cancel")
             if deleteReply != "Cancel" && serverToRemove != "Add Server..." {
                 if availableServersDict[serverToRemove] != nil {
                     let serverIndex = selectServer_Menu.indexOfItem(withTitle: serverToRemove)
                     selectServer_Menu.removeItem(at: serverIndex)
-                    if defaults.string(forKey: "currentServer") == availableServersDict[serverToRemove]!["server"] as? String {
+                    if defaults.string(forKey: "currentServer") == serverToRemove {
+                        print("[login_Action] blank currentServer")
                         defaults.set("", forKey: "currentServer")
                     }
-                    availableServersDict[serverToRemove] = nil
-                    lastServer = ""
+                    availableServersDict[serverToRemove]  = nil
+                    lastServer                            = ""
                     jamfProServer_textfield.stringValue   = ""
                     jamfProUsername_textfield.stringValue = ""
                     jamfProPassword_textfield.stringValue = ""
@@ -194,49 +227,92 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
                 spinner_PI.stopAnimation(self)
                 return
             }
-        } else if jamfProServer_textfield.stringValue != availableServersDict[selectServer_Button.titleOfSelectedItem!]?["server"] as? String && selectServer_Button.titleOfSelectedItem ?? "" != "Add Server..." {
-            let serverToUpdate = (theSender == "Login") ? "\(selectServer_Button.titleOfSelectedItem ?? "")":displayName_TextField.stringValue.fqdnFromUrl
-            let updateReply = Alert().display(header: "Attention:", message: "Do you wish to update the URL for \(serverToUpdate) to: \(jamfProServer_textfield.stringValue)", secondButton: "Cancel")
+        } else if availableServersDict[selectServer_Button.titleOfSelectedItem!] != nil && jamfProServer_textfield.stringValue != availableServersDict[selectServer_Button.titleOfSelectedItem!]?["server"] as? String && selectServer_Button.titleOfSelectedItem ?? "" != "Add Server..." {
+            let serverToUpdate = (theSender == "Login") ? "\(selectServer_Button.titleOfSelectedItem ?? "")":displayName_TextField.stringValue
+            let updateReply = Alert.shared.display(header: "Attention:", message: "Do you wish to update the URL for \(serverToUpdate) to: \(jamfProServer_textfield.stringValue)", secondButton: "Cancel")
             if updateReply != "Cancel" && serverToUpdate != "Add Server..." {
                 // update server URL
-                availableServersDict[serverToUpdate]?["server"] = jamfProServer_textfield.stringValue as AnyObject
-                if saveServers {
-                    sharedDefaults!.set(availableServersDict, forKey: "serversDict")
+                var currentServerInfo = availableServersDict[serverToUpdate] ?? [:]
+                if currentServerInfo.count > 0 {
+                    currentServerInfo.updateValue(jamfProServer_textfield.stringValue as AnyObject, forKey: "server")
+                    availableServersDict.updateValue(currentServerInfo, forKey: serverToUpdate)
+                    if saveServers {
+                        sharedDefaults!.set(availableServersDict, forKey: "serversDict")
+                    }
                 }
             } else {
                 jamfProServer_textfield.stringValue = availableServersDict[selectServer_Button.titleOfSelectedItem!]?["server"] as! String
             }
         }
         
+        isRunning = true
         if theSender == "Login" {
             JamfProServer.validToken = false
-            let dataToBeSent = (selectServer_Button.titleOfSelectedItem!, JamfProServer.destination, JamfProServer.username, JamfProServer.password, saveCreds_button.state.rawValue)
-            spinner_PI.stopAnimation(self)
-            delegate?.sendLoginInfo(loginInfo: dataToBeSent)
-            dismiss(self)
+            JamfProServer.server = jamfProServer_textfield.stringValue.trimTrailingSlash
+            JamfProServer.username = jamfProUsername_textfield.stringValue
+            JamfProServer.password = jamfProPassword_textfield.stringValue
+            
+//            print("[Login] server: \(JamfProServer.server)")
+//            print("[Login] user: \(jamfProUsername_textfield.stringValue)")
+//            print("[Login] pass: \(jamfProPassword_textfield.stringValue.prefix(2))")
+            
+            
+            let jamfUtf8Creds = "\(jamfProUsername_textfield.stringValue):\(jamfProPassword_textfield.stringValue)".data(using: String.Encoding.utf8)
+            JamfProServer.base64Creds = (jamfUtf8Creds?.base64EncodedString())!
+            JamfPro.shared.getToken(whichServer: "source", serverUrl: JamfProServer.server) { [self]
+                authResult in
+                isRunning = false
+                login_Button.isEnabled = true
+                
+                let (statusCode,theResult) = authResult
+                WriteToLog.shared.message(stringOfText: "[getToken] status code: \(statusCode)")
+                if theResult == "success" {
+                    // invalidate token - todo
+                    defaults.set(selectServer_Button.titleOfSelectedItem, forKey: "currentServer")
+                    defaults.set(jamfProUsername_textfield.stringValue, forKey: "username")
+                    let currentSettings = availableServersDict[selectServer_Button.titleOfSelectedItem ?? ""] ?? [:]
+                    let currentdbType = currentSettings["dbType"] as? String ?? ""
+                    
+                    availableServersDict.updateValue(["useApiClient": useApiClient_button.state.rawValue as AnyObject, "server": JamfProServer.server as AnyObject, "date": Date() as AnyObject, "account": JamfProServer.username as AnyObject, "dpType": currentdbType as AnyObject], forKey: selectServer_Button.titleOfSelectedItem!)
+//                    print("[Login] availableServersDict: \(availableServersDict)")
+                    
+                    sharedDefaults!.set(availableServersDict, forKey: "serversDict")
+                    
+                    if self.saveCreds_button.state.rawValue == 1 {
+                        Credentials.shared.save(service: jamfProServer_textfield.stringValue.fqdnFromUrl.trimTrailingSlash, account: jamfProUsername_textfield.stringValue, credential: jamfProPassword_textfield.stringValue)
+                    }
+                    
+                    let dataToBeSent = (selectServer_Button.titleOfSelectedItem!, JamfProServer.server, JamfProServer.username, JamfProServer.password, saveCreds_button.state.rawValue)
+                    delegate?.sendLoginInfo(loginInfo: dataToBeSent)
+                    dismiss(self)
+                }
+                spinner_PI.stopAnimation(self)
+            }
         } else {
+            // add server
             if displayName_TextField.stringValue == "" {
-                let nameReply = Alert().display(header: "Attention:", message: "Display name cannot be blank.\nUse \(jamfProServer_textfield.stringValue.fqdnFromUrl)?", secondButton: "Cancel")
+                let nameReply = Alert.shared.display(header: "Attention:", message: "Display name cannot be blank.\nUse \(jamfProServer_textfield.stringValue.fqdnFromUrl)?", secondButton: "Cancel")
                 if nameReply == "Cancel" {
                     spinner_PI.stopAnimation(self)
                     return
                 } else {
-                    displayName_TextField.stringValue = jamfProServer_textfield.stringValue.fqdnFromUrl
+                    displayName_TextField.stringValue = jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl
                 }
             }   // no display name - end
             
             login_Button.isEnabled = false
             
-            if JamfProServer.destination.prefix(4) != "http" {
-                jamfProServer_textfield.stringValue = "https://\(JamfProServer.destination)"
-                JamfProServer.destination = jamfProServer_textfield.stringValue
+            if JamfProServer.server.prefix(4) != "http" {
+                jamfProServer_textfield.stringValue = "https://\(JamfProServer.server)"
+                JamfProServer.server = jamfProServer_textfield.stringValue.trimTrailingSlash
             }
             
             let jamfUtf8Creds = "\(JamfProServer.username):\(JamfProServer.password)".data(using: String.Encoding.utf8)
             JamfProServer.base64Creds = (jamfUtf8Creds?.base64EncodedString())!
-            TokenDelegate().getToken(serverUrl: JamfProServer.destination, whichServer: "destination", base64creds: JamfProServer.base64Creds) { [self]
+            JamfPro.shared.getToken(whichServer: "source", serverUrl: JamfProServer.server) { [self]
                 authResult in
                 
+                isRunning = false
                 login_Button.isEnabled = true
                 
                 let (statusCode,theResult) = authResult
@@ -267,14 +343,15 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
                         availableServersDict[serverName] = nil
                     }
                     
-                    availableServersDict[displayName_TextField.stringValue] = ["server":JamfProServer.destination as AnyObject,"date":Date() as AnyObject]
+//                    availableServersDict[displayName_TextField.stringValue] = ["server":JamfProServer.server as AnyObject,"date":Date() as AnyObject]
                     if saveServers {
                         sharedDefaults!.set(availableServersDict, forKey: "serversDict")
                     }
-                    print("[login_action] availableServers: \(availableServersDict)")
                     
-                    defaults.set(JamfProServer.destination, forKey: "currentServer")
-                    defaults.set(JamfProServer.username, forKey: "username")
+                    defaults.set(displayName_TextField.stringValue, forKey: "currentServer")
+                    defaults.set(jamfProUsername_textfield.stringValue, forKey: "username")
+                    
+                    print("[login_action] availableServers: \(availableServersDict)")
                     
                     setSelectServerButton(listOfServers: sortedDisplayNames)
                     selectServer_Button.selectItem(withTitle: displayName_TextField.stringValue)
@@ -287,7 +364,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
                     login_action("Login")
                 } else {
                     spinner_PI.stopAnimation(self)
-                    _ = Alert().display(header: "Attention:", message: "Failed to generate token. HTTP status code: \(statusCode)", secondButton: "")
+                    _ = Alert.shared.display(header: "Attention:", message: "Failed to generate token. HTTP status code: \(statusCode)", secondButton: "")
                 }
             }
         }
@@ -317,7 +394,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
                 }
                 selectServer_Button.selectItem(withTitle: tmpName)
                 displayName_TextField.stringValue = tmpName
-                jamfProServer_textfield.stringValue = (availableServersDict[tmpName]?["server"])! as! String
+                jamfProServer_textfield.stringValue = ((availableServersDict[tmpName]?["server"])! as! String).trimTrailingSlash
                 credentialsCheck()
             } else {
                 login_Button.isEnabled              = false
@@ -347,7 +424,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
     }
     
     func fetchPassword() {
-        let accountDict = Credentials().retrieve(service: jamfProServer_textfield.stringValue.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
+        let accountDict = Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
         
         if accountDict.count == 1 {
             for (username, password) in accountDict {
@@ -355,7 +432,6 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
                 jamfProPassword_textfield.stringValue = password
             }
         } else {
-//            jamfProUsername_textfield.stringValue = ""
             jamfProPassword_textfield.stringValue = ""
         }
     }
@@ -376,22 +452,16 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
             jamfProPassword_textfield.stringValue = ""
             switch textField.identifier!.rawValue {
             case "server":
-                let accountDict = Credentials().retrieve(service: jamfProServer_textfield.stringValue.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
+                let accountDict = Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
                 
                 if accountDict.count == 1 {
                     for (username, password) in accountDict {
                         jamfProUsername_textfield.stringValue = username
                         jamfProPassword_textfield.stringValue = password
                     }
-                } //else {
-//                    if login_Button.title == "Login" {
-//                        setWindowSize(setting: 1)
-//                    } else {
-//                        setWindowSize(setting: 2)
-//                    }
-//                }
+                }
             case "username":
-                let accountDict = Credentials().retrieve(service: "\(jamfProServer_textfield.stringValue.fqdnFromUrl)", account: jamfProUsername_textfield.stringValue)
+                let accountDict = Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
                 if accountDict.count != 0 {
                     for (username, password) in accountDict {
                         if username == jamfProUsername_textfield.stringValue {
@@ -399,9 +469,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
                             jamfProPassword_textfield.stringValue = password
                         }
                     }
-                } //else {
-//                    jamfProUsername_textfield.stringValue = ""
-//                }
+                }
             default:
                 break
             }
@@ -413,7 +481,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
             switch textField.identifier!.rawValue {
             case "server":
                 if jamfProUsername_textfield.stringValue != "" || jamfProPassword_textfield.stringValue != "" {
-                    let accountDict = Credentials().retrieve(service: jamfProServer_textfield.stringValue.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
+                    let accountDict = Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
                     
                     if accountDict.count == 1 {
                         for (username, password) in accountDict {
@@ -434,7 +502,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
     }
     
     func credentialsCheck() {
-        let accountDict = Credentials().retrieve(service: jamfProServer_textfield.stringValue.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
+        let accountDict = Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
         
         if accountDict.count != 0 {
             for (username, password) in accountDict {
@@ -458,9 +526,9 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
             jamfProPassword_textfield.stringValue = ""
             setWindowSize(setting: 1)
         }
-        JamfProServer.destination = jamfProServer_textfield.stringValue
-        JamfProServer.username    = jamfProUsername_textfield.stringValue
-        JamfProServer.password    = jamfProPassword_textfield.stringValue
+        JamfProServer.server   = jamfProServer_textfield.stringValue.trimTrailingSlash
+        JamfProServer.username = jamfProUsername_textfield.stringValue
+        JamfProServer.password = jamfProPassword_textfield.stringValue
         
     }
     
@@ -486,6 +554,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
             username_label.isHidden            = true
             password_label.isHidden            = true
             saveCreds_button.isHidden          = true
+            useApiClient_button.isHidden       = true
         } else if setting == 1 {
             preferredContentSize = CGSize(width: 518, height: 208)
             hideCreds_button.toolTip = "hide username/password fields"
@@ -496,6 +565,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
             username_label.isHidden            = false
             password_label.isHidden            = false
             saveCreds_button.isHidden          = false
+            useApiClient_button.isHidden       = false
         } else if setting == 2 {
             preferredContentSize = CGSize(width: 518, height: 208)
             hideCreds_button.toolTip = "hide username/password fields"
@@ -506,6 +576,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
             username_label.isHidden            = false
             password_label.isHidden            = false
             saveCreds_button.isHidden          = false
+            useApiClient_button.isHidden       = false
         }
 //        hideCreds_button.state = NSControl.StateValue(rawValue: setting)
 //        
@@ -536,7 +607,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
 //        jamfProPassword_textfield.delegate = self
         
         lastServer = defaults.string(forKey: "currentServer") ?? ""
-        print("[viewDidLoad] lastServer: \(lastServer)")
+        print("[loginVC.viewDidLoad] lastServer: \(lastServer)")
         var foundServer = false
         
         useApiClient = defaults.integer(forKey: "useApiClient")
@@ -555,7 +626,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
         
         // read list of saved servers
         availableServersDict = sharedDefaults!.object(forKey: "serversDict") as? [String:[String:AnyObject]] ?? [:]
-        
+//        print("[LoginVC.viewDidLoad] availableServersDict: \(availableServersDict)")
         
         // trim list of servers to maxServerList
         while availableServersDict.count >= maxServerList {
@@ -577,61 +648,46 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
             availableServersDict[serverName] = nil
         }
 //        print("lastServer: \(lastServer)")
+        var serverUrl = ""
         if availableServersDict.count > 0 {
             for (displayName, serverInfo) in availableServersDict {
                 if displayName != "" {
                     sortedDisplayNames.append(displayName)
-//                    if serverURL["server"] as! String == lastServer && lastServer != "" {
-                    if (serverInfo["server"] as! String) == lastServer && lastServer != "" {
+                    if displayName == lastServer && lastServer != "" {
                         foundServer = true
-                        lastServerDN = displayName
-                        //                    break
+                        serverUrl = serverInfo["server"] as! String
                     }
                 } else {
                     availableServersDict[displayName] = nil
                 }
             }
-            if foundServer {
-                selectServer_Button.selectItem(withTitle: lastServer.fqdnFromUrl)
-            }
-        } else if lastServer != "" {
-            availableServersDict[lastServer.fqdnFromUrl] = ["server":lastServer as AnyObject, "date":Date() as AnyObject]
-//            displayName_TextField.stringValue = lastServer.fqdnFromUrl
-            
-            lastServerDN = lastServer.fqdnFromUrl
-            sortedDisplayNames.append(lastServerDN)
+        } else {
+                jamfProServer_textfield.stringValue = ""
+                setSelectServerButton(listOfServers: [])
+                selectServer_Button.selectItem(withTitle: "Add Server...")
+                login_Button.title = "Add"
+                
+                selectServer_Action(self)
+                setWindowSize(setting: 2)
         }
         
         setSelectServerButton(listOfServers: sortedDisplayNames)
-        
-        if sortedDisplayNames.firstIndex(of: lastServerDN) != nil {
-            selectServer_Button.selectItem(withTitle: lastServerDN)
-        } else {
-            selectServer_Button.selectItem(withTitle: "")
-        }
-        
-        jamfProServer_textfield.stringValue = lastServer
-        if lastServer != "" {
+        if foundServer {
+            selectServer_Button.selectItem(withTitle: lastServer)
+            jamfProServer_textfield.stringValue = serverUrl
+            jamfProServer_textfield.isEditable = false
             jamfProUsername_textfield.stringValue = defaults.string(forKey: "username") ?? ""
-        }
-        saveCreds_button.state = NSControl.StateValue(defaults.integer(forKey: "saveCreds"))
-        
-//        print("[LoginVC.viewDidLoad] availableServersDict: \(availableServersDict)")
-        if availableServersDict.count != 0 {
             if jamfProServer_textfield.stringValue != "" {
                 credentialsCheck()
             }
-        } else {
-            jamfProServer_textfield.stringValue = ""
-            setSelectServerButton(listOfServers: [])
-            selectServer_Button.selectItem(withTitle: "Add Server...")
-            login_Button.title = "Add"
-            selectServer_Action(self)
-            setWindowSize(setting: 2)
         }
+
+        saveCreds_button.state = NSControl.StateValue(defaults.integer(forKey: "saveCreds"))
+        
+//        print("[LoginVC.viewDidLoad] availableServersDict: \(availableServersDict)")
+
         // bring app to foreground
         NSApplication.shared.activate(ignoringOtherApps: true)
     }
-    
 }
 

@@ -1,6 +1,6 @@
 //
 //  Alert.swift
-//  Jamf Compliance Editor
+//  Object Info
 //
 //  Created by Leslie Helou on 8/8/22
 //
@@ -9,6 +9,10 @@ import Cocoa
 
 
 class Alert: NSObject {
+    
+    static let shared = Alert()
+    private override init() { }
+    
     func display(header: String, message: String, secondButton: String) -> String {
         NSApplication.shared.activate(ignoringOtherApps: true)
         var selected = ""

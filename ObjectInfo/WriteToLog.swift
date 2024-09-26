@@ -9,9 +9,10 @@
 import Foundation
 class WriteToLog {
     
-    let logFileW    = FileHandle(forUpdatingAtPath: Log.path! + Log.file)
-    var writeToLogQ = DispatchQueue(label: "com.jamf.writeToLogQ", qos: DispatchQoS.utility)
-    let fm          = FileManager()
+    static let shared = WriteToLog()
+    private init() { }
+    
+    let fm = FileManager()
     
     func createLogFile(completionHandler: @escaping (_ result: String) -> Void) {
         if !self.fm.fileExists(atPath: Log.path! + Log.file) {
@@ -22,7 +23,6 @@ class WriteToLog {
     
     // func logCleanup - start
     func logCleanup() {
-//    func logCleanup(completionHandler: @escaping (_ result: String) -> Void) {
             var logArray: [String] = []
             var logCount: Int = 0
             do {
@@ -39,13 +39,13 @@ class WriteToLog {
                 // remove old log files
                 if logCount > Log.maxFiles {
                     for i in (0..<logCount-Log.maxFiles) {
-                        WriteToLog().message(stringOfText: ["Deleting log file: " + logArray[i] + "\n"])
+                        WriteToLog.shared.message(stringOfText: "Deleting log file: " + logArray[i] + "\n")
                         
                         do {
                             try fm.removeItem(atPath: logArray[i])
                         }
                         catch let error as NSError {
-                            WriteToLog().message(stringOfText: ["Error deleting log file:\n    " + logArray[i] + "\n    \(error)\n"])
+                            WriteToLog.shared.message(stringOfText: "Error deleting log file:\n    " + logArray[i] + "\n    \(error)\n")
                         }
                     }
                 }
@@ -61,7 +61,7 @@ class WriteToLog {
 //                            print("zipIt result: \(result)")
                             self.createLogFile() {
                                 (result: String) in
-//                                completionHandler(result)
+
                                 return
                             }
                         }
@@ -69,38 +69,23 @@ class WriteToLog {
                 }
             } catch {
 //                print("no history")
-//                completionHandler("")
                 return
             }
-//            completionHandler("")
     }
     // func logCleanup - end
 
-    func message(stringOfText: [String]) {
-        if !fm.fileExists(atPath: Log.path!) {
-            do {
-                try fm.createDirectory(atPath: Log.path!, withIntermediateDirectories: true, attributes: nil)
-                fm.createFile(atPath: Log.path! + Log.file, contents: nil, attributes: nil)
-            } catch {
-                print("failed to create log file at \(Log.path!)\(Log.file)")
-            }
-        }
-//        createLogFile() { [self]
-//            (result: String) in
-//            logCleanup() {
-//                (result: String) in
-                self.writeToLogQ.sync {
-                    for theString in stringOfText {
-                        let logString = "\(self.logDate()) \(theString)\n"
+    
+    var logFileW: FileHandle? = FileHandle(forUpdatingAtPath: "")
 
-                        self.logFileW?.seekToEndOfFile()
+    func message(stringOfText: String) {
+        let logString = "\(getCurrentTime()) \(stringOfText)\n"
 
-                        let logText = (logString as NSString).data(using: String.Encoding.utf8.rawValue)
-                        self.logFileW?.write(logText!)
-                    }
-                }
-//            }
-//        }
+        self.logFileW = FileHandle(forUpdatingAtPath: (Log.path! + Log.file))
+        let fullpath = Log.path! + Log.file
+        
+        let historyText = (logString as NSString).data(using: String.Encoding.utf8.rawValue)
+        self.logFileW?.seekToEndOfFile()
+        self.logFileW?.write(historyText!)
     }
     
     func getCurrentTime() -> String {

@@ -6,9 +6,9 @@
 //  Copyright © 2017 jamf. All rights reserved.
 //
 
+import AppKit
 import Cocoa
 import Foundation
-//import WebKit
 
 class EndpointData: NSObject {
     @objc dynamic var column1: String
@@ -41,22 +41,54 @@ class getInfo: NSObject {
     }
 }
 
-class ViewController: NSViewController, URLSessionDelegate {
+class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDelegate {
+    
+    func sendLoginInfo(loginInfo: (String,String,String,String,Int)) {
+        //create log file
+        cleanup()
+        
+        var saveCredsState: Int?
+        (JamfProServer.displayName, JamfProServer.server, JamfProServer.username, JamfProServer.password,saveCredsState) = loginInfo
+        let jamfUtf8Creds = "\(JamfProServer.username):\(JamfProServer.password)".data(using: String.Encoding.utf8)
+        JamfProServer.base64Creds = (jamfUtf8Creds?.base64EncodedString())!
+
+//        WriteToLog.shared.message(stringOfText: "[ViewController] Running SYM-Helper v\(AppInfo.version)")
+        view.window?.title = "Object Info Version: \(Bundle.main.infoDictionary!["CFBundleShortVersionString"] ?? "") \t\t Jamf Pro Version: \(JamfProServer.majorVersion).\(JamfProServer.minorVersion).\(JamfProServer.patchVersion)"
+        currentServer = JamfProServer.server
+        username      = JamfProServer.username
+        password      = JamfProServer.password
+        
+        
+        connectedTo_TextField.stringValue = "Connected to: \(JamfProServer.displayName)"
+        logout_Button.isHidden = false
+        
+    }
 
     @objc dynamic var summaryArray: [EndpointData] = [EndpointData(column1: "", column2: "", column3: "", column4: "", column5: "", column6: "", column7: "")]
 
     // keychain access
-    let Creds = Credentials2()
     
-    @IBOutlet weak var saveCreds_button: NSButton!
+//    @IBOutlet weak var saveCreds_button: NSButton!
     
     let fm = FileManager()
     var preferencesDict = [String:AnyObject]()
     let prefsPath = URL(fileURLWithPath: NSHomeDirectory() + "/Library/Application Support/Object Info/settings.plist")
 
-    @IBOutlet weak var jamfServer_TextField: NSTextField!
-    @IBOutlet weak var uname_TextField: NSTextField!
-    @IBOutlet weak var passwd_TextField: NSSecureTextField!
+    @IBOutlet weak var connectedTo_TextField: NSTextField!
+    
+    @IBAction func logout_Action(_ sender: NSButton) {
+        logout_Button.isHidden = true
+        JamfProServer.version = ""
+        select_MenuItem.title = "Select"
+//        endpoint_PopUpButton.select(select_MenuItem)
+        summaryArray.removeAll()
+        tableView.reloadData()
+        progressBar.isHidden = true
+        progressBar.increment(by: -100.0)
+        
+        performSegue(withIdentifier: "loginView", sender: nil)
+    }
+    @IBOutlet weak var logout_Button: NSButton!
     
     @IBOutlet weak var action_textField: NSTextField!
     
@@ -136,8 +168,8 @@ class ViewController: NSViewController, URLSessionDelegate {
         
         if menuIdentifier != "" {
             
-            get_button.isEnabled    = true
-            export_button.isEnabled = false
+            //get_button.isEnabled    = true
+            export_button.isEnabled  = false
             exportTitleSuffix       = ""
             
             switch menuIdentifier {
@@ -181,7 +213,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             oEndpointXmlTag         = "\(selection[1])"
             oSingleEndpointXmlTag   = "\(selection[2])"
 
-            WriteToLog().message(stringOfText: ["endpointDict[\(endpointType)]: \(endpointDict[endpointType]!)"])
+            WriteToLog.shared.message(stringOfText: "endpointDict[\(endpointType)]: \(endpointDict[endpointType]!)")
             
             self.action_textField.stringValue = ""
             formatTableView(columnHeaders: headersDict[endpointType]!)
@@ -191,6 +223,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             tableView.reloadData()
             progressBar.isHidden = true
             progressBar.increment(by: -100.0)
+            get(self)
         } else {
             endpointXmlTag   = ""
         }
@@ -199,55 +232,28 @@ class ViewController: NSViewController, URLSessionDelegate {
 
     @IBAction func get(_ sender: Any) {
         
+        stopScan         = false
         Log.lookupFailed = false
         Log.FailedCount  = 0
         pendingGetCount  = 0
         
-        if jamfServer_TextField.stringValue == "" {
-            alert_dialog(header: "Alert", message: "Jamf server URL is required.")
-            jamfServer_TextField.becomeFirstResponder()
-            return
-        } else if uname_TextField.stringValue == "" {
-            alert_dialog(header: "Alert", message: "Jamf server username is required.")
-            uname_TextField.becomeFirstResponder()
-            return
-        } else if passwd_TextField.stringValue == "" {
-            alert_dialog(header: "Alert", message: "Jamf server user password is required.")
-            uname_TextField.becomeFirstResponder()
-            return
-        }
-        
-        
         // start things in motion
+        export_button.isEnabled = false
         spinner.isHidden = false
         spinner.startAnimation(self)
-        get_button.isEnabled = false
         
-        currentServer  = self.jamfServer_TextField.stringValue
-        username       = self.uname_TextField.stringValue
-        password       = self.passwd_TextField.stringValue
-        let jamfCreds  = "\(self.username):\(self.password)"
-        
-        let jamfUtf8Creds = jamfCreds.data(using: String.Encoding.utf8)
-        jamfBase64Creds   = (jamfUtf8Creds?.base64EncodedString())!
-        
-        JamfPro().getToken(serverUrl: jamfServer_TextField.stringValue, base64creds: jamfBase64Creds) { [self]
+        JamfPro.shared.getToken(serverUrl: JamfProServer.server) { [self]
             (result: (Int,String)) in
             
             let (statusCode,tokenResult) = result
             if tokenResult == "failed" {
-                WriteToLog().message(stringOfText: ["[get] failed to get token"])
+                WriteToLog.shared.message(stringOfText: "[get] failed to get token")
                 let response = ( statusCode == 0 ) ? "No response from the server.":"\(statusCode)"
-                _ = alert.display(header: "", message: "Failed to get authentication token.\n Status code: \(response)", secondButton: "")
+                _ = Alert.shared.display(header: "", message: "Failed to get authentication token.\n Status code: \(response)", secondButton: "")
                 spinner.isHidden = true
                 spinner.stopAnimation(self)
-                get_button.isEnabled = true
                 return
             }
-//        }
-//        JamfPro().getVersion(jpURL: jamfServer_TextField.stringValue, basicCreds: jamfBase64Creds) { [self]
-//            (result: [Int]) in
-            JamfProServer.server   = jamfServer_TextField.stringValue
             
             selectedEndpoint       = oSelectedEndpoint  //ex: .../JSSResource/selectedEndpoint
             endpointXmlTag         = oEndpointXmlTag
@@ -270,20 +276,20 @@ class ViewController: NSViewController, URLSessionDelegate {
                 packageScriptArray.removeAll()
                 pkgScrArray.removeAll()
 
-                WriteToLog().message(stringOfText: ["[get]       apiCall for endpoint: \(endpointXmlTag)"])
-                WriteToLog().message(stringOfText: ["[get] apiCall for menuIdentifier: \(menuIdentifier)"])
+                WriteToLog.shared.message(stringOfText: "[get]       apiCall for endpoint: \(endpointXmlTag)")
+                WriteToLog.shared.message(stringOfText: "[get] apiCall for menuIdentifier: \(menuIdentifier)")
                 
 //                print("[get] calling endpointXmlTag: \(endpointXmlTag)")
                 
                 apiCall(endpoint: "\(endpointXmlTag)") { [self]
                     (result: [Int:String]) in
-                    WriteToLog().message(stringOfText: ["[get] returned from apiCall - result:\n\(result)"])
+                    WriteToLog.shared.message(stringOfText: "[get] returned from apiCall - result:\n\(result)")
                     
                     results_TextView.string = "\(result)"
                     if menuIdentifier == "Packages" || menuIdentifier == "Scripts" || menuIdentifier == "scg" || menuIdentifier == "sdg" || menuIdentifier == "cea" || menuIdentifier == "mdea" {
                         
                         for (_, objectName) in idNameDict {
-                            WriteToLog().message(stringOfText: ["[get] theRecord: \(objectName)"])
+                            WriteToLog.shared.message(stringOfText: "[get] theRecord: \(objectName)")
 
                             pkgScrArray.append("\(objectName)")
                         }
@@ -300,11 +306,11 @@ class ViewController: NSViewController, URLSessionDelegate {
                                 action_textField.stringValue = "Querying mobile device extension attributes"
                             }
 
-                            JamfPro().objectByName(endpoint: menuIdentifier, endpointData: idNameDict) { [self]
+                            JamfPro.shared.objectByName(endpoint: menuIdentifier, endpointData: idNameDict) { [self]
 //                            JamfPro().objectByName(endpoint: menuIdentifier, endpointData: packageScriptArray) { [self]
                                 (result: String) in
                                 // switch lookup to eas scoped to groups - start
-                                WriteToLog().message(stringOfText: ["[get] apiCall (\(singleEndpointXmlTag)s) for endpoint: Groups"])
+                                WriteToLog.shared.message(stringOfText: "[get] apiCall (\(singleEndpointXmlTag)s) for endpoint: Groups")
                                 apiCall(endpoint: "\(singleEndpointXmlTag)s") { [self]
                                     (result: [Int:String]) in
                                     // need to fix
@@ -315,7 +321,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                             }
                         } else if menuIdentifier != "sdg" {
                             // switch lookup to packages/scripts scoped to policies - start
-                            WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: policies"])
+                            WriteToLog.shared.message(stringOfText: "[get] apiCall for endpoint: policies")
                             selectedEndpoint     = "policies"
                             singleEndpointXmlTag = "policy"
                             apiCall(endpoint: "policies") { [self]
@@ -327,7 +333,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                             // switch lookup to packages/scripts scoped to policies - end
                         } else {
                             // switch lookup to mobile device groups scoped to configuration profiles - start
-                            WriteToLog().message(stringOfText: ["[get] apiCall for endpoint: configuration_profiles"])
+                            WriteToLog.shared.message(stringOfText: "[get] apiCall for endpoint: configuration_profiles")
                             selectedEndpoint     = "mobiledeviceconfigurationprofiles"
                             singleEndpointXmlTag = "configuration_profile"
                             apiCall(endpoint: "configuration_profiles") { [self]
@@ -353,14 +359,20 @@ class ViewController: NSViewController, URLSessionDelegate {
     }
     
     func prestages(currentPage: Int, pageSize: Int, objectCount: Int, endpoint: String, subsearch: String) {
-        JamfPro().jpapiGET(endpoint: endpoint, apiData: [:], id: "", token: "") {
+        JamfPro.shared.jpapiGET(endpoint: endpoint, page: "\(currentPage)", pageSize: "\(pageSize)", apiData: [:], id: "", token: "") { [self]
             (result: [String:Any]) in
 //            print("prestage results: \(result)")
-            let prestageCount = result["totalCount"] as! Int
+            guard let prestageCount = result["totalCount"] as? Int else {
+                return
+            }
 //            print("total prestages: \(prestageCount)")
+//            print("      subsearch: \(subsearch)")
+//            print("          range: \(min(prestageCount, pageSize))")
+            let range = min(prestageCount,pageSize)
             let allprestages = result["results"] as? [[String:Any]]
-            for i in 0..<min(prestageCount,pageSize) {
+            for i in 0..<min(prestageCount, range) {
                 let prestageInfo = allprestages?[i]
+//                print("   prestageInfo: \(prestageInfo ?? [:])")
                 let prestageProfiles = prestageInfo?[subsearch] as? [String]
                 if prestageProfiles?.count ?? 0 > 0 {
                     let objectDisplayName = prestageInfo!["displayName"] as! String
@@ -373,8 +385,12 @@ class ViewController: NSViewController, URLSessionDelegate {
                             self.summaryArray.append(EndpointData(column1: "\(String(describing: profileName!))", column2: "", column3: "", column4: "", column5: "\(objectDisplayName)", column6: "", column7: ""))
                             self.details_TextView.string.append("\(String(describing: profileName!))\t\t\t\t\(String(describing: objectDisplayName))\n")
                         }
+//                        print("[prestage] profile name: \(String(describing: profileName!))")
                     }
                 }
+            }
+            if range*(currentPage+1) < prestageCount {
+                prestages(currentPage: currentPage+1, pageSize: pageSize, objectCount: range+1, endpoint: selectedEndpoint, subsearch: "prestageInstalledProfileIds")
             }
         }
     }
@@ -384,8 +400,15 @@ class ViewController: NSViewController, URLSessionDelegate {
     }
     
     func apiCall(endpoint: String, completion: @escaping (_ result: [Int:String]) -> Void) {
+        
+        if stopScan {
+            print("[apiCall] stop")
+            completion([:])
+            return
+        }
+        
 //    func apiCall(endpoint: String, completion: @escaping (_ result: String) -> Void) {
-        WriteToLog().message(stringOfText: ["[apiCall] endpoint: \(endpoint)"])
+        WriteToLog.shared.message(stringOfText: "[apiCall] endpoint: \(endpoint)")
 
         completeCounter[endpoint] = 0
         progressBar.increment(by: -1.0)
@@ -396,31 +419,30 @@ class ViewController: NSViewController, URLSessionDelegate {
         var localCounter = 0    // not needed?
         
         if self.selectedEndpoint != "" {
-            WriteToLog().message(stringOfText: ["[apiCall] selectedEndpoint: \(selectedEndpoint)"])
-            endpointUrl = jamfServer_TextField.stringValue + "/JSSResource/\(selectedEndpoint)"
+            WriteToLog.shared.message(stringOfText: "[apiCall] selectedEndpoint: \(selectedEndpoint)")
+            endpointUrl = JamfProServer.server + "/JSSResource/\(selectedEndpoint)"
             endpointUrl = endpointUrl.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
-            WriteToLog().message(stringOfText: ["[apiCall] endpointURL: \(endpointUrl)"])
+            WriteToLog.shared.message(stringOfText: "[apiCall] endpointURL: \(endpointUrl)")
         } else {
             completion([0:"no endpoint selected"])
         }
         
         apiQ.addOperation {
-
             let encodedURL = NSURL(string: self.endpointUrl)
             let request = NSMutableURLRequest(url: encodedURL! as URL)
             
             request.httpMethod = "GET"
             let serverConf = URLSessionConfiguration.ephemeral
             
-            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "User-Agent" : AppInfo.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
+            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.accessToken)", "User-Agent" : AppInfo.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
             URLCache.shared.removeAllCachedResponses()
             let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
-            let task = serverSession.dataTask(with: request as URLRequest, completionHandler: {
+            let task = serverSession.dataTask(with: request as URLRequest, completionHandler: { [self]
                 (data, response, error) -> Void in
                 serverSession.finishTasksAndInvalidate()
                 if let httpResponse = response as? HTTPURLResponse {
 //                    if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
-                    WriteToLog().message(stringOfText: ["[apiCall] completion - HTTP status code for \(self.endpointUrl): \(httpResponse.statusCode)"])
+                    WriteToLog.shared.message(stringOfText: "[apiCall] completion - HTTP status code for \(self.endpointUrl): \(httpResponse.statusCode)")
                         do {
                             let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
                             
@@ -474,7 +496,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                 } else {
                                     if self.selectedEndpoint != "computerconfigurations" && self.selectedEndpoint != "advancedmobiledevicesearches" {
                                         self.alert_dialog(header: "Alert", message: "Nothing found at:\n\(self.endpointUrl)")
-                                        WriteToLog().message(stringOfText: ["[apiCall] completion - Nothing found at: \(self.endpointUrl)"])
+                                        WriteToLog.shared.message(stringOfText: "[apiCall] completion - Nothing found at: \(self.endpointUrl)")
                                     }
                                     if self.selectedEndpoint == "computerconfigurations" || self.selectedEndpoint == "macapplications" {
     //                                    self.increment = 100.0
@@ -484,8 +506,14 @@ class ViewController: NSViewController, URLSessionDelegate {
                                     completion([:])
                                 }
                     
-                                for i in (0..<endpointInfo.count) {
-                                
+                                var i = 0
+//                                for i in (0..<endpointInfo.count) {
+                                while i < endpointInfo.count {
+                                    
+                                    if stopScan {
+                                        break
+                                    }
+                                    
                                     let theRecord  = endpointInfo[i] as! [String : AnyObject]
                                     let recordId   = theRecord["id"] as! Int
                                     let recordName = theRecord["name"] as! String
@@ -660,37 +688,26 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                 break
         //                                  print("Script or Package")
                                     }
+                                    i = stopScan ? endpointInfo.count-1:i + 1
                                 }   // for i in (0..<endpointInfo.count) - end
                                 
                             }  else {  // if let serverEndpointJSON - end
-                                WriteToLog().message(stringOfText: ["apiCall - existing endpoints: error serializing JSON: \(String(describing: error))"])
+                                WriteToLog.shared.message(stringOfText: "apiCall - existing endpoints: error serializing JSON: \(String(describing: error))")
                             }
                         }   // end do
                         if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
 
-                            WriteToLog().message(stringOfText: ["[apiCall] completion - status code: \(httpResponse.statusCode)"])
+                            WriteToLog.shared.message(stringOfText: "[apiCall] completion - status code: \(httpResponse.statusCode)")
                             completion(idNameDict)
-                            
-                            if self.username != self.preferencesDict["username"] as? String || self.currentServer != self.preferencesDict["jps_url"] as! String {
-                                self.preferencesDict["username"] = self.username as AnyObject
-                                self.preferencesDict["jps_url"]  = self.currentServer as AnyObject
-                                NSDictionary(dictionary: self.preferencesDict).write(to: self.prefsPath, atomically: true)
-                            } else if self.saveCreds_button.state.rawValue == 1 {
-                                NSDictionary(dictionary: self.preferencesDict).write(to: self.prefsPath, atomically: true)
-                            }
-                            if self.saveCreds_button.state.rawValue == 1 {
-                                let serverNameArray = "\(self.jamfServer_TextField.stringValue)".components(separatedBy: "//")
-                                self.Creds.save(service: "Object Info - \(serverNameArray[1])", account: self.username, data: self.passwd_TextField.stringValue)
-                            }
 
                         } else {
                             // something went wrong
-                            WriteToLog().message(stringOfText: ["[apiCall] completion - Something went wrong, status code: \(httpResponse.statusCode)"])
+                            WriteToLog.shared.message(stringOfText: "[apiCall] completion - Something went wrong, status code: \(httpResponse.statusCode)")
                             switch httpResponse.statusCode {
                             case 401:
                                 self.alert_dialog(header: "Alert", message: "Authentication failed.  Check username and password.")
                             case 404:
-                                WriteToLog().message(stringOfText: ["[apiCall] unknown endpoint: \(self.selectedEndpoint)"])
+                                WriteToLog.shared.message(stringOfText: "[apiCall] unknown endpoint: \(self.selectedEndpoint)")
                             default:
                                 break
                             }
@@ -699,12 +716,12 @@ class ViewController: NSViewController, URLSessionDelegate {
                         }   // if httpResponse.statusCode - end
                     
 //                    } else {
-//                        WriteToLog().message(stringOfText: ["[apiCall] completion - HTTP status code for \(self.endpointUrl): \(httpResponse.statusCode)"])
+//                        WriteToLog.shared.message(stringOfText: "[apiCall] completion - HTTP status code for \(self.endpointUrl): \(httpResponse.statusCode)")
 //                        completion("")
 //                    }
                     
                 } else {  // if let httpResponse = response - end
-                    WriteToLog().message(stringOfText: ["[apiCall] completion - No response to \(self.endpointUrl)"])
+                    WriteToLog.shared.message(stringOfText: "[apiCall] completion - No response to \(self.endpointUrl)")
                     self.alert_dialog(header: "Alert", message: "No response to:\n\(self.endpointUrl)")
                     completion([:])
                 }
@@ -741,9 +758,17 @@ class ViewController: NSViewController, URLSessionDelegate {
             }
         }
     }
+    
     func getDetails(id: String, endpointAddress: String, theEndpoint: String, completion: @escaping (_ result: String) -> Void) {
+        
+        // stops the lookups
+        if stopScan {
+            completion("")
+            return
+        }
+        
         DispatchQueue.main.async { [self] in
-            get_button.isEnabled = false
+//            get_button.isEnabled = false
             isRunning            = true
             URLCache.shared.removeAllCachedResponses()
             
@@ -752,8 +777,8 @@ class ViewController: NSViewController, URLSessionDelegate {
             
             //        let safeCharSet = CharacterSet.alphanumerics
             
-            self.username = self.uname_TextField.stringValue
-            self.password = self.passwd_TextField.stringValue
+//            self.username = self.uname_TextField.stringValue
+//            self.password = self.passwd_TextField.stringValue
             //        let jamfCreds = "\(self.username):\(self.password)"
             
             //        let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
@@ -764,7 +789,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         detailQ.addOperation { [self] in
 //        let idUrl = self.endpointUrl+"/id/\(id)"
             let idUrl = "\(endpointAddress)/id/\(id)"
-            WriteToLog().message(stringOfText: ["[getDetails] idUrl: \(idUrl)"])
+            WriteToLog.shared.message(stringOfText: "[getDetails] idUrl: \(idUrl)")
         
 
             let encodedURL          = NSURL(string: idUrl)
@@ -800,7 +825,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             request.httpMethod = "GET"
             let serverConf = URLSessionConfiguration.default
             serverConf.timeoutIntervalForRequest = 15
-            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "User-Agent" : AppInfo.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
+            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.accessToken)", "User-Agent" : AppInfo.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
             let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = serverSession.dataTask(with: request as URLRequest, completionHandler: { [self]
                 (data, response, error) -> Void in
@@ -808,9 +833,9 @@ class ViewController: NSViewController, URLSessionDelegate {
                 if let httpResponse = response as? HTTPURLResponse {
                     if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
 //                    do {
-                        WriteToLog().message(stringOfText: ["[getDetails]                  GET: \(idUrl)"])
-                        WriteToLog().message(stringOfText: ["[getDetails] singleEndpointXmlTag: \(self.singleEndpointXmlTag)"])
-                        WriteToLog().message(stringOfText: ["[getDetails]       menuIdentifier: \(self.menuIdentifier)"])
+                        WriteToLog.shared.message(stringOfText: "[getDetails]                  GET: \(idUrl)")
+                        WriteToLog.shared.message(stringOfText: "[getDetails] singleEndpointXmlTag: \(self.singleEndpointXmlTag)")
+                        WriteToLog.shared.message(stringOfText: "[getDetails]       menuIdentifier: \(self.menuIdentifier)")
 
                         self.progressBar.increment(by: self.increment)
                         
@@ -855,7 +880,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                         self.detailedResults = ""
                                         recordName = generalTag["name"] as! String
 
-                                        WriteToLog().message(stringOfText: ["[getDetails] \(self.singleEndpointXmlTag) name: \(recordName)"])
+                                        WriteToLog.shared.message(stringOfText: "[getDetails] \(self.singleEndpointXmlTag) name: \(recordName)")
                                         if !(self.menuIdentifier == "scg" || self.menuIdentifier == "sdg") {
                                             let payload = generalTag["payloads"]?.replacingOccurrences(of: "\"", with: "") ?? ""
     //                                        print("\(String(describing: payload))")
@@ -1003,22 +1028,22 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                 break
                                             }
 
-                                            WriteToLog().message(stringOfText: ["[searchResults] looking for \(self.menuTitle)"])
+                                            WriteToLog.shared.message(stringOfText: "[searchResults] looking for \(self.menuTitle)")
                                             if searchResult(payload: payload, critereaArray: searchStringArray) {
-                                                WriteToLog().message(stringOfText: ["[searchResults] \(self.menuTitle) found in \(recordName)"])
+                                                WriteToLog.shared.message(stringOfText: "[searchResults] \(self.menuTitle) found in \(recordName)")
                                                 self.detailedResults = "\(self.menuTitle) \t\(recordName)"
 //                                                switch self.endpointType {
 //                                                case "ios_cp":
                                                     self.getScope(endpointInfo: endpointInfo, scopeObjects: scopeableObjectsArray)
                                                 limitationsExclusions = getLimitationsExceptions(endpointInfo: endpointInfo, endpointType: selectedEndpoint)
-//                                                    self.getScope(endpointInfo: endpointInfo, scopeObjects: ["mobile_devices", "mobile_device_groups", "buildings", "departments", "users", "user_groups", "network_segments"])
+//                                                    self.getScope(endpointInfo: endpointInfo, scopeObjects: ["mobile_devices", "mobile_device_groups", "buildings", "departments", "users", "user_groups", "network_segments")
 //                                                default:
 //                                                    self.getScope(endpointInfo: endpointInfo, scopeObjects: scopeableObjectsArray)
-//                                                    self.getScope(endpointInfo: endpointInfo, scopeObjects: ["computers", "computer_groups", "buildings", "departments", "users", "user_groups", "network_segments"])
+//                                                    self.getScope(endpointInfo: endpointInfo, scopeObjects: ["computers", "computer_groups", "buildings", "departments", "users", "user_groups", "network_segments")
 //                                                }
 
                                             } else {
-                                                WriteToLog().message(stringOfText: ["[searchResults] \(recordName) not found"])
+                                                WriteToLog.shared.message(stringOfText: "[searchResults] \(recordName) not found")
                                                 self.detailedResults = ""
                                             }
 
@@ -1033,7 +1058,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                 }
                                                 searchStringArray    = [""]
                                             case "sdg": // added 201207 lnh
-                                                WriteToLog().message(stringOfText: ["[getDetails] Checking scope for \(self.singleEndpointXmlTag)"])
+                                                WriteToLog.shared.message(stringOfText: "[getDetails] Checking scope for \(self.singleEndpointXmlTag)")
                                                 let packageConfigTag = endpointInfo["scope"] as! [String:AnyObject]
                                                 thePackageArray      = packageConfigTag["mobile_device_groups"] as! [[String: Any]]
                                                 if packageConfigTag["all_mobile_devices"] as! Bool {
@@ -1050,7 +1075,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                     if let generalTag = endpointInfo["general"] as? [String : AnyObject] {
                                         recordName = generalTag["name"] as! String
                                         self.detailedResults = "\(recordName)"
-                                        WriteToLog().message(stringOfText: ["[getDetails] case policy,computer_configuration - Policy Name: \(recordName)"])
+                                        WriteToLog.shared.message(stringOfText: "[getDetails] case policy,computer_configuration - Policy Name: \(recordName)")
                                         // get triggers
                                         if self.selectedEndpoint == "policies" {
                                             triggers = self.triggersAsString(generalTag: generalTag)
@@ -1094,7 +1119,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                         if let generalTag = endpointInfo["general"] as? [String : AnyObject] {
                                             recordName = generalTag["name"] as! String
             
-                                            WriteToLog().message(stringOfText: ["[getDetails] case all items (\(menuIdentifier)) - Name: \(recordName)"])
+                                            WriteToLog.shared.message(stringOfText: "[getDetails] case all items (\(menuIdentifier)) - Name: \(recordName)")
                                             
                                             switch menuIdentifier {
                                             case "Policies-all":
@@ -1163,15 +1188,15 @@ class ViewController: NSViewController, URLSessionDelegate {
                                         }
                                         
                                         self.detailedResults = "\(recordName)"
-                                        WriteToLog().message(stringOfText: ["[getDetails] case computer_group - Group Name: \(recordName)"])
+                                        WriteToLog.shared.message(stringOfText: "[getDetails] case computer_group - Group Name: \(recordName)")
                                     }
 
                                 default:
                                     break
                                 }
 
-                                WriteToLog().message(stringOfText: ["[getDetails] singleEndpointXmlTag: \(singleEndpointXmlTag)"])
-                                WriteToLog().message(stringOfText: ["[getDetails]     selectedEndpoint: \(selectedEndpoint)"])
+                                WriteToLog.shared.message(stringOfText: "[getDetails] singleEndpointXmlTag: \(singleEndpointXmlTag)")
+                                WriteToLog.shared.message(stringOfText: "[getDetails]     selectedEndpoint: \(selectedEndpoint)")
 
                                 switch singleEndpointXmlTag {
                                 case "policy","computer_configuration","mac_application","os_x_configuration_profile","configuration_profile","mobile_device_application":
@@ -1309,18 +1334,18 @@ class ViewController: NSViewController, URLSessionDelegate {
 
 
                             } else {
-                                WriteToLog().message(stringOfText: ["getDetails: if let endpointInfo = endpointJSON[\(self.singleEndpointXmlTag)], id='\(id)' error.)\n\(idUrl)"])
+                                WriteToLog.shared.message(stringOfText: "getDetails: if let endpointInfo = endpointJSON[\(self.singleEndpointXmlTag)], id='\(id)' error.)\n\(idUrl)")
                             }
                         }  else {  // if let serverEndpointJSON - end
-                            WriteToLog().message(stringOfText: ["getDetails - existing endpoints: error serializing JSON: \(String(describing: error))"])
+                            WriteToLog.shared.message(stringOfText: "getDetails - existing endpoints: error serializing JSON: \(String(describing: error))")
                         }
 //                    }   // end do
 
                         let theRecord: [String] = "\(self.detailedResults)".components(separatedBy: "\t")
-                        WriteToLog().message(stringOfText: ["[getDetails] endpointType: \(endpointType), theRecord: \(theRecord)"])
+                        WriteToLog.shared.message(stringOfText: "[getDetails] endpointType: \(endpointType), theRecord: \(theRecord)")
 
                         if endpointType != "Policies-all" && endpointType != "Packages" && endpointType != "Scripts" && menuIdentifier != "scg" && menuIdentifier != "sdg" && menuIdentifier != "cp_all_iOS" && menuIdentifier != "cp_all_macOS" {
-                            WriteToLog().message(stringOfText: ["[getDetails] \(recordName) is using theRecord with theRecord.count = \(theRecord.count)"])
+                            WriteToLog.shared.message(stringOfText: "[getDetails] \(recordName) is using theRecord with theRecord.count = \(theRecord.count)")
                             switch theRecord.count {
                             case 5:
                                 self.summaryArray.append(EndpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "\(theRecord[3])", column5: "\(theRecord[4])", column6: "", column7: ""))
@@ -1350,8 +1375,8 @@ class ViewController: NSViewController, URLSessionDelegate {
                         completion(self.detailedResults)
                     } else {
                         // something went wrong
-                        WriteToLog().message(stringOfText: ["[getDetails] lookup failed for \(idUrl)"])
-                        WriteToLog().message(stringOfText: ["[getDetails] status code: \(httpResponse.statusCode)"])
+                        WriteToLog.shared.message(stringOfText: "[getDetails] lookup failed for \(idUrl)")
+                        WriteToLog.shared.message(stringOfText: "[getDetails] status code: \(httpResponse.statusCode)")
                         Log.FailedCount+=1
                         Log.lookupFailed = true
                         completion(self.detailedResults)
@@ -1360,17 +1385,17 @@ class ViewController: NSViewController, URLSessionDelegate {
                     DispatchQueue.main.async {
                         self.progressBar.increment(by: 1.0)
                     }
-                    WriteToLog().message(stringOfText: ["[getDetails] lookup failed, no response for: \(idUrl)"])
+                    WriteToLog.shared.message(stringOfText: "[getDetails] lookup failed, no response for: \(idUrl)")
                     Log.FailedCount+=1
                     Log.lookupFailed = true
                 }
 //                semaphore.signal()
                 self.completeCounter[theEndpoint]!+=1
-                WriteToLog().message(stringOfText: ["[getDetails] completeCounter: \(String(describing: self.completeCounter[theEndpoint]!)) of \(self.apiDetailCount[theEndpoint]!)"])
+                WriteToLog.shared.message(stringOfText: "[getDetails] completeCounter: \(String(describing: self.completeCounter[theEndpoint]!)) of \(self.apiDetailCount[theEndpoint]!)")
 
                 if (self.completeCounter[theEndpoint]! >= self.apiDetailCount[theEndpoint]!) {
                     if !(self.selectedEndpoint == "osxconfigurationprofiles" && self.menuIdentifier == "scg") {
-                        WriteToLog().message(stringOfText: ["[getDetails] queryComplete"])
+                        WriteToLog.shared.message(stringOfText: "[getDetails] queryComplete")
                         self.queryComplete()
                     }
                 }
@@ -1410,10 +1435,12 @@ class ViewController: NSViewController, URLSessionDelegate {
         spinner.stopAnimation(self)
         stop_button.isHidden         = true
         export_button.isEnabled      = true
+        export_button.keyEquivalent  = "\r"
         progressBar.isHidden         = true
-        action_textField.stringValue = "Search Complete"
+        action_textField.stringValue = ""
+//        action_textField.stringValue = "Search Complete"
         isRunning                    = false
-        get_button.isEnabled         = true
+        //get_button.isEnabled         = true
         if Log.lookupFailed {
             let query = Log.FailedCount == 1 ? "query":"queries"
             alert_dialog(header: "Attention", message: "\(Log.FailedCount) \(query) failed.\nCheck the log, ~/Library/Logs/ObjectInfo/, and search for '[getDetails] lookup failed' to get additional details.")
@@ -1447,14 +1474,14 @@ class ViewController: NSViewController, URLSessionDelegate {
     
     // remove policy entries generated by jamf remote - start
     func validEndpointInfo(endpointJSON: [String: Any], endpoint: String) -> [Any] {
-        WriteToLog().message(stringOfText: ["[validEndpointInfo] endpoint: \(endpoint)"])
+        WriteToLog.shared.message(stringOfText: "[validEndpointInfo] endpoint: \(endpoint)")
         var filtered    = [Any]()
         var tmpFiltered = filtered
 //        var tmpPolicyNames = [String]()
         
         switch endpoint {
         case "policies":
-            WriteToLog().message(stringOfText: ["[validEndpointInfo] filter out policies from Jamf Remote"])
+            WriteToLog.shared.message(stringOfText: "[validEndpointInfo] filter out policies from Jamf Remote")
             tmpFiltered = endpointJSON[endpoint] as! [Any]
             for i in (0..<tmpFiltered.count) {
                 let localRecord = tmpFiltered[i] as! [String : AnyObject]
@@ -1480,7 +1507,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             }
  */
         default:
-            WriteToLog().message(stringOfText: ["[validEndpointInfo] filtered: \(filtered)"])
+            WriteToLog.shared.message(stringOfText: "[validEndpointInfo] filtered: \(filtered)")
             filtered = endpointJSON[endpoint] as! [Any]
         }
 
@@ -1521,12 +1548,12 @@ class ViewController: NSViewController, URLSessionDelegate {
     }
     
     func getLimitationsExceptions(endpointInfo: [String : AnyObject], endpointType: String) -> [String:[String]] {
-//        WriteToLog().message(stringOfText: ["[getLimitationsExceptions] endpointInfo: \(endpointInfo)"])
-//        WriteToLog().message(stringOfText: ["[getLimitationsExceptions] scopeObjects: \(scopeObjects)"])
+//        WriteToLog.shared.message(stringOfText: "[getLimitationsExceptions] endpointInfo: \(endpointInfo)")
+//        WriteToLog.shared.message(stringOfText: "[getLimitationsExceptions] scopeObjects: \(scopeObjects)")
         
         var limitationsExclusionsDict = [String:[String]]()
 
-        WriteToLog().message(stringOfText: ["[getLimitationsExceptions] endpointType: \(endpointType)"])
+        WriteToLog.shared.message(stringOfText: "[getLimitationsExceptions] endpointType: \(endpointType)")
 
         if let scope = endpointInfo["scope"] as? [String : AnyObject] {
             for lore in ["limitations", "exclusions"] {
@@ -1549,13 +1576,13 @@ class ViewController: NSViewController, URLSessionDelegate {
     }
     
     func getScope(endpointInfo: [String : AnyObject], scopeObjects: [String]) {
-//        WriteToLog().message(stringOfText: ["[getScope] endpointInfo: \(endpointInfo)"])
-//        WriteToLog().message(stringOfText: ["[getScope] scopeObjects: \(scopeObjects)"])
+//        WriteToLog.shared.message(stringOfText: "[getScope] endpointInfo: \(endpointInfo)")
+//        WriteToLog.shared.message(stringOfText: "[getScope] scopeObjects: \(scopeObjects)")
         
         var allScope            = ""
         var currentScopeArray   = [String]()
 
-        WriteToLog().message(stringOfText: ["[getScope] endpointType: \(endpointType)"])
+        WriteToLog.shared.message(stringOfText: "[getScope] endpointType: \(endpointType)")
 
         switch endpointType {
         case "ios_cp","sdg","apps_iOS","cp_all_iOS":
@@ -1619,39 +1646,49 @@ class ViewController: NSViewController, URLSessionDelegate {
 //        print(details_TextView.string ?? "Nothing found.")
         
         let savePanel = NSSavePanel()
-        
+        savePanel.directoryURL = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first! as URL
         savePanel.nameFieldStringValue = oSelectedEndpoint+exportTitleSuffix+".txt"
-        
-        savePanel.begin { (result) -> Void in
-            if result.rawValue == NSApplication.ModalResponse.OK.rawValue {
-                let exportedFileURL  = savePanel.url
-                var exportPathString = exportedFileURL?.absoluteString.replacingOccurrences(of: "file://", with: "")
-                exportPathString     = exportPathString?.replacingOccurrences(of: "%20", with: " ")
-                
-//                let exportPath = exportedFileURL?.absoluteString
-                if !self.fm.fileExists(atPath: exportPathString!) {
-//                    print("export file does not exist, creating.")
-                    self.fm.createFile(atPath: exportPathString!, contents: nil, attributes: nil)
-                } else {
-                    do {
-                        try self.fm.removeItem(atPath: exportPathString!)
-                        self.fm.createFile(atPath: exportPathString!, contents: nil, attributes: nil)
-                    } catch {
-                        self.alert_dialog(header: "Alert:", message: "Unable to replace exiting file.")
-                        return
-                    }
-                }
-                
+        savePanel.title = "Choose output file"
+        savePanel.showsResizeIndicator = true
+        savePanel.showsHiddenFiles = false
+        savePanel.canCreateDirectories = true
+        savePanel.treatsFilePackagesAsDirectories = false
+        let answer = savePanel.runModal()
+        if answer ==  NSApplication.ModalResponse.OK {
+            var exportPath = ""
+            if #available(macOS 13.0, *) {
+                exportPath = (savePanel.url?.path())!
+            } else {
+                exportPath = savePanel.url!.path
+            }
+            
+            if !fm.fileExists(atPath: exportPath) {
+            //                    print("export file does not exist, creating.")
+                fm.createFile(atPath: exportPath, contents: nil, attributes: nil)
+            } else {
                 do {
-                    let exportHandle = try FileHandle(forWritingTo: exportedFileURL!)
-                    
-                    let exportData = self.details_TextView.string.data(using: String.Encoding(rawValue: String.Encoding.utf8.rawValue))
-                    exportHandle.write(exportData!)
+                    try fm.removeItem(atPath: exportPath)
+                    fm.createFile(atPath: exportPath, contents: nil, attributes: nil)
                 } catch {
-                    self.alert_dialog(header: "Alert:", message: "Unable to export data.")
+                    alert_dialog(header: "Alert:", message: "Unable to replace exiting file.")
+                    return
                 }
             }
-        } // savePanel.begin - end
+            
+            do {
+                let exportHandle = try FileHandle(forWritingTo: savePanel.url!)
+            
+                let exportData = details_TextView.string.data(using: String.Encoding(rawValue: String.Encoding.utf8.rawValue))
+                exportHandle.write(exportData!)
+            } catch {
+                alert_dialog(header: "Alert:", message: "Unable to export data.")
+            }
+            // Do whatever you need with every selected file
+            print ("\(exportPath)")
+        } else {
+            print ( "User clicked on 'Cancel'" )
+            return
+        }
     }
     
     func queueCheck(completion: @escaping (_ result: Bool) -> Void) {
@@ -1664,6 +1701,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         completion(true)
     }
     
+    /*
     @IBAction func saveCreds_action(_ sender: Any) {
         if saveCreds_button.state.rawValue == 1 {
             preferencesDict["save_pwd"] = 1 as AnyObject
@@ -1671,6 +1709,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             preferencesDict["save_pwd"] = 0 as AnyObject
         }
     }
+    */
     
     @IBAction func showLogFolder(_ sender: Any) {
         var isDir: ObjCBool = true
@@ -1683,19 +1722,38 @@ class ViewController: NSViewController, URLSessionDelegate {
     
     
     @IBAction func stop_action(_ sender: Any) {
+        print("[stop_action] clicked")
+        stopScan = true
         apiQ.cancelAllOperations()
         detailQ.cancelAllOperations()
+        getDetailsArray.removeAll()
         stop_button.isHidden    = true
-        export_button.isEnabled = true
-        details_TextView.string = ""
+        export_button.isEnabled  = true
+        export_button.keyEquivalent = "\r"
+//        details_TextView.string = ""
         spinner.stopAnimation(self)
+        self.action_textField.stringValue = "Stopped lookups"
     }
     
+    override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
+        let loginVC: LoginVC = segue.destinationController as! LoginVC
+        loginVC.delegate = self
+//        print("[viewController.prepare] nextStep: \(nextCheck) for \(String(describing: segue.identifier))")
+        if segue.identifier == "loginWindow" {
+            
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        //create log file
+        Log.file = getCurrentTime().replacingOccurrences(of: ":", with: "") + "_" + Log.file
+        if !(FileManager.default.fileExists(atPath: Log.path! + Log.file)) {
+            FileManager.default.createFile(atPath: Log.path! + Log.file, contents: nil, attributes: nil)
+        }
+        WriteToLog.shared.logCleanup()
         
-        self.view.layer?.backgroundColor = CGColor(red: 0x5C/255.0, green: 0x78/255.0, blue: 0x94/255.0, alpha: 1.0)
+//        self.view.layer?.backgroundColor = CGColor(red: 0x5C/255.0, green: 0x78/255.0, blue: 0x94/255.0, alpha: 1.0)
         stop_button.isHidden = true
         // Do any additional setup after loading the view.
         let additional = "-._~/?"
@@ -1705,10 +1763,10 @@ class ViewController: NSViewController, URLSessionDelegate {
     
     override func viewDidAppear() {
 
-        jamfServer_TextField.becomeFirstResponder()
-        get_button.isEnabled         = false
-        self.spinner.isHidden        = true
-        self.export_button.isEnabled = false
+//        connectedTo_TextField.becomeFirstResponder()
+        //get_button.isEnabled        = false
+        spinner.isHidden            = true
+        export_button.isEnabled     = false
         
         let settings_plist  = Bundle.main.path(forResource: "settings", ofType: "plist")!
         var isDir: ObjCBool = true
@@ -1746,34 +1804,18 @@ class ViewController: NSViewController, URLSessionDelegate {
         }
         // Create preference file if missing - end
         
-        // read preferences - start
         preferencesDict = (NSDictionary(contentsOf: prefsPath) as? [String : AnyObject])!
-        // read preferences - end
-        
-        jamfServer_TextField.stringValue = (preferencesDict["jps_url"] == nil) ? "" : preferencesDict["jps_url"] as! String
-        uname_TextField.stringValue      = (preferencesDict["username"] == nil) ? "" : preferencesDict["username"] as! String
-        
-        if preferencesDict["save_pwd"] == nil {
-            saveCreds_button.state = NSControl.StateValue(rawValue: 0)
-        } else {
-            saveCreds_button.state = NSControl.StateValue(rawValue: preferencesDict["save_pwd"] as! Int)
-        }
-        
-        if jamfServer_TextField.stringValue != "" {
-            //check of saved password
-            let serverNameArray = "\(self.jamfServer_TextField.stringValue)".components(separatedBy: "//")
-            let storedPassword  = Creds.retrieve(service: "Object Info - \(serverNameArray[1])")
-            if storedPassword.count == 2 {
-                uname_TextField.stringValue  = storedPassword[0]
-                passwd_TextField.stringValue = storedPassword[1]
-            }
-        }
 
-        WriteToLog().message(stringOfText: [""])
-        WriteToLog().message(stringOfText: ["================================"])
-        WriteToLog().message(stringOfText: ["  Object Info Version: \(version)"])
-        WriteToLog().message(stringOfText: ["        macOS Version: \(os.majorVersion).\(os.minorVersion).\(os.patchVersion)"])
-        WriteToLog().message(stringOfText: ["================================"])
+        WriteToLog.shared.message(stringOfText: "")
+        WriteToLog.shared.message(stringOfText: "================================")
+        WriteToLog.shared.message(stringOfText: "  Object Info Version: \(version)")
+        WriteToLog.shared.message(stringOfText: "        macOS Version: \(os.majorVersion).\(os.minorVersion).\(os.patchVersion)")
+        WriteToLog.shared.message(stringOfText: "================================")
+        
+        if showLoginWindow {
+            performSegue(withIdentifier: "loginView", sender: nil)
+            showLoginWindow = false
+        }
     }
 
     override var representedObject: Any? {
