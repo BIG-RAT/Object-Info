@@ -27,6 +27,8 @@ Unused objects are not displayed.  For example, if a package is not used in eith
 
 **History**
 
+2024-09-27: Version 3.0.0 - Address issues 16, 19, and 20. Add login window and update UI.
+
 2024-01-24: Version 2.0.2 - Fix issue with version lookup on Jamf Pro 11.
 
 2023-07-14: Version 2.0.1 - Add scan of extension attributes in advanced searches display (issue #14).  Provide information if an EA is used in an advanced search for criteria and/or display.
