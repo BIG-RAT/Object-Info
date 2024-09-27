@@ -12,137 +12,164 @@ import Security
 let kSecAttrAccountString          = NSString(format: kSecAttrAccount)
 let kSecValueDataString            = NSString(format: kSecValueData)
 let kSecClassGenericPasswordString = NSString(format: kSecClassGenericPassword)
-let keychainQ                      = DispatchQueue(label: "com.jamf.objectinfo", qos: DispatchQoS.background)
-let prefix                         = "Object Info"
-let sharedPrefix                   = "JPMA"
-let accessGroup                    = "PS2F6S478M.jamfie.SharedJPMA"
+let prefix                         = Bundle.main.infoDictionary?["CFBundleExecutable"] as? String ?? "unknown"
+var sharedPrefix                   = ""
+var accessGroup                    = ""
 
-class Credentials {
+struct Credentials {
     
     static let shared = Credentials()
-    private init() { }
+    public init() {
+        let teamId = fetchTeamId()
+        if teamId == "PS2F6S478M" {
+            accessGroup = "\(teamId).jamfie.SharedJPMA"
+            sharedPrefix = "JPMA"
+        } else {
+            accessGroup = "\(teamId).jamfie.SharedJSK"
+            sharedPrefix = "JSK"
+        }
+    }
     
-    var userPassDict = [String:String]()
+//    var userPassDict = [String:String]()
     
-    func save(service: String, account: String, credential: String) {
-        if service != "" && account != "" && service.first != "/" {
-            var theService = service
+    func save(service: String, account: String, credential: String, useApiClient: Bool) async -> String {
         
-            if useApiClient == 1 {
-                theService = "apiClient-" + theService
-            }
+        var returnMessage = "keychain save process completed successfully"
+        
+            if !service.isEmpty && !account.isEmpty && !credential.isEmpty {
+                    
+                var theService = service.lowercased().fqdnFromUrl
             
-            let keychainItemName = sharedPrefix + "-" + theService
-            print("[credentials.save] save credentials for \(keychainItemName), account: \(account)")
-            if let password = credential.data(using: String.Encoding.utf8) {
-                keychainQ.async { [self] in
-                    var keychainQuery: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
+                if useApiClient {
+                    theService = "apiClient-" + theService
+                }
+                
+                let keychainItemName = sharedPrefix + "-" + theService
+                
+                WriteToLog.shared.message(stringOfText: "keychain item \(keychainItemName) for account \(account)")
+
+                if let password = credential.data(using: String.Encoding.utf8) {
+
+                    var keychainQuery: [String: Any] = [kSecClass as String: kSecClassGenericPasswordString,
                                                         kSecAttrService as String: keychainItemName,
                                                         kSecAttrAccessGroup as String: accessGroup,
                                                         kSecUseDataProtectionKeychain as String: true,
-                                                        kSecAttrAccount as String: account,
+                                                        kSecAttrAccount as String: account.lowercased(),
                                                         kSecValueData as String: password]
                     
-                    
                     // see if credentials already exist for server
-                    let accountCheck = retrieve(service: service, account: account)
-//                    let accountCheck = retrieve(service: keychainItemName, account: account)
-                    if accountCheck.count == 0 {
-                        // try to add new credentials, if account exists we'll try updating it
-                        print("[credentials.save] save credentials for new account: \(account)")
+                    //                    print("[save] for for keychain item: \(service) for account: \(account)")
+                    let accountCheck = await retrieve(service: service, account: account, useApiClient: useApiClient)
+//                        print("[save] service: \(service)")
+//                        print("[save] matches found: \(accountCheck.count)")
+//                        print("[save] matches: \(accountCheck)")
+                    if accountCheck[account] == nil {
+                        // try to add new credentials
+                        WriteToLog.shared.message(stringOfText: "adding new keychain item \(keychainItemName) for account \(account)")
+
                         let addStatus = SecItemAdd(keychainQuery as CFDictionary, nil)
                         if (addStatus != errSecSuccess) {
                             if let addErr = SecCopyErrorMessageString(addStatus, nil) {
-                                print("[addStatus] New credentials write failed for \(account): \(addErr)")
-                                WriteToLog.shared.message(stringOfText: "[credentials.addStatus] New credentials write failed for \(account): \(addErr)")
-                                let deleteStatus = SecItemDelete(keychainQuery as CFDictionary)
-                                print("[Credentials.save] the deleteStatus: \(deleteStatus)")
-                                sleep(1)
-                                let addStatus = SecItemAdd(keychainQuery as CFDictionary, nil)
-                                if (addStatus != errSecSuccess) {
-                                    if let addErr = SecCopyErrorMessageString(addStatus, nil) {
-                                        print("[addStatus] New credentials write failed for \(account) after deleting: \(addErr)")
-                                        WriteToLog.shared.message(stringOfText: "[credentials.addStatus] New credentials write failed for \(account) after deleting: \(addErr)")
-                                    }
-                                }
+                                WriteToLog.shared.message(stringOfText: "write failed for service \(keychainItemName), account \(account): \(addErr)")
                             }
+                            returnMessage = "keychain save process was unsuccessful"
                         } else {
-                            print("[credentials.save] saved credentials for new account: \(account)")
+                           WriteToLog.shared.message(stringOfText: "keychain item added")
                         }
                     } else {
                         // credentials already exist, try to update
-                        print("[credentials.save] update credentials for account: \(account)")
+                       WriteToLog.shared.message(stringOfText: "see if keychain item \(keychainItemName) for account \(account) needs updating")
                         keychainQuery = [kSecClass as String: kSecClassGenericPasswordString,
                                          kSecAttrService as String: keychainItemName,
+                                         kSecAttrAccessGroup as String: accessGroup,
+                                         kSecAttrAccount as String: account.lowercased(),
+                                         kSecUseDataProtectionKeychain as String: true,
                                          kSecMatchLimit as String: kSecMatchLimitOne,
                                          kSecReturnAttributes as String: true]
-                        
-                        for (username, password) in accountCheck {
-                            if account == username && credential != password {
-                                // credentials already exist, try to update if necessary
-                                let updateStatus = SecItemUpdate(keychainQuery as CFDictionary, [kSecValueDataString:password] as [NSString : Any] as CFDictionary)
-                                WriteToLog.shared.message(stringOfText: "[credentials.save] result of credentials update: \(updateStatus)")
-
+                        if credential != accountCheck[account] {
+                            let updateStatus = SecItemUpdate(keychainQuery as CFDictionary, [kSecValueDataString:password] as [NSString : Any] as CFDictionary)
+                            if (updateStatus != errSecSuccess) {
+                                
+                               WriteToLog.shared.message(stringOfText: "keychain item for service \(service), account \(account), failed to update.")
+                                returnMessage = "keychain save process was unsuccessful"
+//
+                            } else {
+//                                    print("[addStatus] keychain item for service \(service), account \(account), has been updated.")
+                               WriteToLog.shared.message(stringOfText: "keychain item for service \(service), account \(account), has been updated.")
                             }
+                        } else {
+                            WriteToLog.shared.message(stringOfText: "keychain item for service \(service), account \(account), is current.")
+                            returnMessage = "keychain item is current"
                         }
                     }
+                    //                    }
+                } else {
+                    WriteToLog.shared.message(stringOfText: "failed to set password for \(keychainItemName), account \(account)")
+                    returnMessage = "keychain save process was unsuccessful"
                 }
             }
-        }
+            
+            print("[Credentials.save] returnMessage:\(returnMessage)")
+        return returnMessage
     }   // func save - end
     
-    func retrieve(service: String, account: String, whichServer: String = "") -> [String:String] {
-        
+    func retrieve(service: String, account: String = "", useApiClient: Bool) async -> [String:String] {
+       WriteToLog.shared.message(stringOfText: "fetch credentials for service: \(service), account: \(account)")
+        //        print("[credentials.retrieve] service passed: \(service)")
+        print("[credentials.retrieve] accessGroup: \(accessGroup)")
         var keychainResult = [String:String]()
-        var theService = service
+        var theService     = service.lowercased().fqdnFromUrl
+
+        print("[credentials] JamfProServer useApiClient: \(useApiClient)")
         
-//        if account != "" {
-//            theService = account + "-" + theService
-//        }
-//        print("[credentials] JamfProServer.sourceApiClient: \(JamfProServer.sourceUseApiClient)")
-        
-        if useApiClient == 1 {
+        if useApiClient {
             theService = "apiClient-" + theService
         }
         
-        var keychainItemName = sharedPrefix + "-" + theService
-//        print("[retrieve] keychainItemName: \(keychainItemName)")
+        let keychainItemName = sharedPrefix + "-" + theService
+        
+        print("[retrieve] keychainItemName: \(keychainItemName)")
+       // WriteToLog.shared.message(theMessage: "[credentials.retrieve] keychainName: \(keychainItemName), account: \(account)")
         // look for common keychain item
-        keychainResult = itemLookup(service: keychainItemName, account: account)
-        // look for legacy keychain item
-        if keychainResult.count == 0 {
-            keychainItemName = "\(prefix) - \(theService)"
-            keychainResult   = oldItemLookup(service: keychainItemName, account: account)
+        keychainResult = itemLookup(service: keychainItemName)
+//        print("[retrieve]   keychainResult: \(keychainResult)")
+        
+        if keychainResult.count > 1 && !account.isEmpty {
+            
+            for (username, password) in keychainResult {
+                if username.lowercased() == account.lowercased() {
+                    WriteToLog.shared.message(stringOfText: "found password/secret for: \(account)")
+                    return [username:password]
+                }
+            }
         }
         
         return keychainResult
     }
     
-    private func itemLookup(service: String, account: String) -> [String:String] {
-        
-//        print("[Credentials.itemLookup] start search for: \(service)")
-   
+    private func itemLookup(service: String) -> [String:String] {
+        var userPassDict = [String:String]()
+//        print("[credentials.itemLookup] keychainName: \(service)")
         let keychainQuery: [String: Any] = [kSecClass as String: kSecClassGenericPasswordString,
                                             kSecAttrService as String: service,
-                                            kSecAttrAccount as String: account,
                                             kSecAttrAccessGroup as String: accessGroup,
                                             kSecUseDataProtectionKeychain as String: true,
                                             kSecMatchLimit as String: kSecMatchLimitAll,
                                             kSecReturnAttributes as String: true,
-                                            kSecReturnData as String: true]
-        
+                                            kSecReturnData as String: true] // new
+
         var items_ref: CFTypeRef?
         
         let status = SecItemCopyMatching(keychainQuery as CFDictionary, &items_ref)
         guard status != errSecItemNotFound else {
-            print("[Credentials.itemLookup] lookup error occurred for \(service): \(status.description)")
+            WriteToLog.shared.message(stringOfText: "keychain item, \(service), was not found")
             return [:]
             
         }
         guard status == errSecSuccess else { return [:] }
         
         guard let items = items_ref as? [[String: Any]] else {
-            print("[Credentials.itemLookup] unable to read keychain item: \(service)")
+            WriteToLog.shared.message(stringOfText: "unable to read keychain item: \(service)")
             return [:]
         }
         for item in items {
@@ -152,38 +179,57 @@ class Credentials {
             }
         }
 
-//        print("[Credentials.itemLookup] keychain item count: \(userPassDict.count) for \(service)")
+        WriteToLog.shared.message(stringOfText: "keychain item count: \(userPassDict.count) for \(service)")
         return userPassDict
     }
     
-    private func oldItemLookup(service: String, account: String) -> [String:String] {
+    func delete(service: String, account: String) -> Bool {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccessGroup as String: accessGroup,
+            kSecAttrAccount as String: account
+        ]
         
-//        print("[Credentials.oldItemLookup] start search for: \(service)")
+        let status = SecItemDelete(query as CFDictionary)
+        
+        return status == errSecSuccess
+    }
+    
+    private func fetchTeamId() -> String {
 
-        let keychainQuery: [String: Any] = [kSecClass as String: kSecClassGenericPasswordString,
-                                            kSecAttrService as String: service,
-                                            kSecAttrAccount as String: account,
-                                            kSecMatchLimit as String: kSecMatchLimitOne,
-                                            kSecReturnAttributes as String: true,
-                                            kSecReturnData as String: true]
-        
-        var item: CFTypeRef?
-        let status = SecItemCopyMatching(keychainQuery as CFDictionary, &item)
-        guard status != errSecItemNotFound else {
-            print("[Credentials.oldItemLookup] lookup error occurred: \(status.description)")
-            return [:]
+        guard let bundleContents = Bundle.main.resourceURL?.deletingLastPathComponent() else {
+            return "PS2F6S478M"
         }
-        guard status == errSecSuccess else { return [:] }
         
-        guard let existingItem = item as? [String : Any],
-            let passwordData = existingItem[kSecValueData as String] as? Data,
-            let account = existingItem[kSecAttrAccount as String] as? String,
-            let password = String(data: passwordData, encoding: String.Encoding.utf8)
-            else {
-            return [:]
+        let theFile = bundleContents.appending(component: "embedded.provisionprofile")
+        
+        do {
+            // Read the provisioning profile data
+            let profileData = try Data(contentsOf: bundleContents.appending(component: "embedded.provisionprofile"))
+            
+            // Convert the data to a string and extract the plist portion
+            if let profileString = String(data: profileData, encoding: .ascii),
+               let plistStartRange = profileString.range(of: "<?xml"),
+               let plistEndRange = profileString.range(of: "</plist>") {
+                // Extract the plist part of the profile
+                let plistString = String(profileString[plistStartRange.lowerBound..<plistEndRange.upperBound])
+                
+                // Convert plist string back to Data for parsing
+                if let plistData = plistString.data(using: .utf8) {
+                    // Deserialize the plist into a dictionary
+                    if let plist = try PropertyListSerialization.propertyList(from: plistData, options: [], format: nil) as? [String: Any],
+                       let entitlements = plist["Entitlements"] as? [String: Any],
+                       let teamID = entitlements["com.apple.developer.team-identifier"] as? String {
+                        return teamID
+                    }
+                }
+            }
+        } catch {
+            print("Error reading provisioning profile: \(error)")
         }
-        userPassDict[account] = password
-        return userPassDict
+            
+        return "PS2F6S478M"
     }
 }
 

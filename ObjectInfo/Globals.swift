@@ -15,7 +15,7 @@ public var objectByNameDict = [String:[String:AnyObject]]()
 public var idNameDict       = [Int:String]()
 public var didRun           = false
 public var showLoginWindow  = true
-public var useApiClient     = 0
+//public var useApiClient     = 0
 public var accountDict      = [String:String]()
 
 let defaults                = UserDefaults.standard

@@ -279,7 +279,12 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
                     sharedDefaults!.set(availableServersDict, forKey: "serversDict")
                     
                     if self.saveCreds_button.state.rawValue == 1 {
-                        Credentials.shared.save(service: jamfProServer_textfield.stringValue.fqdnFromUrl.trimTrailingSlash, account: jamfProUsername_textfield.stringValue, credential: jamfProPassword_textfield.stringValue)
+//                        Credentials.shared.save(service: jamfProServer_textfield.stringValue.fqdnFromUrl.trimTrailingSlash, account: jamfProUsername_textfield.stringValue, credential: jamfProPassword_textfield.stringValue)
+                        
+                        Task {
+                            await Credentials.shared.save(service: jamfProServer_textfield.stringValue.fqdnFromUrl.trimTrailingSlash, account: jamfProUsername_textfield.stringValue, credential: jamfProPassword_textfield.stringValue, useApiClient: (JamfProServer.useApiClient == 1))
+                        }
+                        
                     }
                     
                     let dataToBeSent = (selectServer_Button.titleOfSelectedItem!, JamfProServer.server, JamfProServer.username, JamfProServer.password, saveCreds_button.state.rawValue)
@@ -424,21 +429,24 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
     }
     
     func fetchPassword() {
-        let accountDict = Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
-        
-        if accountDict.count == 1 {
-            for (username, password) in accountDict {
-                jamfProUsername_textfield.stringValue = username
-                jamfProPassword_textfield.stringValue = password
+//        let accountDict = Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
+        Task {
+            let accountDict = await Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue, useApiClient: (JamfProServer.useApiClient == 1))
+            
+            if accountDict.count == 1 {
+                for (username, password) in accountDict {
+                    jamfProUsername_textfield.stringValue = username
+                    jamfProPassword_textfield.stringValue = password
+                }
+            } else {
+                jamfProPassword_textfield.stringValue = ""
             }
-        } else {
-            jamfProPassword_textfield.stringValue = ""
         }
     }
 
     func setLabels() {
-        useApiClient = useApiClient_button.state.rawValue
-        if useApiClient == 0 {
+        JamfProServer.useApiClient = useApiClient_button.state.rawValue
+        if JamfProServer.useApiClient == 0 {
             username_label.stringValue = "Username:"
             password_label.stringValue = "Password:"
         } else {
@@ -452,21 +460,28 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
             jamfProPassword_textfield.stringValue = ""
             switch textField.identifier!.rawValue {
             case "server":
-                let accountDict = Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
-                
-                if accountDict.count == 1 {
-                    for (username, password) in accountDict {
-                        jamfProUsername_textfield.stringValue = username
-                        jamfProPassword_textfield.stringValue = password
+//                let accountDict = Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
+                Task {
+                    let accountDict = await Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue, useApiClient: (JamfProServer.useApiClient == 1))
+                    
+                    if accountDict.count == 1 {
+                        for (username, password) in accountDict {
+                            jamfProUsername_textfield.stringValue = username
+                            jamfProPassword_textfield.stringValue = password
+                        }
                     }
                 }
             case "username":
-                let accountDict = Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
-                if accountDict.count != 0 {
-                    for (username, password) in accountDict {
-                        if username == jamfProUsername_textfield.stringValue {
-                            jamfProUsername_textfield.stringValue = username
-                            jamfProPassword_textfield.stringValue = password
+//                let accountDict = Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
+                Task {
+                    let accountDict = await Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue, useApiClient: (JamfProServer.useApiClient == 1))
+                    
+                    if accountDict.count != 0 {
+                        for (username, password) in accountDict {
+                            if username == jamfProUsername_textfield.stringValue {
+                                jamfProUsername_textfield.stringValue = username
+                                jamfProPassword_textfield.stringValue = password
+                            }
                         }
                     }
                 }
@@ -481,18 +496,21 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
             switch textField.identifier!.rawValue {
             case "server":
                 if jamfProUsername_textfield.stringValue != "" || jamfProPassword_textfield.stringValue != "" {
-                    let accountDict = Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
-                    
-                    if accountDict.count == 1 {
-                        for (username, password) in accountDict {
-                            jamfProUsername_textfield.stringValue = username
-                            jamfProPassword_textfield.stringValue = password
+//                    let accountDict = Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
+                    Task {
+                        let accountDict = await Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue, useApiClient: (JamfProServer.useApiClient == 1))
+                        
+                        if accountDict.count == 1 {
+                            for (username, password) in accountDict {
+                                jamfProUsername_textfield.stringValue = username
+                                jamfProPassword_textfield.stringValue = password
+                            }
+                            //                        setWindowSize(setting: 0)
+                        } else {
+                            jamfProUsername_textfield.stringValue = ""
+                            jamfProPassword_textfield.stringValue = ""
+                            //                        setWindowSize(setting: 1)
                         }
-//                        setWindowSize(setting: 0)
-                    } else {
-                        jamfProUsername_textfield.stringValue = ""
-                        jamfProPassword_textfield.stringValue = ""
-//                        setWindowSize(setting: 1)
                     }
                 }
             default:
@@ -502,33 +520,36 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
     }
     
     func credentialsCheck() {
-        let accountDict = Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
-        
-        if accountDict.count != 0 {
-            for (username, password) in accountDict {
-//                print("[credentialsCheck] username: \(username)")
-                if username == jamfProUsername_textfield.stringValue || accountDict.count == 1 {
-                    jamfProUsername_textfield.stringValue = username
-                    jamfProPassword_textfield.stringValue = password
+//        let accountDict = Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
+        Task {
+            let accountDict = await Credentials.shared.retrieve(service: jamfProServer_textfield.stringValue.trimTrailingSlash.fqdnFromUrl, account: jamfProUsername_textfield.stringValue, useApiClient: (JamfProServer.useApiClient == 1))
+            
+            if accountDict.count != 0 {
+                for (username, password) in accountDict {
+                    //                print("[credentialsCheck] username: \(username)")
+                    if username == jamfProUsername_textfield.stringValue || accountDict.count == 1 {
+                        jamfProUsername_textfield.stringValue = username
+                        jamfProPassword_textfield.stringValue = password
+                    }
+                    //                let windowState = (defaults.integer(forKey: "hideCreds") == 1) ? 1:0
+                    //                hideCreds_button.isHidden = false
+                    //                saveCreds_button.state = NSControl.StateValue(rawValue: 1)
+                    //                defaults.set(1, forKey: "saveCreds")
+                    //                setWindowSize(setting: windowState)
                 }
-//                let windowState = (defaults.integer(forKey: "hideCreds") == 1) ? 1:0
-//                hideCreds_button.isHidden = false
-//                saveCreds_button.state = NSControl.StateValue(rawValue: 1)
-//                defaults.set(1, forKey: "saveCreds")
-//                setWindowSize(setting: windowState)
+            } else {
+                //            if useApiClient == 0 {
+                //                jamfProUsername_textfield.stringValue = defaults.string(forKey: "username") ?? ""
+                //            } else {
+                //                jamfProUsername_textfield.stringValue = ""
+                //            }
+                jamfProPassword_textfield.stringValue = ""
+                setWindowSize(setting: 1)
             }
-        } else {
-//            if useApiClient == 0 {
-//                jamfProUsername_textfield.stringValue = defaults.string(forKey: "username") ?? ""
-//            } else {
-//                jamfProUsername_textfield.stringValue = ""
-//            }
-            jamfProPassword_textfield.stringValue = ""
-            setWindowSize(setting: 1)
+            JamfProServer.server   = jamfProServer_textfield.stringValue.trimTrailingSlash
+            JamfProServer.username = jamfProUsername_textfield.stringValue
+            JamfProServer.password = jamfProPassword_textfield.stringValue
         }
-        JamfProServer.server   = jamfProServer_textfield.stringValue.trimTrailingSlash
-        JamfProServer.username = jamfProUsername_textfield.stringValue
-        JamfProServer.password = jamfProPassword_textfield.stringValue
         
     }
     
@@ -610,8 +631,8 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
         print("[loginVC.viewDidLoad] lastServer: \(lastServer)")
         var foundServer = false
         
-        useApiClient = defaults.integer(forKey: "useApiClient")
-        useApiClient_button.state = NSControl.StateValue(rawValue: useApiClient)
+        JamfProServer.useApiClient = defaults.integer(forKey: "useApiClient")
+        useApiClient_button.state = NSControl.StateValue(rawValue: JamfProServer.useApiClient)
         setLabels()
                 
         // check shared settings
