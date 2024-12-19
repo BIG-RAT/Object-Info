@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22690"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -844,7 +844,7 @@ Gw
                                 <rect key="frame" x="123" y="171" width="367" height="20"/>
                                 <popUpButtonCell key="cell" type="square" bezelStyle="shadowlessSquare" alignment="left" lineBreakMode="truncatingTail" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="rgA-rR-aXR">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="menu"/>
+                                    <font key="font" metaFont="message"/>
                                     <menu key="menu" id="XKd-Cf-ZJd"/>
                                 </popUpButtonCell>
                                 <constraints>
@@ -925,12 +925,12 @@ Gw
         <scene sceneID="hIz-AP-VOD">
             <objects>
                 <viewController id="XfG-lQ-9wD" customClass="ViewController" customModule="Object_Info" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" wantsLayer="YES" id="m2S-Jp-Qdl">
-                        <rect key="frame" x="0.0" y="0.0" width="779" height="552"/>
+                    <view key="view" wantsLayer="YES" misplaced="YES" id="m2S-Jp-Qdl">
+                        <rect key="frame" x="0.0" y="0.0" width="779" height="531"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <textField focusRingType="none" verticalHuggingPriority="750" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JAp-4w-tnI">
-                                <rect key="frame" x="658" y="502" width="24" height="22"/>
+                                <rect key="frame" x="658" y="487" width="24" height="22"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="22" id="LtF-Jt-jFc"/>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="20" id="fvI-uj-15P"/>
@@ -942,7 +942,7 @@ Gw
                                 </textFieldCell>
                             </textField>
                             <scrollView hidden="YES" fixedFrame="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="q4g-1q-QDn">
-                                <rect key="frame" x="14" y="90" width="684" height="199"/>
+                                <rect key="frame" x="14" y="69" width="684" height="199"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <clipView key="contentView" drawsBackground="NO" id="19q-8p-KXy">
                                     <rect key="frame" x="1" y="1" width="682" height="197"/>
@@ -969,7 +969,7 @@ Gw
                                 </scroller>
                             </scrollView>
                             <scrollView hidden="YES" fixedFrame="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7GC-u0-n4l">
-                                <rect key="frame" x="15" y="301" width="683" height="123"/>
+                                <rect key="frame" x="15" y="280" width="683" height="123"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <clipView key="contentView" drawsBackground="NO" id="M0G-yn-SoR">
                                     <rect key="frame" x="1" y="1" width="681" height="121"/>
@@ -996,7 +996,7 @@ Gw
                                 </scroller>
                             </scrollView>
                             <button hidden="YES" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CY2-20-yFT">
-                                <rect key="frame" x="411" y="35" width="58" height="40"/>
+                                <rect key="frame" x="411" y="14" width="58" height="40"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="push" title="Get" bezelStyle="rounded" alignment="center" controlSize="large" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="1Xp-He-ysU">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -1010,7 +1010,7 @@ DQ
                                 </buttonCell>
                             </button>
                             <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ReU-E4-0zD" userLabel="endpoint">
-                                <rect key="frame" x="26" y="493" width="218" height="40"/>
+                                <rect key="frame" x="26" y="478" width="218" height="40"/>
                                 <popUpButtonCell key="cell" type="push" title="Select" bezelStyle="rounded" alignment="left" controlSize="large" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="F3g-fT-T3E" id="1bX-ug-H8H">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system" size="17"/>
@@ -1039,6 +1039,12 @@ DQ
                                                 <modifierMask key="keyEquivalentModifierMask"/>
                                                 <connections>
                                                     <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="fbS-dd-73m"/>
+                                                </connections>
+                                            </menuItem>
+                                            <menuItem title="Printers" identifier="Printers" id="CsP-My-JKv">
+                                                <modifierMask key="keyEquivalentModifierMask"/>
+                                                <connections>
+                                                    <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="bVh-M0-cKd"/>
                                                 </connections>
                                             </menuItem>
                                             <menuItem title="Scripts" identifier="Scripts" toolTip="How scripts are scoped" id="Ds7-YQ-gbJ">
@@ -1612,13 +1618,13 @@ DQ
                                 </popUpButtonCell>
                             </popUpButton>
                             <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Edd-TY-WUJ">
-                                <rect key="frame" x="31" y="70" width="722" height="415"/>
+                                <rect key="frame" x="31" y="70" width="722" height="400"/>
                                 <clipView key="contentView" id="gri-zo-dVA">
-                                    <rect key="frame" x="1" y="1" width="720" height="413"/>
+                                    <rect key="frame" x="1" y="1" width="720" height="398"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" alternatingRowBackgroundColors="YES" columnSelection="YES" autosaveColumns="NO" rowSizeStyle="automatic" headerView="p4V-OZ-3qL" viewBased="YES" id="Lo3-IF-hlX">
-                                            <rect key="frame" x="0.0" y="0.0" width="720" height="388"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="720" height="373"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1942,7 +1948,7 @@ DQ
                                 </connections>
                             </button>
                             <progressIndicator wantsLayer="YES" maxValue="100" displayedWhenStopped="NO" indeterminate="YES" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="C0v-q9-fNq">
-                                <rect key="frame" x="374" y="497" width="32" height="32"/>
+                                <rect key="frame" x="374" y="482" width="32" height="32"/>
                             </progressIndicator>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="46o-yf-aRB">
                                 <rect key="frame" x="679" y="11" width="80" height="40"/>
@@ -1971,7 +1977,7 @@ DQ
                                 </textFieldCell>
                             </textField>
                             <button hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bm1-E7-rM3">
-                                <rect key="frame" x="683" y="496" width="77" height="32"/>
+                                <rect key="frame" x="683" y="481" width="77" height="32"/>
                                 <buttonCell key="cell" type="push" title="Logout" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="nTU-mS-FfH">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -2037,7 +2043,7 @@ DQ
                 </arrayController>
                 <userDefaultsController representsSharedInstance="YES" id="D5b-kc-FT8"/>
             </objects>
-            <point key="canvasLocation" x="203.5" y="793"/>
+            <point key="canvasLocation" x="203.5" y="803.5"/>
         </scene>
     </scenes>
     <resources>

@@ -98,6 +98,7 @@ var endpointDict = ["recon":            ["policies","policies","policy"],
                     "Network Segments": ["networksegments","network_segments","network_segment"],
                     "Packages":         ["packages","packages","package"],
                     "Policies-all":     ["policies","policies","policies"],
+                    "Printers":         ["printers","printers","printer"],
                     "Scripts":          ["scripts","scripts","script"],
                     "scg":              ["computergroups","computer_groups","computer_group"],
                     "sdg":              ["mobiledevicegroups","mobile_device_groups","mobile_device_group"],
@@ -118,6 +119,7 @@ var headersDict = ["recon":             ["Policy","Trigger","Frequency","Scope"]
                    "cp_all_macOS":      ["Profile Name", "Payloads","Scope","Limitations","Exclusions","PreStage"],
                    "Packages":          ["Package Name","Policy","Trigger","Frequency","PreStage"],
                    "Policies-all":      ["Policy Name","Payloads","Trigger","Frequency","Scope","Limitations","Exclusions"],
+                   "Printers":          ["Printer Name","Policy","Trigger","Frequency"],
                    "Scripts":           ["Script Name","Policy","Trigger","Frequency"],
                    "scg":               ["Group Name","Policy","Profile","Trigger","Frequency","App"],
                    "sdg":               ["Group Name","Profile","App"],
@@ -262,6 +264,7 @@ public func leadingZero(value: Int) -> String {
 }
 public func policyPayloads(xml: [String:Any]) -> [String] {
     var payloadList = [String]()
+//    print("[policyPayloads] xml: \(xml)")
     let policyPayloadList = [ "package_configuration":"packages", "scripts":"scripts", "printers":"printers", "dock_items":"dock items", "account_maintenance":"accounts", "maintenance":"maintenance", "files_processes":"files & processes" , "disk_encryption":"disk encryption", "reboot":"restart"]
     for (payload,payloadType) in policyPayloadList {
         switch payload {
