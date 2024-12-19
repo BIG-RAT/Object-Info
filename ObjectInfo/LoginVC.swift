@@ -636,7 +636,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
         setLabels()
                 
         // check shared settings
-//        print("[viewDidLoad] sharedSettingsPlistUrl: \(sharedSettingsPlistUrl.path)")
+        print("[viewDidLoad] sharedSettingsPlistUrl: \(sharedSettingsPlistUrl.path)")
         if !FileManager.default.fileExists(atPath: sharedSettingsPlistUrl.path) {
             sharedDefaults!.set(Date(), forKey: "created")
             sharedDefaults!.set([String:AnyObject](), forKey: "serversDict")
@@ -647,7 +647,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
         
         // read list of saved servers
         availableServersDict = sharedDefaults!.object(forKey: "serversDict") as? [String:[String:AnyObject]] ?? [:]
-//        print("[LoginVC.viewDidLoad] availableServersDict: \(availableServersDict)")
+        print("[LoginVC.viewDidLoad] availableServersDict: \(availableServersDict)")
         
         // trim list of servers to maxServerList
         while availableServersDict.count >= maxServerList {
