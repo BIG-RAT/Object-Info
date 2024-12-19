@@ -624,11 +624,11 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
 
         // check shared settings
         print("[viewDidLoad] sharedSettingsPlistUrl: \(sharedSettingsPlistUrl.path)")
-        if !FileManager.default.fileExists(atPath: sharedSettingsPlistUrl.path) {
-            print("[viewDidLoad] creating settings file")
-            sharedDefaults!.set(Date(), forKey: "created")
-            sharedDefaults!.set([String:AnyObject](), forKey: "serversDict")
-        }
+//        if !FileManager.default.fileExists(atPath: sharedSettingsPlistUrl.path) {
+//            print("[viewDidLoad] creating settings file")
+//            sharedDefaults!.set(Date(), forKey: "created")
+//            sharedDefaults!.set([String:AnyObject](), forKey: "serversDict")
+//        }
         if (sharedDefaults!.object(forKey: "serversDict") as? [String:AnyObject] ?? [:]).count == 0 {
             sharedDefaults!.set(availableServersDict, forKey: "serversDict")
         }
@@ -703,19 +703,17 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
         let _sharedContainerUrl     = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.\(appsGroupId)")
         let _sharedSettingsPlistUrl = (_sharedContainerUrl?.appendingPathComponent("Library/Preferences/group.\(appsGroupId).plist"))!
         print("[migrateSettings] _sharedSettingsPlistUrl: \(_sharedSettingsPlistUrl.path(percentEncoded: false))")
-//        let filePath = "/Users/leslie/Library/Group Containers/group.PS2F6S478M.jamfie.SharedJPMA/Library/Preferences/group.PS2F6S478M.jamfie.SharedJPMA.plist"
+
         if FileManager.default.fileExists(atPath: _sharedSettingsPlistUrl.path(percentEncoded: false)) {
-            do {
-                if !FileManager.default.fileExists(atPath: sharedSettingsPlistUrl.path(percentEncoded: false)) {
-                    try FileManager.default.copyItem(at: _sharedSettingsPlistUrl, to: sharedSettingsPlistUrl)
-                } else {
-                    print("[migrateSettings] file exists")
-                    if FileManager.default.isReadableFile(atPath: _sharedSettingsPlistUrl.path(percentEncoded: false)) {
-                        print("[migrateSettings] file is readable")
-                    } else {
-                        print("[migrateSettings] file is not readable")
-                    }
-                    
+            if !FileManager.default.fileExists(atPath: sharedSettingsPlistUrl.path(percentEncoded: false)) {
+                print("[viewDidLoad] creating settings file")
+                sharedDefaults!.set(Date(), forKey: "created")
+                sharedDefaults!.set([String:AnyObject](), forKey: "serversDict")
+            }
+            print("[migrateSettings] file exists")
+            if FileManager.default.isReadableFile(atPath: _sharedSettingsPlistUrl.path(percentEncoded: false)) {
+                print("[migrateSettings] file is readable")
+                do {
                     let data = try Data(contentsOf: _sharedSettingsPlistUrl)
                     print("[migrateSettings] file settings to data")
 
@@ -725,15 +723,17 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
                         print("[migrateSettings] setting value for key: \(key)")
                         sharedDefaults!.set(value, forKey: key)
                     }
+                    try FileManager.default.moveItem(atPath: _sharedSettingsPlistUrl.path(percentEncoded: false), toPath: _sharedSettingsPlistUrl.path(percentEncoded: false).appending(".bak_\(WriteToLog.shared.getCurrentTime())"))
+                    WriteToLog.shared.message(stringOfText: "[migrateSettings] migrated settings")
+                } catch {
+                    print("[migrateSettings] failed to migrate settings")
                 }
-                try FileManager.default.moveItem(atPath: _sharedSettingsPlistUrl.path(percentEncoded: false), toPath: _sharedSettingsPlistUrl.path(percentEncoded: false).appending(".bak_\(WriteToLog.shared.getCurrentTime())"))
-                WriteToLog.shared.message(stringOfText: "[migrateSettings] migrated settings")
-            } catch {
-                print("[migrateSettings] failed to migrate settings")
+            } else {
+                print("[migrateSettings] file is not readable")
             }
         } else {
-            print("[migrateSettings] did not find old settings")
-        }
+           print("[migrateSettings] did not find old settings")
+       }
     }
 }
 
