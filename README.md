@@ -15,7 +15,8 @@ Download: [Object Info](https://github.com/BIG-RAT/Object-Info/releases/latest/d
 * Find what triggers are used in what policies.
 * Find IP range, default share name, and URL associated with a network segment.
 * Find what policies and prestages a package is associated with.
-* Find what policies and prestages a script is associated with.
+* Find what policies a printer is associated with.
+* Find what policies a script is associated with.
 * Find what policies, configuration profiles, and apps a computer group is associated with.
 * Find what configuration profiles, and apps a device group is associated with.
 * Find macOS configuration profiles containing a particular payload.
@@ -26,6 +27,8 @@ Unused objects are not displayed.  For example, if a package is not used in eith
 <hr>
 
 **History**
+
+2024-12-19: Version 3.1.0 - Add scanning for printers in policies (issue #22). Unable to replicate crash on scanning prestages for packages but made modifications that may address the issue (#24). 
 
 2024-09-27: Version 3.0.0 - Address issues 16, 19, and 20. Add login window and update UI.
 

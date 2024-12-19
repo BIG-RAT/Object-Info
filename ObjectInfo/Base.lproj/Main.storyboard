@@ -1041,13 +1041,13 @@ DQ
                                                     <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="fbS-dd-73m"/>
                                                 </connections>
                                             </menuItem>
-                                            <menuItem title="Printers" identifier="Printers" id="CsP-My-JKv">
+                                            <menuItem title="Printers" identifier="Printers" toolTip="Policies that contain printers" id="CsP-My-JKv">
                                                 <modifierMask key="keyEquivalentModifierMask"/>
                                                 <connections>
                                                     <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="bVh-M0-cKd"/>
                                                 </connections>
                                             </menuItem>
-                                            <menuItem title="Scripts" identifier="Scripts" toolTip="How scripts are scoped" id="Ds7-YQ-gbJ">
+                                            <menuItem title="Scripts" identifier="Scripts" toolTip="Policies that contain scripts" id="Ds7-YQ-gbJ">
                                                 <modifierMask key="keyEquivalentModifierMask"/>
                                                 <connections>
                                                     <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="0kG-0a-XuC"/>
