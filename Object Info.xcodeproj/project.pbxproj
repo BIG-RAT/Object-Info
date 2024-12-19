@@ -38,7 +38,6 @@
 		B5E61EB925A8BF070047A25F /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		B5E61EBC25A8BF650047A25F /* WriteToLog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WriteToLog.swift; sourceTree = "<group>"; };
 		CECDF9F32D1495590039CD84 /* Object Info.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Object Info.entitlements"; sourceTree = "<group>"; };
-		CEE6B0A42D14597900172AAD /* Object Info macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Object Info macOS.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,7 +92,6 @@
 				B5932DE71F6FF3FC00720831 /* Info.plist */,
 				B5D6B95F207E92B10012C280 /* settings.plist */,
 				CECDF9F32D1495590039CD84 /* Object Info.entitlements */,
-				CEE6B0A42D14597900172AAD /* Object Info macOS.entitlements */,
 				B5450942290CEF9D00094739 /* Notes.md */,
 			);
 			name = "Object Info";
@@ -328,8 +326,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = "Object Info.entitlements";
-				"CODE_SIGN_ENTITLEMENTS[sdk=*]" = "Object Info macOS.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "ObjectInfo/Object Info.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -354,8 +351,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = "Object Info.entitlements";
-				"CODE_SIGN_ENTITLEMENTS[sdk=*]" = "Object Info macOS.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "ObjectInfo/Object Info.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
