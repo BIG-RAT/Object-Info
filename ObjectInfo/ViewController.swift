@@ -347,11 +347,11 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                     } else if menuIdentifier == "cp_all_macOS" {
                         // start looping through computer PreStages - start
                         selectedEndpoint = "computer-prestages"
-                        prestages(currentPage: 0, pageSize: 200, objectCount: 0, endpoint: selectedEndpoint, subsearch: "prestageInstalledProfileIds")
+                        prestages(currentPage: 0, pageSize: 400, objectCount: 0, endpoint: selectedEndpoint, subsearch: "prestageInstalledProfileIds")
                     } else if menuIdentifier == "cp_all_iOS" {
                         // mobile-device-prestages
                         selectedEndpoint = "mobile-device-prestages"
-                        prestages(currentPage: 0, pageSize: 200, objectCount: 0, endpoint: selectedEndpoint, subsearch: "prestageInstalledProfileIds")
+                        prestages(currentPage: 0, pageSize: 400, objectCount: 0, endpoint: selectedEndpoint, subsearch: "prestageInstalledProfileIds")
                     }
                 }
             }
@@ -369,23 +369,30 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
 //            print("      subsearch: \(subsearch)")
 //            print("          range: \(min(prestageCount, pageSize))")
             let range = min(prestageCount,pageSize)
-            let allprestages = result["results"] as? [[String:Any]]
+            let allprestages = result["results"] as? [[String:Any]] ?? [[:]]
             for i in 0..<min(prestageCount, range) {
-                let prestageInfo = allprestages?[i]
+                let prestageInfo = allprestages[i]
 //                print("   prestageInfo: \(prestageInfo ?? [:])")
-                let prestageProfiles = prestageInfo?[subsearch] as? [String]
-                if prestageProfiles?.count ?? 0 > 0 {
-                    let objectDisplayName = prestageInfo!["displayName"] as! String
-                    for prestageID in prestageProfiles! {
-                        let profileName = idNameDict[Int(prestageID)!]
-                        if subsearch == "prestageInstalledProfileIds" {
-                            summaryArray.append(EndpointData(column1: "\(String(describing: profileName!))", column2: "", column3: "", column4: "", column5: "", column6: "\(objectDisplayName)", column7: ""))
-                            details_TextView.string.append("\(String(describing: profileName!))\t\t\t\t\t\(String(describing: objectDisplayName))\n")
-                        } else {
-                            summaryArray.append(EndpointData(column1: "\(String(describing: profileName!))", column2: "", column3: "", column4: "", column5: "\(objectDisplayName)", column6: "", column7: ""))
-                            details_TextView.string.append("\(String(describing: profileName!))\t\t\t\t\(String(describing: objectDisplayName))\n")
+                let prestageProfiles = prestageInfo[subsearch] as? [String] ?? []
+                if prestageProfiles.count > 0 {
+                    if let objectDisplayName = prestageInfo["displayName"] as? String {
+                        WriteToLog.shared.message(stringOfText: "[prestages] scanning prestage: \(objectDisplayName)")
+                        for prestageID in prestageProfiles {
+                            if let prestageIdNum = Int(prestageID), let profileName = idNameDict[prestageIdNum] {
+                                if subsearch == "prestageInstalledProfileIds" {
+                                    summaryArray.append(EndpointData(column1: "\(String(describing: profileName))", column2: "", column3: "", column4: "", column5: "", column6: "\(objectDisplayName)", column7: ""))
+                                    details_TextView.string.append("\(String(describing: profileName))\t\t\t\t\t\(String(describing: objectDisplayName))\n")
+                                } else {
+                                    summaryArray.append(EndpointData(column1: "\(String(describing: profileName))", column2: "", column3: "", column4: "", column5: "\(objectDisplayName)", column6: "", column7: ""))
+                                    details_TextView.string.append("\(String(describing: profileName))\t\t\t\t\(String(describing: objectDisplayName))\n")
+                                }
+                                //                        print("[prestage] profile name: \(String(describing: profileName!))")
+                            } else {
+                                WriteToLog.shared.message(stringOfText: "[prestages] invalid prestage ID: \(prestageID)")
+                            }
                         }
-//                        print("[prestage] profile name: \(String(describing: profileName!))")
+                    } else {
+                        WriteToLog.shared.message(stringOfText: "[prestages] could not get name from: \(prestageInfo)")
                     }
                 }
             }
@@ -562,7 +569,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                                             // start looping through computer PreStages - start
                                                         print("[Packages] call prestages query")
                                                             selectedEndpoint = "computer-prestages"
-                                                        prestages(currentPage: 0, pageSize: 200, objectCount: 0, endpoint: selectedEndpoint, subsearch: "customPackageIds")
+                                                        prestages(currentPage: 0, pageSize: 400, objectCount: 0, endpoint: selectedEndpoint, subsearch: "customPackageIds")
 //                                                        JamfPro().jpapiGET(endpoint: "computer-prestages", apiData: [:], id: "", token: "") {
 //                                                            (result: [String:Any]) in
 //                                                            print("prestage results: \(result)")
@@ -1053,7 +1060,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                         switch self.menuIdentifier {
                                             case "scg":
                                                 let packageConfigTag = endpointInfo["scope"] as! [String:AnyObject]
-                                                thePackageArray      = packageConfigTag["computer_groups"] as! [[String: Any]]
+                                                thePackageArray      = packageConfigTag["computer_groups"] as? [[String: Any]] ?? [[:]]
                                                 if packageConfigTag["all_computers"] as! Bool {
                                                     thePackageArray.append(["id": 1, "name": "All Computers"])
                                                 }
@@ -1061,7 +1068,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                             case "sdg": // added 201207 lnh
                                                 WriteToLog.shared.message(stringOfText: "[getDetails] Checking scope for \(self.singleEndpointXmlTag)")
                                                 let packageConfigTag = endpointInfo["scope"] as! [String:AnyObject]
-                                                thePackageArray      = packageConfigTag["mobile_device_groups"] as! [[String: Any]]
+                                                thePackageArray      = packageConfigTag["mobile_device_groups"] as? [[String: Any]] ?? [[:]]
                                                 if packageConfigTag["all_mobile_devices"] as! Bool {
                                                     thePackageArray.append(["id": 1, "name": "All iOS Devicces"])
                                                 }
@@ -1100,7 +1107,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                     case "Packages":
                                         if self.selectedEndpoint == "policies" {
                                             let packageConfigTag = endpointInfo["package_configuration"] as! [String:AnyObject]
-                                            thePackageArray      = packageConfigTag["packages"] as! [[String: Any]]
+                                            thePackageArray      = packageConfigTag["packages"] as? [[String: Any]] ?? [[:]]
                                         } else {
                                             // packages in computerconfigurations
                                             thePackageArray = endpointInfo["packages"] as? [[String: Any]] ?? [[:]]
@@ -1111,13 +1118,9 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                             thePackageArray.removeAll()
                                             for thePrinter in printerInfo {
                                                 if let printerData = thePrinter as? [String: Any] {
-                                                    print("[getDetails] printers append: \(printerData["name"] ?? "unknown")")
                                                     thePackageArray.append(printerData)
                                                 }
                                             }
-//                                            print("[getDetails] printers printerInfo: \(printerInfo)")
-//                                            thePackageArray = printerInfo[1] as? [[String: Any]] ?? [[:]]
-                                            print("[getDetails] printers thePackageArray: \(thePackageArray)")
                                         }
 
                                     case "Scripts":
@@ -1125,7 +1128,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
 
                                     case "scg":
                                         let packageConfigTag = endpointInfo["scope"] as! [String:AnyObject]
-                                        thePackageArray      = packageConfigTag["computer_groups"] as! [[String: Any]]
+                                        thePackageArray      = packageConfigTag["computer_groups"] as? [[String: Any]] ?? [[:]]
                                         if packageConfigTag["all_computers"] as! Bool {
                                             thePackageArray.append(["id": 1, "name": "All Computers"])
                                         }
