@@ -700,30 +700,31 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
     }
     
     private func migrateSettings() {
-        
         let _sharedContainerUrl     = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.\(appsGroupId)")
         let _sharedSettingsPlistUrl = (_sharedContainerUrl?.appendingPathComponent("Library/Preferences/group.\(appsGroupId).plist"))!
         print("[migrateSettings] _sharedSettingsPlistUrl: \(_sharedSettingsPlistUrl.path(percentEncoded: false))")
 //        let filePath = "/Users/leslie/Library/Group Containers/group.PS2F6S478M.jamfie.SharedJPMA/Library/Preferences/group.PS2F6S478M.jamfie.SharedJPMA.plist"
-        if FileManager.default.fileExists(atPath: _sharedSettingsPlistUrl.path(percentEncoded: false))/* && !FileManager.default.fileExists(atPath: sharedSettingsPlistUrl.path(percentEncoded: false))*/ {
-            print("[migrateSettings] file exists")
-            if FileManager.default.isReadableFile(atPath: _sharedSettingsPlistUrl.path(percentEncoded: false)) {
-                print("[migrateSettings] file is readable")
-            } else {
-                print("[migrateSettings] file is not readable")
-            }
+        if FileManager.default.fileExists(atPath: _sharedSettingsPlistUrl.path(percentEncoded: false)) {
             do {
-                //            let settingsUrl = URL(filePath: (filePath))
-                //            print("[migrateSettings] settingsUrl: \(settingsUrl)")
-                let data = try Data(contentsOf: _sharedSettingsPlistUrl)
-                print("[migrateSettings] file settings to data")
-                //
-                //                var format = PropertyListSerialization.PropertyListFormat.xml
-                let plist = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any]
-                print("[migrateSettings] converted to dictionary")
-                for (key, value) in plist ?? [:] {
-                    print("[migrateSettings] setting value for key: \(key)")
-                    sharedDefaults!.set(value, forKey: key)
+                if !FileManager.default.fileExists(atPath: sharedSettingsPlistUrl.path(percentEncoded: false)) {
+                    try FileManager.default.copyItem(at: _sharedSettingsPlistUrl, to: sharedSettingsPlistUrl)
+                } else {
+                    print("[migrateSettings] file exists")
+                    if FileManager.default.isReadableFile(atPath: _sharedSettingsPlistUrl.path(percentEncoded: false)) {
+                        print("[migrateSettings] file is readable")
+                    } else {
+                        print("[migrateSettings] file is not readable")
+                    }
+                    
+                    let data = try Data(contentsOf: _sharedSettingsPlistUrl)
+                    print("[migrateSettings] file settings to data")
+
+                    let plist = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any]
+                    print("[migrateSettings] converted to dictionary")
+                    for (key, value) in plist ?? [:] {
+                        print("[migrateSettings] setting value for key: \(key)")
+                        sharedDefaults!.set(value, forKey: key)
+                    }
                 }
                 try FileManager.default.moveItem(atPath: _sharedSettingsPlistUrl.path(percentEncoded: false), toPath: _sharedSettingsPlistUrl.path(percentEncoded: false).appending(".bak_\(WriteToLog.shared.getCurrentTime())"))
                 WriteToLog.shared.message(stringOfText: "[migrateSettings] migrated settings")
