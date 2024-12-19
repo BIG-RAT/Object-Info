@@ -41,7 +41,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
             saveCreds_button.state = NSControl.StateValue(rawValue: 0)
             defaults.set(0, forKey: "saveCreds")
             hideCreds_button.isHidden = true
-            quit_Button.title  = "Cancel"
+            quit_Button.title  = (availableServersDict.count > 0 ) ? "Cancel":"Quit"
             login_Button.title = "Add"
             
             setWindowSize(setting: 2)
@@ -82,15 +82,6 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
                         }
                         selectServer_Button.selectItem(withTitle: "")
                     }
-                    
-//                        for (displayName, _) in availableServersDict {
-//                            if displayName == selectedServer {
-//                                availableServersDict[displayName] = nil
-//                                selectServer_Button.removeItem(withTitle: selectedServer)
-//                                sortedDisplayNames.removeAll(where: {$0 == displayName})
-//                            }
-//                        }
-//                        sharedDefaults!.set(availableServersDict, forKey: "serversDict")
 
                     if sortedDisplayNames.firstIndex(of: lastServer) != nil {
                         selectServer_Button.selectItem(withTitle: lastServer)
@@ -613,11 +604,6 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
         // clear lastServer
 //        defaults.set("", forKey: "currentServer")
         
-//        header_TextField.stringValue = ""
-//        header_TextField.wantsLayer = true
-//        let textFrame = NSTextField(frame: NSRect(x: 0, y: 0, width: 268, height: 1))
-//        header_TextField.frame = textFrame.frame
-        
         let hideCredsState = defaults.integer(forKey: "hideCreds")
         hideCreds_button.image = (hideCredsState == 0) ? NSImage(named: NSImage.rightFacingTriangleTemplateName):NSImage(named: NSImage.touchBarGoDownTemplateName)
         hideCreds_button.state = NSControl.StateValue(rawValue: hideCredsState)
@@ -634,10 +620,39 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
         JamfProServer.useApiClient = defaults.integer(forKey: "useApiClient")
         useApiClient_button.state = NSControl.StateValue(rawValue: JamfProServer.useApiClient)
         setLabels()
-                
+        
+        let filePath = "/Users/leslie/Library/Group Containers/group.PS2F6S478M.jamfie.SharedJPMA/Library/Preferences/group.PS2F6S478M.jamfie.SharedJPMA.plist"
+        if FileManager.default.fileExists(atPath: filePath) {
+            print("[viewDidLoad] file exists")
+            if FileManager.default.isReadableFile(atPath: filePath) {
+                print("[viewDidLoad] file is readable")
+            } else {
+                print("[viewDidLoad] file is not readable")
+            }
+            do {
+                let settingsUrl = URL(filePath: "/Users/leslie/Library/Group Containers/group.PS2F6S478M.jamfie.SharedJPMA/Library/Preferences/group.PS2F6S478M.jamfie.SharedJPMA.plist")
+                print("[viewDidLoad] settingsUrl: \(settingsUrl)")
+                let data = try Data(contentsOf: settingsUrl)
+                print("[viewDidLoad] file settings to data")
+//
+//                var format = PropertyListSerialization.PropertyListFormat.xml
+                let plist = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any]
+                print("[viewDidLoad] converted to dictionary")
+                for (key, value) in plist ?? [:] {
+                    print("[viewDidLoad] setting value for key: \(key)")
+                    sharedDefaults!.set(value, forKey: key)
+                }
+            } catch {
+                print("[viewDidLoad] failed to migrate settings")
+            }
+        } else {
+            print("[viewDidLoad] did not find old settings file")
+        }
+
         // check shared settings
         print("[viewDidLoad] sharedSettingsPlistUrl: \(sharedSettingsPlistUrl.path)")
         if !FileManager.default.fileExists(atPath: sharedSettingsPlistUrl.path) {
+            print("[viewDidLoad] creating settings file")
             sharedDefaults!.set(Date(), forKey: "created")
             sharedDefaults!.set([String:AnyObject](), forKey: "serversDict")
         }
@@ -683,13 +698,13 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
                 }
             }
         } else {
-                jamfProServer_textfield.stringValue = ""
-                setSelectServerButton(listOfServers: [])
-                selectServer_Button.selectItem(withTitle: "Add Server...")
-                login_Button.title = "Add"
-                
-                selectServer_Action(self)
-                setWindowSize(setting: 2)
+            jamfProServer_textfield.stringValue = ""
+            setSelectServerButton(listOfServers: [])
+            selectServer_Button.selectItem(withTitle: "Add Server...")
+            login_Button.title = "Add"
+            
+            selectServer_Action(self)
+            setWindowSize(setting: 2)
         }
         
         setSelectServerButton(listOfServers: sortedDisplayNames)

@@ -32,12 +32,12 @@
 		B5932DE21F6FF3FC00720831 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B5932DE51F6FF3FC00720831 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		B5932DE71F6FF3FC00720831 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B5AAEC8C2281B93D0076A9DC /* Object Info.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Object Info.entitlements"; sourceTree = SOURCE_ROOT; };
 		B5D53F102BA60048009493E2 /* LoginVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginVC.swift; sourceTree = "<group>"; };
 		B5D53F122BA65CB2009493E2 /* ApiAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApiAction.swift; sourceTree = "<group>"; };
 		B5D6B95F207E92B10012C280 /* settings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = settings.plist; sourceTree = "<group>"; };
 		B5E61EB925A8BF070047A25F /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		B5E61EBC25A8BF650047A25F /* WriteToLog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WriteToLog.swift; sourceTree = "<group>"; };
+		CECDF9F32D1495590039CD84 /* Object Info.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Object Info.entitlements"; sourceTree = "<group>"; };
 		CEE6B0A42D14597900172AAD /* Object Info macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Object Info macOS.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -92,7 +92,7 @@
 				B5932DE41F6FF3FC00720831 /* Main.storyboard */,
 				B5932DE71F6FF3FC00720831 /* Info.plist */,
 				B5D6B95F207E92B10012C280 /* settings.plist */,
-				B5AAEC8C2281B93D0076A9DC /* Object Info.entitlements */,
+				CECDF9F32D1495590039CD84 /* Object Info.entitlements */,
 				CEE6B0A42D14597900172AAD /* Object Info macOS.entitlements */,
 				B5450942290CEF9D00094739 /* Notes.md */,
 			);
