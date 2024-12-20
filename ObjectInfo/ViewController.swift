@@ -1560,19 +1560,31 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
         WriteToLog.shared.message(stringOfText: "[getLimitationsExceptions] endpointType: \(endpointType)")
 
         if let scope = endpointInfo["scope"] as? [String : AnyObject] {
+            print("[getLimitationsExceptions] scope: \(scope)")
             for lore in ["limitations", "exclusions"] {
                 var currentList = [String]()
                 if let limitationsExclusions = scope[lore] as? [String: AnyObject] {
-                    if let groupDict = limitationsExclusions["user_groups"] as? [[String:String]] {
+                    if let groupDict = limitationsExclusions["mobile_devices"] as? [[String: Any]] {
                         for groupInfo in groupDict {
-                            if let groupName = groupInfo["name"] {
+                            if let groupName = groupInfo["name"] as? String {
+                                currentList.append(groupName)
+                            }
+                        }
+                    }
+                    if let groupDict = limitationsExclusions["user_groups"] as? [[String: Any]] {
+                        for groupInfo in groupDict {
+                            if let groupName = groupInfo["name"] as? String  {
                                 currentList.append(groupName)
                             }
                         }
                     }
                 }
                 limitationsExclusionsDict[lore] = currentList
-                self.detailedResults.append("\t\(limitationsExclusionsDict[lore] ?? [])")
+                if limitationsExclusionsDict[lore]?.count ?? 0 > 0 {
+                    self.detailedResults.append("\tmobile_devices:\(limitationsExclusionsDict[lore] ?? [])")
+                } else {
+                    self.detailedResults.append("\t")
+                }
             }
             
         }
@@ -1629,9 +1641,9 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                 }
             }   // else - end
             // convert array to comma seperated list (newline not working)
-            var scopeList = "[]"
+            var scopeList = ""
             for scopeItem in currentScopeArray {
-                if scopeList != "[]" {
+                if scopeList != "" {
                     scopeList.append(", \(scopeItem)")
                 } else {
                     scopeList = "\(scopeItem)"

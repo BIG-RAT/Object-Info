@@ -28,6 +28,8 @@ Unused objects are not displayed.  For example, if a package is not used in eith
 
 **History**
 
+2024-12-19: Version 3.1.1 - Better handling of shared settings. Sequoia introduced additional security around data stored in ~/Library/Group Containers that results in a prompt to access existing settings. This should give a one time prompt to allow access.
+
 2024-12-19: Version 3.1.0 - Add scanning for printers in policies (issue #22). Unable to replicate crash on scanning prestages for packages but made modifications that may address the issue (#24). 
 
 2024-09-27: Version 3.0.0 - Address issues 16, 19, and 20. Add login window and update UI.
