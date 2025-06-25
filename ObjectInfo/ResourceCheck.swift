@@ -27,7 +27,7 @@ class ResourceCheck: NSObject, URLSessionDelegate {
         
         if versionResult.0 {
             Task {
-                _ = await Alert.shared.versionDialog(header: "Running \(AppInfo.displayname): v\(AppInfo.version)", version: versionResult.1, message: "A new version (\(versionResult.1)) is available.", updateAvail: versionResult.0)
+                _ = await Alert.shared.versionDialog(header: "A new version (\(versionResult.1)) is available.", version: versionResult.1, message: "Running \(AppInfo.displayname): v\(AppInfo.version)", updateAvail: versionResult.0)
                 if prohibited {
                     exit(1)
                 }
@@ -39,7 +39,7 @@ class ResourceCheck: NSObject, URLSessionDelegate {
         
         URLCache.shared.removeAllCachedResponses()
         
-        let versionUrl = URL(string: "https://raw.githubusercontent.com/Jamf-Concepts/api-roles-and-clients/refs/heads/main/resources/version/version-info.json")
+        let versionUrl = URL(string: "https://raw.githubusercontent.com/BIG-RAT/Object-Info/refs/heads/main/resources/version/version-info.json")
         
         let configuration = URLSessionConfiguration.ephemeral
         var request = URLRequest(url: versionUrl!)
@@ -100,7 +100,7 @@ class ResourceCheck: NSObject, URLSessionDelegate {
         var updateAvailable = false
         var versionTest     = true
 
-        let versionUrl = URL(string: "https://api.github.com/repos/Jamf-Concepts/api-roles-and-clients/releases/latest")
+        let versionUrl = URL(string: "https://api.github.com/repos/BIG-RAT/Object-Info/releases/latest")
 
         let configuration = URLSessionConfiguration.ephemeral
         var request = URLRequest(url: versionUrl!)

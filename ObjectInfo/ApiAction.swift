@@ -56,21 +56,21 @@ class ApiAction: NSObject, URLSessionDelegate, URLSessionDataDelegate, URLSessio
                 if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
                     let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
                     if let endpointJSON = json! as? [String:Any] {
-                        WriteToLog.shared.message(stringOfText: "[ApiAction.action] Token retrieved from \(urlString).")
+                        WriteToLog.shared.message("[ApiAction.action] Token retrieved from \(urlString).")
                         completion(endpointJSON)
                         return
                     } else {    // if let endpointJSON error
-                        WriteToLog.shared.message(stringOfText: "[ApiAction.action] JSON error.")
+                        WriteToLog.shared.message("[ApiAction.action] JSON error.")
                         completion([:])
                         return
                     }
                 } else {    // if httpResponse.statusCode <200 or >299
-                    WriteToLog.shared.message(stringOfText: "[ApiAction.action] Response error: \(httpResponse.statusCode).")
+                    WriteToLog.shared.message("[ApiAction.action] Response error: \(httpResponse.statusCode).")
                     completion([:])
                     return
                 }
             } else {
-                WriteToLog.shared.message(stringOfText: "[ApiAction.action] GET response error. Verify url and port.")
+                WriteToLog.shared.message("[ApiAction.action] GET response error. Verify url and port.")
                 completion([:])
                 return
             }
@@ -109,21 +109,21 @@ class ApiAction: NSObject, URLSessionDelegate, URLSessionDataDelegate, URLSessio
                 if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
                     let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
                     if let endpointJSON = json! as? [String:Any] {
-                        WriteToLog.shared.message(stringOfText: "[classic] Retrieved information from \(urlString).")
+                        WriteToLog.shared.message("[classic] Retrieved information from \(urlString).")
                         completion(endpointJSON)
                         return
                     } else {    // if let endpointJSON error
-                        WriteToLog.shared.message(stringOfText: "[classic] JSON error.")
+                        WriteToLog.shared.message("[classic] JSON error.")
                         completion([:])
                         return
                     }
                 } else {    // if httpResponse.statusCode <200 or >299
-                    WriteToLog.shared.message(stringOfText: "[classic] Response error: \(httpResponse.statusCode).")
+                    WriteToLog.shared.message("[classic] Response error: \(httpResponse.statusCode).")
                     completion([:])
                     return
                 }
             } else {
-                WriteToLog.shared.message(stringOfText: "[classic] GET response error. Verify url and port.")
+                WriteToLog.shared.message("[classic] GET response error. Verify url and port.")
                 completion([:])
                 return
             }

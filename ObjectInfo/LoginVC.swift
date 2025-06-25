@@ -256,7 +256,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
                 login_Button.isEnabled = true
                 
                 let (statusCode,theResult) = authResult
-                WriteToLog.shared.message(stringOfText: "[getToken] status code: \(statusCode)")
+                WriteToLog.shared.message("[getToken] status code: \(statusCode)")
                 if theResult == "success" {
                     // invalidate token - todo
                     defaults.set(selectServer_Button.titleOfSelectedItem, forKey: "currentServer")
@@ -727,7 +727,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
                             sharedDefaults!.set(value, forKey: key)
                         }
                         sharedDefaults!.set("true" as AnyObject, forKey: "migrated")
-                        WriteToLog.shared.message(stringOfText: "[migrateSettings] migrated settings")
+                        WriteToLog.shared.message("[migrateSettings] migrated settings")
                     } catch {
                         print("[migrateSettings] failed to migrate settings")
                     }

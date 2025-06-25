@@ -1,14 +1,20 @@
 //
-//  Copyright 2025 Jamf. All rights reserved.
+//  WriteToLog.swift
+//  Object Info
+//
+//  Created by Leslie Helou on 1/8/21.
+//  Copyright © 2021 jamf. All rights reserved.
 //
 
 import Foundation
 
 struct Log {
     static var path          = "" //(NSHomeDirectory() + "/Library/Logs/")
-    static var file          = "apiRolesClients.log"
+    static var file          = "ObjectInfo.log"
     static var filePath      = ""
     static var maxFiles      = 42
+    static var lookupFailed  = false
+    static var FailedCount   = 0
 }
 
 class WriteToLog {

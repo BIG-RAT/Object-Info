@@ -44,7 +44,7 @@ struct Credentials {
                 
                 let keychainItemName = sharedPrefix + "-" + theService
                 
-                WriteToLog.shared.message(stringOfText: "keychain item \(keychainItemName) for account \(account)")
+                WriteToLog.shared.message("keychain item \(keychainItemName) for account \(account)")
 
                 if let password = credential.data(using: String.Encoding.utf8) {
 
@@ -59,20 +59,20 @@ struct Credentials {
                     let accountCheck = await retrieve(service: service, account: account, useApiClient: useApiClient)
                     if accountCheck[account] == nil {
                         // try to add new credentials
-                        WriteToLog.shared.message(stringOfText: "adding new keychain item \(keychainItemName) for account \(account)")
+                        WriteToLog.shared.message("adding new keychain item \(keychainItemName) for account \(account)")
 
                         let addStatus = SecItemAdd(keychainQuery as CFDictionary, nil)
                         if (addStatus != errSecSuccess) {
                             if let addErr = SecCopyErrorMessageString(addStatus, nil) {
-                                WriteToLog.shared.message(stringOfText: "write failed for service \(keychainItemName), account \(account): \(addErr)")
+                                WriteToLog.shared.message("write failed for service \(keychainItemName), account \(account): \(addErr)")
                             }
                             returnMessage = "keychain save process was unsuccessful"
                         } else {
-                           WriteToLog.shared.message(stringOfText: "keychain item added")
+                           WriteToLog.shared.message("keychain item added")
                         }
                     } else {
                         // credentials already exist, try to update
-                       WriteToLog.shared.message(stringOfText: "see if keychain item \(keychainItemName) for account \(account) needs updating")
+                       WriteToLog.shared.message("see if keychain item \(keychainItemName) for account \(account) needs updating")
                         keychainQuery = [kSecClass as String: kSecClassGenericPasswordString,
                                          kSecAttrService as String: keychainItemName,
                                          kSecAttrAccessGroup as String: accessGroup,
@@ -84,20 +84,20 @@ struct Credentials {
                             let updateStatus = SecItemUpdate(keychainQuery as CFDictionary, [kSecValueDataString:password] as [NSString : Any] as CFDictionary)
                             if (updateStatus != errSecSuccess) {
                                 
-                               WriteToLog.shared.message(stringOfText: "keychain item for service \(service), account \(account), failed to update.")
+                               WriteToLog.shared.message("keychain item for service \(service), account \(account), failed to update.")
                                 returnMessage = "keychain save process was unsuccessful"
 //
                             } else {
-                               WriteToLog.shared.message(stringOfText: "keychain item for service \(service), account \(account), has been updated.")
+                               WriteToLog.shared.message("keychain item for service \(service), account \(account), has been updated.")
                             }
                         } else {
-                            WriteToLog.shared.message(stringOfText: "keychain item for service \(service), account \(account), is current.")
+                            WriteToLog.shared.message("keychain item for service \(service), account \(account), is current.")
                             returnMessage = "keychain item is current"
                         }
                     }
                     //                    }
                 } else {
-                    WriteToLog.shared.message(stringOfText: "failed to set password for \(keychainItemName), account \(account)")
+                    WriteToLog.shared.message("failed to set password for \(keychainItemName), account \(account)")
                     returnMessage = "keychain save process was unsuccessful"
                 }
             }
@@ -107,7 +107,7 @@ struct Credentials {
     }   // func save - end
     
     func retrieve(service: String, account: String = "", useApiClient: Bool) async -> [String:String] {
-       WriteToLog.shared.message(stringOfText: "fetch credentials for service: \(service), account: \(account)")
+       WriteToLog.shared.message("fetch credentials for service: \(service), account: \(account)")
         //        print("[credentials.retrieve] service passed: \(service)")
         print("[credentials.retrieve] accessGroup: \(accessGroup)")
         var keychainResult = [String:String]()
@@ -131,7 +131,7 @@ struct Credentials {
             
             for (username, password) in keychainResult {
                 if username.lowercased() == account.lowercased() {
-                    WriteToLog.shared.message(stringOfText: "found password/secret for: \(account)")
+                    WriteToLog.shared.message("found password/secret for: \(account)")
                     return [username:password]
                 }
             }
@@ -155,14 +155,14 @@ struct Credentials {
         
         let status = SecItemCopyMatching(keychainQuery as CFDictionary, &items_ref)
         guard status != errSecItemNotFound else {
-            WriteToLog.shared.message(stringOfText: "keychain item, \(service), was not found")
+            WriteToLog.shared.message("keychain item, \(service), was not found")
             return [:]
             
         }
         guard status == errSecSuccess else { return [:] }
         
         guard let items = items_ref as? [[String: Any]] else {
-            WriteToLog.shared.message(stringOfText: "unable to read keychain item: \(service)")
+            WriteToLog.shared.message("unable to read keychain item: \(service)")
             return [:]
         }
         for item in items {
@@ -172,7 +172,7 @@ struct Credentials {
             }
         }
 
-        WriteToLog.shared.message(stringOfText: "keychain item count: \(userPassDict.count) for \(service)")
+        WriteToLog.shared.message("keychain item count: \(userPassDict.count) for \(service)")
         return userPassDict
     }
     

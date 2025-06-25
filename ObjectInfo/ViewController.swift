@@ -52,7 +52,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
         let jamfUtf8Creds = "\(JamfProServer.username):\(JamfProServer.password)".data(using: String.Encoding.utf8)
         JamfProServer.base64Creds = (jamfUtf8Creds?.base64EncodedString())!
 
-//        WriteToLog.shared.message(stringOfText: "[ViewController] Running SYM-Helper v\(AppInfo.version)")
+//        WriteToLog.shared.message("[ViewController] Running SYM-Helper v\(AppInfo.version)")
         view.window?.title = "Object Info Version: \(Bundle.main.infoDictionary!["CFBundleShortVersionString"] ?? "") \t\t Jamf Pro Version: \(JamfProServer.majorVersion).\(JamfProServer.minorVersion).\(JamfProServer.patchVersion)"
         currentServer = JamfProServer.server
         username      = JamfProServer.username
@@ -208,14 +208,14 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
             
             selection               = endpointDict[endpointType] ?? []
             if selection.count < 3 {
-                WriteToLog.shared.message(stringOfText: "ERROR: No endpoint found for \(endpointType)")
+                WriteToLog.shared.message("ERROR: No endpoint found for \(endpointType)")
                 return
             }
             oSelectedEndpoint       = "\(selection[0])"
             oEndpointXmlTag         = "\(selection[1])"
             oSingleEndpointXmlTag   = "\(selection[2])"
 
-            WriteToLog.shared.message(stringOfText: "endpointDict[\(endpointType)]: \(endpointDict[endpointType]!)")
+            WriteToLog.shared.message("endpointDict[\(endpointType)]: \(endpointDict[endpointType]!)")
             
             self.action_textField.stringValue = ""
             formatTableView(columnHeaders: headersDict[endpointType]!)
@@ -249,7 +249,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
             
             let (statusCode,tokenResult) = result
             if tokenResult == "failed" {
-                WriteToLog.shared.message(stringOfText: "[get] failed to get token")
+                WriteToLog.shared.message("[get] failed to get token")
                 let response = ( statusCode == 0 ) ? "No response from the server.":"\(statusCode)"
                 _ = Alert.shared.display(header: "", message: "Failed to get authentication token.\n Status code: \(response)", secondButton: "")
                 spinner.isHidden = true
@@ -278,20 +278,20 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                 packageScriptArray.removeAll()
                 pkgScrArray.removeAll()
 
-                WriteToLog.shared.message(stringOfText: "[get]       apiCall for endpoint: \(endpointXmlTag)")
-                WriteToLog.shared.message(stringOfText: "[get] apiCall for menuIdentifier: \(menuIdentifier)")
+                WriteToLog.shared.message("[get]       apiCall for endpoint: \(endpointXmlTag)")
+                WriteToLog.shared.message("[get] apiCall for menuIdentifier: \(menuIdentifier)")
                 
 //                print("[get] calling endpointXmlTag: \(endpointXmlTag)")
                 
                 apiCall(endpoint: "\(endpointXmlTag)") { [self]
                     (result: [Int:String]) in
-                    WriteToLog.shared.message(stringOfText: "[get] returned from apiCall for \(endpointXmlTag) - result:\n\(result)")
+                    WriteToLog.shared.message("[get] returned from apiCall for \(endpointXmlTag) - result:\n\(result)")
                     
                     results_TextView.string = "\(result)"
                     if menuIdentifier == "Packages" || menuIdentifier == "Printers" || menuIdentifier == "Scripts" || menuIdentifier == "scg" || menuIdentifier == "sdg" || menuIdentifier == "cea" || menuIdentifier == "mdea" {
                         
                         for (_, objectName) in idNameDict {
-                            WriteToLog.shared.message(stringOfText: "[get] theRecord: \(objectName)")
+                            WriteToLog.shared.message("[get] theRecord: \(objectName)")
 
                             pkgScrArray.append("\(objectName)")
                         }
@@ -312,7 +312,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
 //                            JamfPro().objectByName(endpoint: menuIdentifier, endpointData: packageScriptArray) { [self]
                                 (result: String) in
                                 // switch lookup to eas scoped to groups - start
-                                WriteToLog.shared.message(stringOfText: "[get] apiCall (\(singleEndpointXmlTag)s) for endpoint: Groups")
+                                WriteToLog.shared.message("[get] apiCall (\(singleEndpointXmlTag)s) for endpoint: Groups")
                                 apiCall(endpoint: "\(singleEndpointXmlTag)s") { [self]
                                     (result: [Int:String]) in
                                     // need to fix
@@ -323,7 +323,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                             }
                         } else if menuIdentifier != "sdg" {
                             // switch lookup to packages/printers/scripts scoped to policies - start
-                            WriteToLog.shared.message(stringOfText: "[get] apiCall for endpoint: policies")
+                            WriteToLog.shared.message("[get] apiCall for endpoint: policies")
                             selectedEndpoint     = "policies"
                             singleEndpointXmlTag = "policy"
                             apiCall(endpoint: "policies") { [self]
@@ -335,7 +335,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                             // switch lookup to packages/scripts scoped to policies - end
                         } else {
                             // switch lookup to mobile device groups scoped to configuration profiles - start
-                            WriteToLog.shared.message(stringOfText: "[get] apiCall for endpoint: configuration_profiles")
+                            WriteToLog.shared.message("[get] apiCall for endpoint: configuration_profiles")
                             selectedEndpoint     = "mobiledeviceconfigurationprofiles"
                             singleEndpointXmlTag = "configuration_profile"
                             apiCall(endpoint: "configuration_profiles") { [self]
@@ -378,7 +378,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                 let prestageProfiles = prestageInfo[subsearch] as? [String] ?? []
                 if prestageProfiles.count > 0 {
                     if let objectDisplayName = prestageInfo["displayName"] as? String {
-                        WriteToLog.shared.message(stringOfText: "[prestages] scanning prestage: \(objectDisplayName)")
+                        WriteToLog.shared.message("[prestages] scanning prestage: \(objectDisplayName)")
                         for prestageID in prestageProfiles {
                             if let prestageIdNum = Int(prestageID), let profileName = idNameDict[prestageIdNum] {
                                 if subsearch == "prestageInstalledProfileIds" {
@@ -390,11 +390,11 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                 }
                                 //                        print("[prestage] profile name: \(String(describing: profileName!))")
                             } else {
-                                WriteToLog.shared.message(stringOfText: "[prestages] invalid prestage ID: \(prestageID)")
+                                WriteToLog.shared.message("[prestages] invalid prestage ID: \(prestageID)")
                             }
                         }
                     } else {
-                        WriteToLog.shared.message(stringOfText: "[prestages] could not get name from: \(prestageInfo)")
+                        WriteToLog.shared.message("[prestages] could not get name from: \(prestageInfo)")
                     }
                 }
             }
@@ -415,8 +415,10 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
             completion([:])
             return
         }
-        
-        WriteToLog.shared.message(stringOfText: "[apiCall] endpoint: \(endpoint)")
+        if spinner.isHidden == true {
+            spinner.startAnimation(self)
+        }
+        WriteToLog.shared.message("[apiCall] endpoint: \(endpoint)")
 
         completeCounter[endpoint] = 0
         progressBar.increment(by: -1.0)
@@ -427,10 +429,10 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
         var localCounter = 0    // not needed?
         
         if self.selectedEndpoint != "" {
-            WriteToLog.shared.message(stringOfText: "[apiCall] selectedEndpoint: \(selectedEndpoint)")
+            WriteToLog.shared.message("[apiCall] selectedEndpoint: \(selectedEndpoint)")
             endpointUrl = JamfProServer.server + "/JSSResource/\(selectedEndpoint)"
             endpointUrl = endpointUrl.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
-            WriteToLog.shared.message(stringOfText: "[apiCall] endpointURL: \(endpointUrl)")
+            WriteToLog.shared.message("[apiCall] endpointURL: \(endpointUrl)")
         } else {
             completion([0:"no endpoint selected"])
         }
@@ -449,8 +451,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                 (data, response, error) -> Void in
                 serverSession.finishTasksAndInvalidate()
                 if let httpResponse = response as? HTTPURLResponse {
-//                    if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
-                    WriteToLog.shared.message(stringOfText: "[apiCall] completion - HTTP status code for \(self.endpointUrl): \(httpResponse.statusCode)")
+                    WriteToLog.shared.message("[apiCall] completion - HTTP status code for \(self.endpointUrl): \(httpResponse.statusCode)")
                         do {
                             let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
                             
@@ -504,7 +505,9 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                 } else {
                                     if self.selectedEndpoint != "computerconfigurations" && self.selectedEndpoint != "advancedmobiledevicesearches" {
                                         self.alert_dialog(header: "Alert", message: "Nothing found at:\n\(self.endpointUrl)")
-                                        WriteToLog.shared.message(stringOfText: "[apiCall] completion - Nothing found at: \(self.endpointUrl)")
+                                        WriteToLog.shared.message("[apiCall] completion - Nothing found at: \(self.endpointUrl)")
+                                        spinner.stopAnimation(self)
+                                        
                                     }
                                     if self.selectedEndpoint == "computerconfigurations" || self.selectedEndpoint == "macapplications" {
     //                                    self.increment = 100.0
@@ -515,7 +518,6 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                 }
                     
                                 var i = 0
-//                                for i in (0..<endpointInfo.count) {
                                 while i < endpointInfo.count {
                                     
                                     if stopScan {
@@ -701,22 +703,22 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                 }   // for i in (0..<endpointInfo.count) - end
                                 
                             }  else {  // if let serverEndpointJSON - end
-                                WriteToLog.shared.message(stringOfText: "apiCall - existing endpoints: error serializing JSON: \(String(describing: error))")
+                                WriteToLog.shared.message("apiCall - existing endpoints: error serializing JSON: \(String(describing: error))")
                             }
                         }   // end do
                         if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
 
-                            WriteToLog.shared.message(stringOfText: "[apiCall] completion - status code: \(httpResponse.statusCode)")
+                            WriteToLog.shared.message("[apiCall] completion - status code: \(httpResponse.statusCode)")
                             completion(idNameDict)
 
                         } else {
                             // something went wrong
-                            WriteToLog.shared.message(stringOfText: "[apiCall] completion - Something went wrong, status code: \(httpResponse.statusCode)")
+                            WriteToLog.shared.message("[apiCall] completion - Something went wrong, status code: \(httpResponse.statusCode)")
                             switch httpResponse.statusCode {
                             case 401:
                                 self.alert_dialog(header: "Alert", message: "Authentication failed.  Check username and password.")
                             case 404:
-                                WriteToLog.shared.message(stringOfText: "[apiCall] unknown endpoint: \(self.selectedEndpoint)")
+                                WriteToLog.shared.message("[apiCall] unknown endpoint: \(self.selectedEndpoint)")
                             default:
                                 break
                             }
@@ -725,12 +727,12 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                         }   // if httpResponse.statusCode - end
                     
 //                    } else {
-//                        WriteToLog.shared.message(stringOfText: "[apiCall] completion - HTTP status code for \(self.endpointUrl): \(httpResponse.statusCode)")
+//                        WriteToLog.shared.message("[apiCall] completion - HTTP status code for \(self.endpointUrl): \(httpResponse.statusCode)")
 //                        completion("")
 //                    }
                     
                 } else {  // if let httpResponse = response - end
-                    WriteToLog.shared.message(stringOfText: "[apiCall] completion - No response to \(self.endpointUrl)")
+                    WriteToLog.shared.message("[apiCall] completion - No response to \(self.endpointUrl)")
                     self.alert_dialog(header: "Alert", message: "No response to:\n\(self.endpointUrl)")
                     completion([:])
                 }
@@ -798,7 +800,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
         detailQ.addOperation { [self] in
 //        let idUrl = self.endpointUrl+"/id/\(id)"
             let idUrl = "\(endpointAddress)/id/\(id)"
-            WriteToLog.shared.message(stringOfText: "[getDetails] idUrl: \(idUrl)")
+            WriteToLog.shared.message("[getDetails] idUrl: \(idUrl)")
         
 
             let encodedURL          = NSURL(string: idUrl)
@@ -842,9 +844,9 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                 if let httpResponse = response as? HTTPURLResponse {
                     if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
 //                    do {
-                        WriteToLog.shared.message(stringOfText: "[getDetails]                  GET: \(idUrl)")
-                        WriteToLog.shared.message(stringOfText: "[getDetails] singleEndpointXmlTag: \(self.singleEndpointXmlTag)")
-                        WriteToLog.shared.message(stringOfText: "[getDetails]       menuIdentifier: \(self.menuIdentifier)")
+                        WriteToLog.shared.message("[getDetails]                  GET: \(idUrl)")
+                        WriteToLog.shared.message("[getDetails] singleEndpointXmlTag: \(self.singleEndpointXmlTag)")
+                        WriteToLog.shared.message("[getDetails]       menuIdentifier: \(self.menuIdentifier)")
 
                         self.progressBar.increment(by: self.increment)
                         
@@ -890,7 +892,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                         self.detailedResults = ""
                                         recordName = generalTag["name"] as! String
 
-                                        WriteToLog.shared.message(stringOfText: "[getDetails] \(self.singleEndpointXmlTag) name: \(recordName)")
+                                        WriteToLog.shared.message("[getDetails] \(self.singleEndpointXmlTag) name: \(recordName)")
                                         if !(self.menuIdentifier == "scg" || self.menuIdentifier == "sdg") {
                                             let payload = generalTag["payloads"]?.replacingOccurrences(of: "\"", with: "") ?? ""
     //                                        print("\(String(describing: payload))")
@@ -1038,9 +1040,9 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                                 break
                                             }
 
-                                            WriteToLog.shared.message(stringOfText: "[searchResults] looking for \(self.menuTitle)")
+                                            WriteToLog.shared.message("[searchResults] looking for \(self.menuTitle)")
                                             if searchResult(payload: payload, critereaArray: searchStringArray) {
-                                                WriteToLog.shared.message(stringOfText: "[searchResults] \(self.menuTitle) found in \(recordName)")
+                                                WriteToLog.shared.message("[searchResults] \(self.menuTitle) found in \(recordName)")
                                                 self.detailedResults = "\(self.menuTitle) \t\(recordName)"
 //                                                switch self.endpointType {
 //                                                case "ios_cp":
@@ -1053,7 +1055,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
 //                                                }
 
                                             } else {
-                                                WriteToLog.shared.message(stringOfText: "[searchResults] \(recordName) not found")
+                                                WriteToLog.shared.message("[searchResults] \(recordName) not found")
                                                 self.detailedResults = ""
                                             }
 
@@ -1068,7 +1070,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                                 }
                                                 searchStringArray    = [""]
                                             case "sdg": // added 201207 lnh
-                                                WriteToLog.shared.message(stringOfText: "[getDetails] Checking scope for \(self.singleEndpointXmlTag)")
+                                                WriteToLog.shared.message("[getDetails] Checking scope for \(self.singleEndpointXmlTag)")
                                                 let packageConfigTag = endpointInfo["scope"] as! [String:AnyObject]
                                                 thePackageArray      = packageConfigTag["mobile_device_groups"] as? [[String: Any]] ?? [[:]]
                                                 if packageConfigTag["all_mobile_devices"] as! Bool {
@@ -1085,7 +1087,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                     if let generalTag = endpointInfo["general"] as? [String : AnyObject] {
                                         recordName = generalTag["name"] as! String
                                         self.detailedResults = "\(recordName)"
-                                        WriteToLog.shared.message(stringOfText: "[getDetails] case policy,computer_configuration - Policy Name: \(recordName)")
+                                        WriteToLog.shared.message("[getDetails] case policy,computer_configuration - Policy Name: \(recordName)")
                                         // get triggers
                                         if self.selectedEndpoint == "policies" {
                                             triggers = self.triggersAsString(generalTag: generalTag)
@@ -1139,7 +1141,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                         if let generalTag = endpointInfo["general"] as? [String : AnyObject] {
                                             recordName = generalTag["name"] as! String
             
-                                            WriteToLog.shared.message(stringOfText: "[getDetails] case all items (\(menuIdentifier)) - Name: \(recordName)")
+                                            WriteToLog.shared.message("[getDetails] case all items (\(menuIdentifier)) - Name: \(recordName)")
                                             
                                             switch menuIdentifier {
                                             case "Policies-all":
@@ -1208,15 +1210,15 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                         }
                                         
                                         self.detailedResults = "\(recordName)"
-                                        WriteToLog.shared.message(stringOfText: "[getDetails] case computer_group - Group Name: \(recordName)")
+                                        WriteToLog.shared.message("[getDetails] case computer_group - Group Name: \(recordName)")
                                     }
 
                                 default:
                                     break
                                 }
 
-                                WriteToLog.shared.message(stringOfText: "[getDetails] singleEndpointXmlTag: \(singleEndpointXmlTag)")
-                                WriteToLog.shared.message(stringOfText: "[getDetails]     selectedEndpoint: \(selectedEndpoint)")
+                                WriteToLog.shared.message("[getDetails] singleEndpointXmlTag: \(singleEndpointXmlTag)")
+                                WriteToLog.shared.message("[getDetails]     selectedEndpoint: \(selectedEndpoint)")
 
                                 switch singleEndpointXmlTag {
                                 case "policy","computer_configuration","mac_application","os_x_configuration_profile","configuration_profile","mobile_device_application":
@@ -1340,18 +1342,18 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
 
 
                             } else {
-                                WriteToLog.shared.message(stringOfText: "getDetails: if let endpointInfo = endpointJSON[\(self.singleEndpointXmlTag)], id='\(id)' error.)\n\(idUrl)")
+                                WriteToLog.shared.message("getDetails: if let endpointInfo = endpointJSON[\(self.singleEndpointXmlTag)], id='\(id)' error.)\n\(idUrl)")
                             }
                         }  else {  // if let serverEndpointJSON - end
-                            WriteToLog.shared.message(stringOfText: "getDetails - existing endpoints: error serializing JSON: \(String(describing: error))")
+                            WriteToLog.shared.message("getDetails - existing endpoints: error serializing JSON: \(String(describing: error))")
                         }
 //                    }   // end do
 
                         let theRecord: [String] = "\(detailedResults)".components(separatedBy: "\t")
-                        WriteToLog.shared.message(stringOfText: "[getDetails] endpointType: \(endpointType), theRecord: \(theRecord)")
+                        WriteToLog.shared.message("[getDetails] endpointType: \(endpointType), theRecord: \(theRecord)")
 
                         if endpointType != "Policies-all" && endpointType != "Packages" && endpointType != "Printers" && endpointType != "Scripts" && menuIdentifier != "scg" && menuIdentifier != "sdg" && menuIdentifier != "cp_all_iOS" && menuIdentifier != "cp_all_macOS" {
-                            WriteToLog.shared.message(stringOfText: "[getDetails] \(recordName) is using theRecord with theRecord.count = \(theRecord.count)")
+                            WriteToLog.shared.message("[getDetails] \(recordName) is using theRecord with theRecord.count = \(theRecord.count)")
                             switch theRecord.count {
                             case 5:
                                 summaryArray.append(EndpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "\(theRecord[3])", column5: "\(theRecord[4])", column6: "", column7: ""))
@@ -1381,8 +1383,8 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                         completion(detailedResults)
                     } else {
                         // something went wrong
-                        WriteToLog.shared.message(stringOfText: "[getDetails] lookup failed for \(idUrl)")
-                        WriteToLog.shared.message(stringOfText: "[getDetails] status code: \(httpResponse.statusCode)")
+                        WriteToLog.shared.message("[getDetails] lookup failed for \(idUrl)")
+                        WriteToLog.shared.message("[getDetails] status code: \(httpResponse.statusCode)")
                         Log.FailedCount+=1
                         Log.lookupFailed = true
                         completion(detailedResults)
@@ -1391,17 +1393,17 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                     DispatchQueue.main.async {
                         self.progressBar.increment(by: 1.0)
                     }
-                    WriteToLog.shared.message(stringOfText: "[getDetails] lookup failed, no response for: \(idUrl)")
+                    WriteToLog.shared.message("[getDetails] lookup failed, no response for: \(idUrl)")
                     Log.FailedCount+=1
                     Log.lookupFailed = true
                 }
 //                semaphore.signal()
                 self.completeCounter[theEndpoint]!+=1
-                WriteToLog.shared.message(stringOfText: "[getDetails] completeCounter: \(String(describing: self.completeCounter[theEndpoint]!)) of \(self.apiDetailCount[theEndpoint]!)")
+                WriteToLog.shared.message("[getDetails] completeCounter: \(String(describing: self.completeCounter[theEndpoint]!)) of \(self.apiDetailCount[theEndpoint]!)")
 
                 if (self.completeCounter[theEndpoint]! >= self.apiDetailCount[theEndpoint]!) {
                     if !(self.selectedEndpoint == "osxconfigurationprofiles" && self.menuIdentifier == "scg") {
-                        WriteToLog.shared.message(stringOfText: "[getDetails] queryComplete")
+                        WriteToLog.shared.message("[getDetails] queryComplete")
                         self.queryComplete()
                     }
                 }
@@ -1480,14 +1482,14 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
     
     // remove policy entries generated by jamf remote - start
     func validEndpointInfo(endpointJSON: [String: Any], endpoint: String) -> [Any] {
-        WriteToLog.shared.message(stringOfText: "[validEndpointInfo] endpoint: \(endpoint)")
+        WriteToLog.shared.message("[validEndpointInfo] endpoint: \(endpoint)")
         var filtered    = [Any]()
         var tmpFiltered = filtered
 //        var tmpPolicyNames = [String]()
         
         switch endpoint {
         case "policies":
-            WriteToLog.shared.message(stringOfText: "[validEndpointInfo] filter out policies from Jamf Remote")
+            WriteToLog.shared.message("[validEndpointInfo] filter out policies from Jamf Remote")
             tmpFiltered = endpointJSON[endpoint] as! [Any]
             for i in (0..<tmpFiltered.count) {
                 let localRecord = tmpFiltered[i] as! [String : AnyObject]
@@ -1513,7 +1515,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
             }
  */
         default:
-            WriteToLog.shared.message(stringOfText: "[validEndpointInfo] filtered: \(filtered)")
+            WriteToLog.shared.message("[validEndpointInfo] filtered: \(filtered)")
             filtered = endpointJSON[endpoint] as! [Any]
         }
 
@@ -1554,12 +1556,12 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
     }
     
     func getLimitationsExceptions(endpointInfo: [String : AnyObject], endpointType: String) -> [String:[String]] {
-//        WriteToLog.shared.message(stringOfText: "[getLimitationsExceptions] endpointInfo: \(endpointInfo)")
-//        WriteToLog.shared.message(stringOfText: "[getLimitationsExceptions] scopeObjects: \(scopeObjects)")
+//        WriteToLog.shared.message("[getLimitationsExceptions] endpointInfo: \(endpointInfo)")
+//        WriteToLog.shared.message("[getLimitationsExceptions] scopeObjects: \(scopeObjects)")
         
         var limitationsExclusionsDict = [String:[String]]()
 
-        WriteToLog.shared.message(stringOfText: "[getLimitationsExceptions] endpointType: \(endpointType)")
+        WriteToLog.shared.message("[getLimitationsExceptions] endpointType: \(endpointType)")
 
         if let scope = endpointInfo["scope"] as? [String : AnyObject] {
             print("[getLimitationsExceptions] scope: \(scope)")
@@ -1594,13 +1596,13 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
     }
     
     func getScope(endpointInfo: [String : AnyObject], scopeObjects: [String]) {
-//        WriteToLog.shared.message(stringOfText: "[getScope] endpointInfo: \(endpointInfo)")
-//        WriteToLog.shared.message(stringOfText: "[getScope] scopeObjects: \(scopeObjects)")
+//        WriteToLog.shared.message("[getScope] endpointInfo: \(endpointInfo)")
+//        WriteToLog.shared.message("[getScope] scopeObjects: \(scopeObjects)")
         
         var allScope            = ""
         var currentScopeArray   = [String]()
 
-        WriteToLog.shared.message(stringOfText: "[getScope] endpointType: \(endpointType)")
+        WriteToLog.shared.message("[getScope] endpointType: \(endpointType)")
 
         switch endpointType {
         case "ios_cp","sdg","apps_iOS","cp_all_iOS":
@@ -1661,7 +1663,6 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
     }
     
     @IBAction func export_action(_ sender: NSButton) {
-//        print(details_TextView.string ?? "Nothing found.")
         
         let savePanel = NSSavePanel()
         savePanel.directoryURL = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first! as URL
@@ -1731,9 +1732,9 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
     
     @IBAction func showLogFolder(_ sender: Any) {
         var isDir: ObjCBool = true
-        if (self.fm.fileExists(atPath: Log.path!, isDirectory: &isDir)) {
-//            NSWorkspace.shared.openFile(Log.path!)
-            NSWorkspace.shared.open(URL(fileURLWithPath: Log.path!))
+        if (self.fm.fileExists(atPath: Log.path, isDirectory: &isDir)) {
+//            NSWorkspace.shared.openFile(Log.path)
+            NSWorkspace.shared.open(URL(fileURLWithPath: Log.path))
         } else {
             alert_dialog(header: "Alert", message: "Log directory cannot be found.")
         }
@@ -1766,10 +1767,33 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
     override func viewDidLoad() {
         super.viewDidLoad()
         //create log file
-        Log.file = getCurrentTime().replacingOccurrences(of: ":", with: "") + "_" + Log.file
-        if !(FileManager.default.fileExists(atPath: Log.path! + Log.file)) {
-            FileManager.default.createFile(atPath: Log.path! + Log.file, contents: nil, attributes: nil)
+        let logFileURL: URL
+        let fileManager = FileManager.default
+        let logFileName = getCurrentTime().replacingOccurrences(of: ":", with: "") + "_" + Log.file
+        // Get the Logs directory in the app's container
+        let logsDirectory = fileManager.urls(for: .libraryDirectory, in: .userDomainMask).first!.appendingPathComponent("Logs")
+        Log.path = logsDirectory.path
+        // Create the directory if it doesn't exist
+        if !fileManager.fileExists(atPath: Log.path) {
+            do {
+                try fileManager.createDirectory(at: logsDirectory, withIntermediateDirectories: true, attributes: nil)
+                print("[ViewController.viewDidLoad] Created Logs directory at \(logsDirectory)")
+            } catch {
+                print("[ViewController.viewDidLoad] Failed to create Logs directory: \(error.localizedDescription)")
+            }
         }
+        
+        // Set up the log file URL
+        logFileURL = logsDirectory.appendingPathComponent(logFileName)
+        Log.filePath = logFileURL.path
+        
+        // Create the log file if it doesn't exist
+        if !fileManager.fileExists(atPath: logFileURL.path) {
+            print("[ViewController.viewDidLoad] Create log file: \(logFileURL.path)")
+            fileManager.createFile(atPath: logFileURL.path, contents: nil, attributes: nil)
+        }
+        
+        didRun = true
         WriteToLog.shared.logCleanup()
         
 //        self.view.layer?.backgroundColor = CGColor(red: 0x5C/255.0, green: 0x78/255.0, blue: 0x94/255.0, alpha: 1.0)
@@ -1825,15 +1849,18 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
         
         preferencesDict = (NSDictionary(contentsOf: prefsPath) as? [String : AnyObject])!
 
-        WriteToLog.shared.message(stringOfText: "")
-        WriteToLog.shared.message(stringOfText: "================================")
-        WriteToLog.shared.message(stringOfText: "  Object Info Version: \(version)")
-        WriteToLog.shared.message(stringOfText: "        macOS Version: \(os.majorVersion).\(os.minorVersion).\(os.patchVersion)")
-        WriteToLog.shared.message(stringOfText: "================================")
+        WriteToLog.shared.message("")
+        WriteToLog.shared.message("================================")
+        WriteToLog.shared.message("  Object Info Version: \(version)")
+        WriteToLog.shared.message("        macOS Version: \(os.majorVersion).\(os.minorVersion).\(os.patchVersion)")
+        WriteToLog.shared.message("================================")
         
         if showLoginWindow {
-            performSegue(withIdentifier: "loginView", sender: nil)
-            showLoginWindow = false
+            Task {
+                await ResourceCheck.shared.launchCheck()
+                performSegue(withIdentifier: "loginView", sender: nil)
+                showLoginWindow = false
+            }
         }
     }
 

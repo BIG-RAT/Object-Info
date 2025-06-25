@@ -18,7 +18,8 @@
 		B5D53F132BA65CB2009493E2 /* ApiAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D53F122BA65CB2009493E2 /* ApiAction.swift */; };
 		B5D6B960207E92B10012C280 /* settings.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5D6B95F207E92B10012C280 /* settings.plist */; };
 		B5E61EBA25A8BF070047A25F /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E61EB925A8BF070047A25F /* Globals.swift */; };
-		B5E61EBD25A8BF650047A25F /* WriteToLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E61EBC25A8BF650047A25F /* WriteToLog.swift */; };
+		CE03BF6E2E0B8F15000EADA9 /* ResourceCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE03BF6D2E0B8F15000EADA9 /* ResourceCheck.swift */; };
+		CE03BF722E0B9142000EADA9 /* WriteToLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE03BF712E0B9142000EADA9 /* WriteToLog.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,7 +37,8 @@
 		B5D53F122BA65CB2009493E2 /* ApiAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApiAction.swift; sourceTree = "<group>"; };
 		B5D6B95F207E92B10012C280 /* settings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = settings.plist; sourceTree = "<group>"; };
 		B5E61EB925A8BF070047A25F /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
-		B5E61EBC25A8BF650047A25F /* WriteToLog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WriteToLog.swift; sourceTree = "<group>"; };
+		CE03BF6D2E0B8F15000EADA9 /* ResourceCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourceCheck.swift; sourceTree = "<group>"; };
+		CE03BF712E0B9142000EADA9 /* WriteToLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteToLog.swift; sourceTree = "<group>"; };
 		CE57AAA72D14C930007CF27B /* Object Info legacy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Object Info legacy.entitlements"; sourceTree = "<group>"; };
 		CECDF9F32D1495590039CD84 /* Object Info.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Object Info.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -86,8 +88,9 @@
 				B5E61EB925A8BF070047A25F /* Globals.swift */,
 				B5767BA9278A195900A1713E /* JamfPro.swift */,
 				B5D53F102BA60048009493E2 /* LoginVC.swift */,
+				CE03BF6D2E0B8F15000EADA9 /* ResourceCheck.swift */,
 				B5932DE01F6FF3FC00720831 /* ViewController.swift */,
-				B5E61EBC25A8BF650047A25F /* WriteToLog.swift */,
+				CE03BF712E0B9142000EADA9 /* WriteToLog.swift */,
 				B5932DE21F6FF3FC00720831 /* Assets.xcassets */,
 				B5932DE41F6FF3FC00720831 /* Main.storyboard */,
 				B5932DE71F6FF3FC00720831 /* Info.plist */,
@@ -190,8 +193,9 @@
 				B58D8834250BF46C00E8D6E4 /* Credentials.swift in Sources */,
 				B5932DE11F6FF3FC00720831 /* ViewController.swift in Sources */,
 				B5932DDF1F6FF3FC00720831 /* AppDelegate.swift in Sources */,
-				B5E61EBD25A8BF650047A25F /* WriteToLog.swift in Sources */,
+				CE03BF6E2E0B8F15000EADA9 /* ResourceCheck.swift in Sources */,
 				B54D66992A61083500998963 /* Alert.swift in Sources */,
+				CE03BF722E0B9142000EADA9 /* WriteToLog.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -343,7 +347,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 3.1.1;
+				MARKETING_VERSION = 3.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ObjectInfo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -369,7 +373,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 3.1.1;
+				MARKETING_VERSION = 3.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ObjectInfo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
