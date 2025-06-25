@@ -1676,10 +1676,11 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
         if answer ==  NSApplication.ModalResponse.OK {
             var exportPath = ""
             if #available(macOS 13.0, *) {
-                exportPath = (savePanel.url?.path())!
+                exportPath = (savePanel.url?.path(percentEncoded: false))!
             } else {
                 exportPath = savePanel.url!.path
             }
+            print ("\(exportPath)")
             
             if !fm.fileExists(atPath: exportPath) {
             //                    print("export file does not exist, creating.")
@@ -1702,8 +1703,6 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
             } catch {
                 alert_dialog(header: "Alert:", message: "Unable to export data.")
             }
-            // Do whatever you need with every selected file
-            print ("\(exportPath)")
         } else {
             print ( "User clicked on 'Cancel'" )
             return
