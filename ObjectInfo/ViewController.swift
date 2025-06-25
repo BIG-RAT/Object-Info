@@ -173,7 +173,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
             exportTitleSuffix       = ""
             
             switch menuIdentifier {
-            case "mac_access", "mac_ad-cert", "mac_airplay", "mac_acs", "mac_atpavpn", "mac_cert", "mac_dir", "mac_dock", "mac_energy", "mac_finder", "mac_font", "mac_ident", "mac_kext", "mac_loginitems", "mac_loginwindow", "mac_mobility", "mac_network", "mac_notifications", "mac_parental", "mac_passcode", "mac_pppc", "mac_print", "mac_proxies", "mac_restrict", "mac_scep", "mac_sec-priv-filevault", "mac_sec-priv-genfire", "mac_su", "mac_sysext", "mac_tm", "mac_vpn", "mac_xsan":
+            case "mac_access", "mac_ad-cert", "mac_airplay", "mac_acs", "mac_atpavpn", "mac_cert", "mac_cf", "mac_dir", "mac_dock", "mac_energy", "mac_finder", "mac_font", "mac_ident", "mac_kext", "mac_loginitems", "mac_loginwindow", "mac_mobility", "mac_network", "mac_notifications", "mac_parental", "mac_passcode", "mac_pppc", "mac_print", "mac_proxies", "mac_restrict", "mac_scep", "mac_sec-priv-filevault", "mac_sec-priv-genfire", "mac_su", "mac_sysext", "mac_tm", "mac_vpn", "mac_xsan":
                 endpointType = "mac_cp"
                 select_MenuItem.title = "macOS-"+menuTitle
                 exportTitleSuffix = "-" + menuIdentifier
@@ -182,7 +182,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                 select_MenuItem.title = "iOS-"+menuTitle
                 headersDict["ios_cp"]  = headersDict["mac_cp"]
                 exportTitleSuffix = "-" + menuIdentifier
-            case "scg","sdg":    // added sdg lnh - 201205
+            case "scg","sdg":
                 endpointType = menuIdentifier
                 select_MenuItem.title = menuTitle+" Groups"
             case "cea","mdea":
@@ -202,13 +202,15 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                 endpointType = menuIdentifier
                 select_MenuItem.title = menuTitle+" Config Profiles"
             default:
-    //            print("menuIdentifier: \(menuIdentifier)")
-    //            print("menuTitle: \(menuTitle)")
                 endpointType = menuIdentifier
                 select_MenuItem.title = menuTitle
             }
             
-            selection               = endpointDict[endpointType]!
+            selection               = endpointDict[endpointType] ?? []
+            if selection.count < 3 {
+                WriteToLog.shared.message(stringOfText: "ERROR: No endpoint found for \(endpointType)")
+                return
+            }
             oSelectedEndpoint       = "\(selection[0])"
             oEndpointXmlTag         = "\(selection[1])"
             oSingleEndpointXmlTag   = "\(selection[2])"
@@ -976,7 +978,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                             case "ios_certt":
                                                 searchStringArray = ["<string>com.apple.security.certificatetransparency</string>"]
                                             case "ios_cf":
-                                                searchStringArray = ["<key>PayloadDisplayName</key><string>com.apple.webcontent-filter</string>", "<key>PayloadType</key><string>com.apple.webcontent-filter</string>"]
+                                                searchStringArray = ["<key>PayloadDisplayName</key><string>Web Content Filter Payload</string>", "<key>PayloadType</key><string>com.apple.webcontent-filter</string>"]
                                             case "ios_contacts":
                                                 searchStringArray = ["<key>PayloadDisplayName</key><string>com.apple.carddav.account</string>", "<key>PayloadType</key><string>com.apple.carddav.account</string>"]
                                             case "ios_crd":

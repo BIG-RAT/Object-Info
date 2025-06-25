@@ -29,9 +29,7 @@ struct Credentials {
             sharedPrefix = "JSK"
         }
     }
-    
-//    var userPassDict = [String:String]()
-    
+        
     func save(service: String, account: String, credential: String, useApiClient: Bool) async -> String {
         
         var returnMessage = "keychain save process completed successfully"
@@ -58,11 +56,7 @@ struct Credentials {
                                                         kSecValueData as String: password]
                     
                     // see if credentials already exist for server
-                    //                    print("[save] for for keychain item: \(service) for account: \(account)")
                     let accountCheck = await retrieve(service: service, account: account, useApiClient: useApiClient)
-//                        print("[save] service: \(service)")
-//                        print("[save] matches found: \(accountCheck.count)")
-//                        print("[save] matches: \(accountCheck)")
                     if accountCheck[account] == nil {
                         // try to add new credentials
                         WriteToLog.shared.message(stringOfText: "adding new keychain item \(keychainItemName) for account \(account)")
@@ -94,7 +88,6 @@ struct Credentials {
                                 returnMessage = "keychain save process was unsuccessful"
 //
                             } else {
-//                                    print("[addStatus] keychain item for service \(service), account \(account), has been updated.")
                                WriteToLog.shared.message(stringOfText: "keychain item for service \(service), account \(account), has been updated.")
                             }
                         } else {
