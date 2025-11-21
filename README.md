@@ -28,6 +28,8 @@ Unused objects are not displayed.  For example, if a package is not used in eith
 
 **History**
 
+2025-11-21: Version 3.2.1 - Address issue #29, searching configuration profiles for the FileVault and firewall payloads.
+
 2025-06-25: Version 3.2.0 - Add new version check. Fix issue searching configuration profiles for the content filter payload. Resolve issue #26, space(s) in export path.
 
 2024-12-19: Version 3.1.1 - Better handling of shared settings. Sequoia introduced additional security around data stored in ~/Library/Group Containers that results in a prompt to access existing settings. This should give a one time prompt to allow access.
