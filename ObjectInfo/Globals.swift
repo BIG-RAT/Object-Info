@@ -6,6 +6,7 @@
 //  Copyright © 2021 jamf. All rights reserved.
 //
 
+import Cocoa
 import Foundation
 
 public var isRunning        = false
@@ -26,9 +27,17 @@ let sharedDefaults         = UserDefaults(suiteName: appsGroupId)
 let sharedContainerUrl     = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appsGroupId)
 let sharedSettingsPlistUrl = (sharedContainerUrl?.appendingPathComponent("Library/Preferences/\(appsGroupId).plist"))!
 
+// determine if we're using dark mode
+var isDarkMode: Bool {
+    let mode = defaults.string(forKey: "AppleInterfaceStyle")
+    return mode == "Dark"
+}
+var defaultTextColor = isDarkMode ? NSColor.white:NSColor.black
+
 struct AppInfo {
     static let dict        = Bundle.main.infoDictionary!
     static let version     = dict["CFBundleShortVersionString"] as! String
+    static let build       = dict["CFBundleVersion"] as! String
     static let name        = dict["CFBundleExecutable"] as! String
     static let displayname = dict["CFBundleDisplayName"] as! String
     
@@ -152,40 +161,51 @@ let configProfilePayloads = ["Passcode":["<string>com.apple.mobiledevice.passwor
                              "Lock Screen Message":["<key>PayloadDisplayName</key><string>Lock Screen Message Payload</string>","<key>PayloadType</key><string>com.apple.shareddeviceconfiguration</string>"],
                              "Network Usage Rules":["<key>PayloadDisplayName</key><string>com.apple.networkusagerules</string>","<key>PayloadType</key><string>com.apple.networkusagerules</string>"],
                              "TV Remote":["<key>PayloadDisplayName</key><string>Tv Remote Payload</string>","<key>PayloadType</key><string>com.apple.tvremote</string>"],
-                            "Certificate Transparency":["<string>com.apple.security.certificatetransparency</string>"],
-                            "Font-mac":["<key>PayloadDisplayName</key><string>Font</string>","<key>PayloadType</key><string>com.apple.font</string>"],
-                            "SCEP":["<string>com.apple.security.scep</string>"],
-                            "Directory":["<string>com.apple.DirectoryService.managed</string>"],
-                            "Kernel Extensions":["<string>com.apple.syspolicy.kernel-extension-policy</string>"],
-                            "Software Update":["<string>com.apple.SoftwareUpdate</string>"],
-                            "Restrictions-ios":["<key>PayloadDisplayName</key><string>Restrictions Payload</string>","<key>PayloadType</key><string>com.apple."],
-                            "Restrictions-mac":["<key>PayloadDisplayName</key><string>MCX</string>","<key>PayloadType</key><string>com.apple.MCX</string>","<key>PayloadType</key><string>com.apple.applicationaccess.new</string>"],
-                            "Login Items":["<string>com.apple.loginitems.managed</string>"],
-                            "Login Window":["<string>com.apple.MCX</string>","<string>Login Window:  Global Preferences</string>","<string>Login Window</string>"],
-                            "Dock":["<string>com.apple.dock</string>","<string>Dock</string>"],
-                            "Mobility":["<key>cachedaccounts.WarnOnCreate.allowNever</key>","<string>com.apple.homeSync</string>"],
-                            "Printing":["<string>com.apple.mcxprinting</string>"],
-                            "Parental Controls":["<key>PayloadDisplayName</key><string>Parental Controls</string>"],
-                            "Security and Privacy-GenFire":["<key>PayloadType</key><string>com.apple.security.firewall</string>"],
-                            "Security and Privacy-FileVault":["<key>PayloadType</key><string>com.apple.MCX.FileVault2</string>"],
-                            "PPPC":["<key>PayloadType</key><string>com.apple.TCC.configuration-profile-policy</string>"],
-                            "AD Certificate":["<string>com.apple.ADCertificate.managed</string>","<key>PayloadDisplayName</key><string>AD Certificate</string>"],
-                            "Energy":["<key>PayloadDisplayName</key><string>MCX</string>","<key>com.apple.EnergySaver.desktop.ACPower</key>","<key>com.apple.EnergySaver.portable.ACPower-ProfileNumber</key>"],
-                            "App & Custom Settings":["<key>PayloadDisplayName</key><string>Custom Settings</string>","<key>PayloadType</key><string>com.apple.ManagedClient.preferences</string>"],
-                            "Identification":["<key>PayloadDisplayName</key><string>Identity</string>","<key>PayloadType</key><string>com.apple.configurationprofile.identification</string>"],
-                            "Time Machine":["<key>PayloadDisplayName</key><string>Time Machine</string>","<key>PayloadType</key><string>com.apple.MCX.TimeMachine</string>"],
-                            "Finder":["<key>PayloadType</key><string>com.apple.finder</string>","<key>InterfaceLevel</key><string>Full</string>"],
-                            "Accessibility":["<key>PayloadDisplayName</key><string>Accessibility</string>","<key>PayloadType</key><string>com.apple.universalaccess</string>"],
-                            "Proxies":["<key>PayloadDisplayName</key><string>Proxies</string>","<key>PayloadType</key><string>com.apple.SystemConfiguration</string>"],
-                            "App-To-Per-App VPN Mapping":["<key>PayloadDisplayName</key><string>App to Per-App VPN Mapping Payload</string>","<key>PayloadType</key><string>com.apple.vpn.managed.appmapping</string>"],
-                            "Xsan":["<key>PayloadDisplayName</key><string>Xsan</string>","<key>PayloadType</key><string>com.apple.xsan</string>"],
-                            "Smart Card":["<key>PayloadDisplayName</key><string>SmartCard</string>","<key>PayloadType</key><string>com.apple.security.smartcard</string>"],
-                            "Migration":["<key>PayloadDisplayName</key><string>System Migration</string>","<key>PayloadType</key><string>com.apple.systemmigration</string>"],
-                            "Approved Kernel Extensions":["<key>PayloadDisplayName</key><string>Approved Kernel Extensions</string>","<key>PayloadType</key><string>com.apple.syspolicy.kernel-extension-policy</string>"],
-                            "Associated Domains":["<key>PayloadDisplayName</key><string>Associated Domains</string>","<key>PayloadType</key><string>com.apple.associated-domains</string>"],
-                            "Extensions":["<key>PayloadDisplayName</key><string>Extensions</string>","<key>PayloadType</key><string>com.apple.NSExtension</string>"],
-                            "System Extensions":["<key>PayloadDisplayName</key><string>System Extensions</string>","<key>PayloadType</key><string>com.apple.system-extension-policy</string>"],
-                            "Content Filter-mac":["<key>PayloadDisplayName</key><string>Web Content Filter Payload</string>"]]
+                             "Certificate Transparency":["<string>com.apple.security.certificatetransparency</string>"],
+                             "Font-mac":["<key>PayloadDisplayName</key><string>Font</string>","<key>PayloadType</key><string>com.apple.font</string>"],
+                             "SCEP":["<string>com.apple.security.scep</string>"],
+                             "Directory":["<string>com.apple.DirectoryService.managed</string>"],
+                             "Kernel Extensions":["<string>com.apple.syspolicy.kernel-extension-policy</string>"],
+                             "Software Update":["<string>com.apple.SoftwareUpdate</string>"],
+                             "Restrictions-ios":["<key>PayloadDisplayName</key><string>Restrictions Payload</string>","<key>PayloadType</key><string>com.apple."],
+                             "Restrictions-mac": ["<key>PayloadDisplayName</key><string>MCX</string>","<key>PayloadType</key><string>com.apple.MCX</string>","<key>PayloadType</key><string>com.apple .applicationaccess.new</string>"],
+                             "Login Items":["<string>com.apple.loginitems.managed</string>"],
+                             "Login Window":["<string>com.apple.MCX</string>","<string>Login Window:  Global Preferences</string>","<string>Login Window</string>"],
+                             "Dock":["<string>com.apple.dock</string>","<string>Dock</string>"],
+                             "Mobility":["<key>cachedaccounts.WarnOnCreate.allowNever</key>","<string>com.apple.homeSync</string>"],
+                             "Printing":["<string>com.apple.mcxprinting</string>"],
+                             "Parental Controls":["<key>PayloadDisplayName</key><string>Parental Controls</string>"],
+                             "Security and Privacy-General-ChangePassword":["<key>PayloadDisplayName</key><string>PreferenceSecurity</string>","<key>PayloadType</key><string>com.apple.preference.security</string>","<key>dontAllowPasswordResetUI</key>"],
+                             "Security and Privacy-General-ScreenSaver":["<key>PayloadDisplayName</key><string>PreferenceSecurity</string>","<key>PayloadType</key><string>com.apple.screensaver</string>"],
+                             "Security and Privacy-General-SetLockMessage":["<key>PayloadDisplayName</key><string>PreferenceSecurity</string>","<key>PayloadType</key><string>com.apple.preference.security</string>","<key>dontAllowLockMessageUI</key>"],
+                             "Security and Privacy-General-SendData":["<key>PayloadDisplayName</key><string>SubmitDiagInfo</string>","<key>PayloadType</key><string>com.apple.SubmitDiagInfo</string>"],
+                             "Security and Privacy-General-Unlock":["<key>PayloadDisplayName</key><string>Restrictions</string>","<key>PayloadType</key><string>com.apple.applicationaccess</string>","<key>allowAutoUnlock</key>"],
+                             "Security and Privacy-General-RPtUS":["<key>PayloadDisplayName</key><string>ScreenSaver</string>","<key>PayloadType</key><string>com.apple.screensaver</string>","<key>askForPassword</key>","<key>askForPasswordDelay</key>"],
+                             "Security and Privacy-General-Gatekeeper":["<key>PayloadDisplayName</key><string>SystemPolicyControl</string>","<key>PayloadType</key><string>com.apple.systempolicy.control</string>","<key>AllowIdentifiedDevelopers</key>","<key>EnableAssessment</key>"],
+                             "Security and Privacy-General-GatekeeperOverride":["<key>PayloadDisplayName</key><string>SystemPolicyManaged</string>","<key>PayloadType</key><string>com.apple.systempolicy.managed</string>","<key>DisableOverride</key>"],
+                             "Security and Privacy-General-XProtect":["<key>PayloadDisplayName</key><string>SystemPolicyControl</string>","<key>PayloadType</key><string>com.apple.systempolicy.control</string>","<key>EnableXProtectMalwareUpload</key>"],
+                             "Security and Privacy-Firewall":["<key>PayloadType</key><string>com.apple.security.firewall</string>"],
+                             "Security and Privacy-FileVault":["<key>PayloadType</key><string>com.apple.MCX.FileVault2</string>"],
+                             "Security and Privacy-FileVault-KeyEscrow":["<key>PayloadDisplayName</key><string>FileVault Recovery Key Escrow</string>","<key>PayloadType</key><string>com.apple.security.FDERecoveryKeyEscrow</string>"],
+                             "Security and Privacy-FileVault-DenyOff":["<key>PayloadDisplayName</key><string>MCX</string>","<key>PayloadType</key><string>com.apple.MCX</string>","<key>dontAllowFDEDisable</key>"],
+                             "PPPC":["<key>PayloadType</key><string>com.apple.TCC.configuration-profile-policy</string>"],
+                             "AD Certificate":["<string>com.apple.ADCertificate.managed</string>","<key>PayloadDisplayName</key><string>AD Certificate</string>"],
+                             "Energy": ["<key>PayloadDisplayName</key><string>MCX</string>","<key>com.apple.EnergySaver.desktop.ACPower</key>","<key>com.apple.EnergySaver.portable .ACPower-ProfileNumber</key>"],
+                             "App & Custom Settings":["<key>PayloadDisplayName</key><string>Custom  Settings</string>","<key>PayloadType</key><string>com.apple.ManagedClient.preferences</string>"],
+                             "Identification": ["<key>PayloadDisplayName</key><string>Identity</string>","<key>PayloadType</key><string>com.apple.configurationprofile.identification</string>"],
+                             "Time Machine":["<key>PayloadDisplayName</key><string>Time Machine</string>","<key>PayloadType</key><string>com.apple.MCX.TimeMachine</string>"],
+                             "Finder":["<key>PayloadType</key><string>com.apple.finder</string>","<key>InterfaceLevel</key><string>Full</string>"],
+                             "Accessibility":["<key>PayloadDisplayName</key><string>Accessibility</string>","<key>PayloadType</key><string>com.apple.universalaccess</string>"],
+                             "Proxies":["<key>PayloadDisplayName</key><string>Proxies</string>","<key>PayloadType</key><string>com.apple.SystemConfiguration</string>"],
+                             "App-To-Per-App VPN Mapping":["<key>PayloadDisplayName</key><string>App to Per-App VPN Mapping  Payload</string>","<key>PayloadType</key><string>com.apple.vpn.managed.appmapping</string>"],
+                             "Xsan":["<key>PayloadDisplayName</key><string>Xsan</string>","<key>PayloadType</key><string>com.apple.xsan</string>"],
+                             "Smart Card":["<key>PayloadDisplayName</key><string>SmartCard</string>","<key>PayloadType</key><string>com.apple.security.smartcard</string>"],
+                             "Migration":["<key>PayloadDisplayName</key><string>System Migration</string>","<key>PayloadType</key><string>com.apple.systemmigration</string>"],
+                             "Approved Kernel Extensions":["<key>PayloadDisplayName</key><string>Approved Kernel  Extensions</string>","<key>PayloadType</key><string>com.apple.syspolicy.kernel-extension-policy</string>"],
+                             "Associated Domains":["<key>PayloadDisplayName</key><string>Associated Domains</string>","<key>PayloadType</key><string>com.apple.associated-domains</string>"],
+                             "Extensions":["<key>PayloadDisplayName</key><string>Extensions</string>","<key>PayloadType</key><string>com.apple.NSExtension</string>"],
+                             "System Extensions":["<key>PayloadDisplayName</key><string>System  Extensions</string>","<key>PayloadType</key><string>com.apple.system-extension-policy</string>"],
+                             "Content Filter-mac":["<key>PayloadDisplayName</key><string>Web Content Filter Payload</string>"]]
 
 
 // func cleanup - start
@@ -357,7 +377,7 @@ public func profilePayloads(payloadXML: String, platform: String) -> [String] {
                     finalPayloadType = payloadType.replacingOccurrences(of: "-mac", with: "")
                 case "Wi-Fi":
                     finalPayloadType = "Network"
-                case "Security and Privacy-GenFire","Security and Privacy-FileVault":
+                case "Security and Privacy-General-ChangePassword","Security and Privacy-General-ScreenSaver","Security and Privacy-General-SetLockMessage","Security and Privacy-General-SendData","Security and Privacy-General-Unlock","Security and Privacy-General-RPtUS","Security and Privacy-General-Gatekeeper","Security and Privacy-Firewall","Security and Privacy-FileVault","Security and Privacy-FileVault-KeyEscrow","Security and Privacy-FileVault-DenyOff":
                     finalPayloadType = "Security and Privacy"
                 default:
                     finalPayloadType = payloadType
@@ -373,14 +393,72 @@ public func profilePayloads(payloadXML: String, platform: String) -> [String] {
     return configuredPayloads
 }
 public func searchResult(payload: String, critereaArray: [String]) -> Bool {
-//        print("\n[searchResult] payload: \(payload)\ncriteriaArray: \(critereaArray)\n")
-    for criterea in critereaArray {
-        if payload.range(of:criterea, options: .regularExpression) == nil {
-//                print("\n[searchResult] criteria not found: \(criterea)\n")
-            return false
+    print("\n[searchResult] payload: \(payload)\ncriteriaArray: \(critereaArray)\n")
+    
+    switch critereaArray {
+    case ["General"]:
+        for payloadCritereaArray in [configProfilePayloads["Security and Privacy-General-ChangePassword"], configProfilePayloads["Security and Privacy-General-ScreenSaver"], configProfilePayloads["Security and Privacy-General-SetLockMessage"], configProfilePayloads["Security and Privacy-General-SendData"], configProfilePayloads["Security and Privacy-General-Unlock"], configProfilePayloads["Security and Privacy-General-RPtUS"], configProfilePayloads["Security and Privacy-General-Gatekeeper"]] {
+            print("\n[searchResult-FileVault] payloadCritereaArray: \(payloadCritereaArray ?? [])")
+            var match = true
+            for criterea in payloadCritereaArray ?? [] {
+                print("[searchResult-FileVault] check criteria: \(criterea)\n")
+                if payload.range(of:criterea, options: .regularExpression) == nil {
+                    print("\n[searchResult-FileVault] criteria not found: \(criterea)\n")
+                    match = false
+                }
+                if match { return true }
+            }
         }
+        return false
+    case ["FileVault"]:
+        for payloadCritereaArray in [configProfilePayloads["Security and Privacy-FileVault"], configProfilePayloads["Security and Privacy-FileVault-KeyEscrow"], configProfilePayloads["Security and Privacy-FileVault-DenyOff"]] {
+            print("\n[searchResult-FileVault] payloadCritereaArray: \(payloadCritereaArray ?? [])")
+            var match = true
+            for criterea in payloadCritereaArray ?? [] {
+                print("[searchResult-FileVault] check criteria: \(criterea)\n")
+                if payload.range(of:criterea, options: .regularExpression) == nil {
+                    print("\n[searchResult-FileVault] criteria not found: \(criterea)\n")
+                    match = false
+                }
+            }
+            if match { return true }
+        }
+        return false
+
+    default:
+        for criterea in critereaArray {
+            if payload.range(of:criterea, options: .regularExpression) == nil {
+                print("\n[searchResult] criteria not found: \(criterea)\n")
+                return false
+            }
+        }
+        return true
     }
-    return true
+    
+//    if critereaArray == ["FileVault"] {
+//        for payloadCritereaArray in [configProfilePayloads["Security and Privacy-FileVault"], configProfilePayloads["Security and Privacy-FileVault-KeyEscrow"], configProfilePayloads["Security and Privacy-FileVault-DenyOff"]] {
+//            print("\n[searchResult-FileVault] payloadCritereaArray: \(payloadCritereaArray ?? [])")
+//            var match = true
+//            for criterea in payloadCritereaArray ?? [] {
+//                print("[searchResult-FileVault] check criteria: \(criterea)\n")
+//                if payload.range(of:criterea, options: .regularExpression) == nil {
+//                    print("\n[searchResult-FileVault] criteria not found: \(criterea)\n")
+//                    match = false
+////                    break
+//                }
+//                if match { return true }
+//            }
+//        }
+//        return false
+//    } else {
+//        for criterea in critereaArray {
+//            if payload.range(of:criterea, options: .regularExpression) == nil {
+//                print("\n[searchResult] criteria not found: \(criterea)\n")
+//                return false
+//            }
+//        }
+//        return true
+//    }
 }
 
 func tagValue(xmlString:String, xmlTag:String) -> String {

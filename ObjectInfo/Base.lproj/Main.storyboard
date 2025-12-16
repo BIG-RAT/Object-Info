@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="24412" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24412"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24506"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -19,7 +19,7 @@
                                         <menuItem title="About Object Info" id="5kV-Vb-QxS">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
-                                                <action selector="orderFrontStandardAboutPanel:" target="Ady-hI-5gd" id="Exp-CZ-Vem"/>
+                                                <action selector="showAbout:" target="Ady-hI-5gd" id="kad-wC-vuU"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem title="Check for Update..." id="H5u-xo-Wmf">
@@ -682,6 +682,137 @@
             <point key="canvasLocation" x="75" y="0.0"/>
         </scene>
         <!--Window Controller-->
+        <scene sceneID="P2m-cb-Khz">
+            <objects>
+                <windowController storyboardIdentifier="aboutWC" id="xyA-7t-LeG" sceneMemberID="viewController">
+                    <window key="window" title="About" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="ab4-LT-izd">
+                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+                        <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+                        <rect key="contentRect" x="1033" y="1294" width="480" height="270"/>
+                        <rect key="screenRect" x="739" y="982" width="1920" height="1050"/>
+                        <view key="contentView" id="X6H-2V-rDp">
+                            <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                        </view>
+                        <connections>
+                            <outlet property="delegate" destination="xyA-7t-LeG" id="mDh-aD-CLm"/>
+                        </connections>
+                    </window>
+                    <connections>
+                        <segue destination="7wK-eI-u9b" kind="relationship" relationship="window.shadowedContentViewController" id="WQx-62-djT"/>
+                    </connections>
+                </windowController>
+                <customObject id="LZX-Nf-KHd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-595" y="652"/>
+        </scene>
+        <!--AboutVC-->
+        <scene sceneID="cni-l0-pYi">
+            <objects>
+                <viewController title="AboutVC" id="7wK-eI-u9b" customClass="AboutVC" customModule="Object_Info" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="hE1-04-7v7">
+                        <rect key="frame" x="0.0" y="0.0" width="671" height="380"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="HJK-64-m5W">
+                                <rect key="frame" x="304" y="302" width="64" height="64"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="64" id="21K-nR-PbL"/>
+                                    <constraint firstAttribute="width" constant="64" id="4lm-Nt-L2c"/>
+                                </constraints>
+                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyDown" id="4vd-Oz-glx"/>
+                            </imageView>
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Yt2-fs-BUi">
+                                <rect key="frame" x="220" y="265" width="232" height="33"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="33" id="FIk-bU-VAu"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="228" id="pZr-Wk-Rh8"/>
+                                </constraints>
+                                <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="Object Info" id="Y2A-Vo-H3z">
+                                    <font key="font" metaFont="system" size="28"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="hFC-7k-TBf">
+                                <rect key="frame" x="226" y="242" width="220" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="216" id="cWs-m5-Nqd"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="21" id="ecO-IO-7Ak"/>
+                                </constraints>
+                                <textFieldCell key="cell" selectable="YES" sendsActionOnEndEditing="YES" alignment="center" id="NSE-mX-qKz">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" horizontalScrollElasticity="none" verticalScrollElasticity="none" translatesAutoresizingMaskIntoConstraints="NO" id="f7X-1U-sYo">
+                                <rect key="frame" x="44" y="66" width="584" height="166"/>
+                                <clipView key="contentView" drawsBackground="NO" id="ziT-2d-CrH">
+                                    <rect key="frame" x="0.0" y="0.0" width="584" height="166"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <textView wantsLayer="YES" editable="NO" drawsBackground="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" allowsCharacterPickerTouchBarItem="NO" textCompletion="NO" spellingCorrection="YES" id="sUJ-R3-h4U">
+                                            <rect key="frame" x="0.0" y="0.0" width="584" height="166"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            <size key="minSize" width="584" height="166"/>
+                                            <size key="maxSize" width="584" height="10000000"/>
+                                        </textView>
+                                    </subviews>
+                                </clipView>
+                                <constraints>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="70" id="91K-bU-xqU"/>
+                                    <constraint firstAttribute="width" constant="584" id="ixx-5n-7Ba"/>
+                                </constraints>
+                                <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="9Xe-Ll-9wV">
+                                    <rect key="frame" x="-100" y="-100" width="240" height="16"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
+                                <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="imj-Eu-Qfn">
+                                    <rect key="frame" x="567" y="0.0" width="17" height="166"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
+                            </scrollView>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="J1v-AK-Ikd">
+                                <rect key="frame" x="44" y="26" width="164" height="14"/>
+                                <buttonCell key="cell" type="check" title="Opt out of analytics" bezelStyle="regularSquare" imagePosition="left" inset="2" id="pzY-4I-KYG">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system" size="16"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="optOut_action:" target="7wK-eI-u9b" id="kuq-Yf-1bq"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="Yt2-fs-BUi" firstAttribute="centerX" secondItem="hE1-04-7v7" secondAttribute="centerX" id="FV5-Z6-0wA"/>
+                            <constraint firstAttribute="bottom" secondItem="J1v-AK-Ikd" secondAttribute="bottom" constant="26" id="WKi-Ed-28D"/>
+                            <constraint firstItem="HJK-64-m5W" firstAttribute="top" secondItem="hE1-04-7v7" secondAttribute="top" constant="14" id="WTI-B0-7wC"/>
+                            <constraint firstItem="hFC-7k-TBf" firstAttribute="centerX" secondItem="hE1-04-7v7" secondAttribute="centerX" id="aEr-tk-7QZ"/>
+                            <constraint firstItem="J1v-AK-Ikd" firstAttribute="leading" secondItem="f7X-1U-sYo" secondAttribute="leading" id="aon-PG-eRI"/>
+                            <constraint firstAttribute="bottom" secondItem="f7X-1U-sYo" secondAttribute="bottom" constant="66" id="apQ-1o-cRR"/>
+                            <constraint firstItem="f7X-1U-sYo" firstAttribute="centerX" secondItem="hE1-04-7v7" secondAttribute="centerX" id="m30-Sg-Tod"/>
+                            <constraint firstItem="HJK-64-m5W" firstAttribute="centerX" secondItem="hE1-04-7v7" secondAttribute="centerX" id="nTE-ih-atJ"/>
+                            <constraint firstItem="Yt2-fs-BUi" firstAttribute="top" secondItem="HJK-64-m5W" secondAttribute="bottom" constant="4" id="na6-L1-Dqi"/>
+                            <constraint firstItem="hFC-7k-TBf" firstAttribute="top" secondItem="Yt2-fs-BUi" secondAttribute="bottom" constant="2" id="q9H-KB-W5w"/>
+                            <constraint firstItem="J1v-AK-Ikd" firstAttribute="top" secondItem="f7X-1U-sYo" secondAttribute="bottom" constant="26" id="qxp-Hv-zhs"/>
+                            <constraint firstItem="f7X-1U-sYo" firstAttribute="top" secondItem="hFC-7k-TBf" secondAttribute="bottom" constant="10" id="yO7-UC-wIF"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="about_image" destination="HJK-64-m5W" id="6EL-5C-rHR"/>
+                        <outlet property="appName_textfield" destination="Yt2-fs-BUi" id="zxF-r9-zmM"/>
+                        <outlet property="license_textfield" destination="sUJ-R3-h4U" id="Y0E-Bx-UBE"/>
+                        <outlet property="optOut_button" destination="J1v-AK-Ikd" id="pZC-EZ-1zB"/>
+                        <outlet property="version_textfield" destination="hFC-7k-TBf" id="1TL-eD-nWw"/>
+                    </connections>
+                </viewController>
+                <customObject id="qLD-eW-gBi" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-691.5" y="1127"/>
+        </scene>
+        <!--Window Controller-->
         <scene sceneID="R2V-B0-nI4">
             <objects>
                 <windowController id="B8D-0N-5wS" sceneMemberID="viewController">
@@ -700,7 +831,7 @@
                 </windowController>
                 <customObject id="Oky-zY-oP4" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="75" y="250"/>
+            <point key="canvasLocation" x="95" y="314"/>
         </scene>
         <!--LoginVC-->
         <scene sceneID="dNs-ay-HrU">
@@ -935,7 +1066,7 @@ Gw
                 </viewController>
                 <customObject id="ae2-Rr-oYD" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-483" y="626"/>
+            <point key="canvasLocation" x="419" y="563"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="hIz-AP-VOD">
@@ -1094,7 +1225,7 @@ DQ
                                                     <items>
                                                         <menuItem title="Computer" id="g6p-yf-X37">
                                                             <modifierMask key="keyEquivalentModifierMask"/>
-                                                            <menu key="submenu" title="Computer" id="guh-RE-SEv">
+                                                            <menu key="submenu" title="Computer" identifier="mac_sec-priv-general" id="guh-RE-SEv">
                                                                 <items>
                                                                     <menuItem title="Accessibilty" identifier="mac_access" id="lfN-IY-VLE">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
@@ -1252,13 +1383,19 @@ DQ
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="HoA-V5-Vo0"/>
                                                                         </connections>
                                                                     </menuItem>
-                                                                    <menuItem title="Security &amp; Privacy:FileVault" identifier="mac_sec-priv-filevault" id="4ga-El-HBd">
+                                                                    <menuItem title="Security &amp; Privacy: General" identifier="mac_sec-priv-general" id="fhO-db-GL6">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                        <connections>
+                                                                            <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="V0n-6U-75n"/>
+                                                                        </connections>
+                                                                    </menuItem>
+                                                                    <menuItem title="Security &amp; Privacy: FileVault" identifier="mac_sec-priv-filevault" id="4ga-El-HBd">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                         <connections>
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="f6q-Dh-NGe"/>
                                                                         </connections>
                                                                     </menuItem>
-                                                                    <menuItem title="Security &amp; Privacy:General&amp;Firewall" identifier="mac_sec-priv-genfire" id="sWX-gn-x8U">
+                                                                    <menuItem title="Security &amp; Privacy: Firewall" identifier="mac_sec-priv-firewall" id="sWX-gn-x8U">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                         <connections>
                                                                             <action selector="selectedItem_MenuItem:" target="XfG-lQ-9wD" id="Nfl-lI-ZJh"/>
@@ -2059,7 +2196,7 @@ DQ
                 </arrayController>
                 <userDefaultsController representsSharedInstance="YES" id="D5b-kc-FT8"/>
             </objects>
-            <point key="canvasLocation" x="203.5" y="803.5"/>
+            <point key="canvasLocation" x="77" y="1002"/>
         </scene>
     </scenes>
     <resources>

@@ -173,7 +173,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
             exportTitleSuffix       = ""
             
             switch menuIdentifier {
-            case "mac_access", "mac_ad-cert", "mac_airplay", "mac_acs", "mac_atpavpn", "mac_cert", "mac_cf", "mac_dir", "mac_dock", "mac_energy", "mac_finder", "mac_font", "mac_ident", "mac_kext", "mac_loginitems", "mac_loginwindow", "mac_mobility", "mac_network", "mac_notifications", "mac_parental", "mac_passcode", "mac_pppc", "mac_print", "mac_proxies", "mac_restrict", "mac_scep", "mac_sec-priv-filevault", "mac_sec-priv-genfire", "mac_su", "mac_sysext", "mac_tm", "mac_vpn", "mac_xsan":
+            case "mac_access", "mac_ad-cert", "mac_airplay", "mac_acs", "mac_atpavpn", "mac_cert", "mac_cf", "mac_dir", "mac_dock", "mac_energy", "mac_finder", "mac_font", "mac_ident", "mac_kext", "mac_loginitems", "mac_loginwindow", "mac_mobility", "mac_network", "mac_notifications", "mac_parental", "mac_passcode", "mac_pppc", "mac_print", "mac_proxies", "mac_restrict", "mac_scep", "mac_sec-priv-general", "mac_sec-priv-filevault", "mac_sec-priv-firewall", "mac_su", "mac_sysext", "mac_tm", "mac_vpn", "mac_xsan":
                 endpointType = "mac_cp"
                 select_MenuItem.title = "macOS-"+menuTitle
                 exportTitleSuffix = "-" + menuIdentifier
@@ -875,7 +875,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
 //                                print("[getDetails] self.singleEndpointXmlTag: \(self.singleEndpointXmlTag)")
                                 if self.menuIdentifier.prefix(5) == "apps_" || self.menuIdentifier.prefix(5) == "cp_al" { self.singleEndpointXmlTag = self.menuIdentifier }
                                 
-//                                print("[getDetails] singleEndpointXmlTag: \(singleEndpointXmlTag)")
+                                print("[getDetails] singleEndpointXmlTag: \(singleEndpointXmlTag)")
 //                                print("[getDetails] \(singleEndpointXmlTag) thePackageArray: \(endpointInfo["printers"] ?? "nil" as AnyObject)")
                                 
                                 switch singleEndpointXmlTag {
@@ -949,10 +949,12 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                                 searchStringArray = ["<key>PayloadDisplayName</key><string>MCX</string>", "<key>PayloadType</key><string>com.apple.MCX</string>", "<key>PayloadType</key><string>com.apple.applicationaccess.new</string>"]
                                             case "mac_scep":
                                                 searchStringArray = ["<string>com.apple.security.scep</string>"]
+                                            case "mac_sec-priv-general":
+                                                searchStringArray = ["General"] //["<key>PayloadDisplayName</key><string>FileVault</string>"]
                                             case "mac_sec-priv-filevault":
-                                                searchStringArray = ["<key>PayloadDisplayName</key><string>FileVault</string>"]
-                                            case "mac_sec-priv-genfire":
-                                                searchStringArray = ["<key>PayloadDisplayName</key><string>PreferenceSecurity</string>"]
+                                                searchStringArray = ["FileVault"] //["<key>PayloadDisplayName</key><string>FileVault</string>"]
+                                            case "mac_sec-priv-firewall":
+                                                searchStringArray = configProfilePayloads["Security and Privacy-Firewall"] ?? ["\(UUID())"] //["<key>PayloadDisplayName</key><string>PreferenceSecurity</string>"]
                                             case "mac_su":
                                                 searchStringArray = ["<string>com.apple.SoftwareUpdate</string>"]
                                             case "mac_sysext":
@@ -1765,6 +1767,8 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        TelemetryDeckConfig.OptOut = UserDefaults.standard.bool(forKey: "optOut")
+        
         //create log file
         let logFileURL: URL
         let fileManager = FileManager.default
@@ -1853,6 +1857,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
         WriteToLog.shared.message("  Object Info Version: \(version)")
         WriteToLog.shared.message("        macOS Version: \(os.majorVersion).\(os.minorVersion).\(os.patchVersion)")
         WriteToLog.shared.message("================================")
+        WriteToLog.shared.message("analytics enabled: \(!TelemetryDeckConfig.OptOut)")
         
         if showLoginWindow {
             Task {

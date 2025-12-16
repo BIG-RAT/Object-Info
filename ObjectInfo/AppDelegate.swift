@@ -12,7 +12,7 @@ import Cocoa
 class AppDelegate: NSObject, NSApplicationDelegate {
     
     let resourceCheck   = ResourceCheck()
-    
+        
     @IBOutlet weak var resetVersionAlert_MenuItem: NSMenuItem!
     @IBAction func resetVersionAlert_Action(_ sender: Any) {
         resetVersionAlert_MenuItem.isEnabled = false
@@ -31,9 +31,40 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
     }
+    
+    @IBAction func showAbout(_ sender: Any) {
+        let storyboard = NSStoryboard(name: "Main", bundle: nil)
+        let aboutWindowController = storyboard.instantiateController(withIdentifier: "aboutWC") as! NSWindowController
+        if !windowIsVisible(windowName: "About") {
+            aboutWindowController.window?.hidesOnDeactivate = false
+            aboutWindowController.showWindow(self)
+        } else {
+            let windowsCount = NSApp.windows.count
+            for i in (0..<windowsCount) {
+                if NSApp.windows[i].title == "About" {
+                    NSApp.windows[i].makeKeyAndOrderFront(self)
+                    break
+                }
+            }
+        }
+    }
+    
+    func windowIsVisible(windowName: String) -> Bool {
+        let options = CGWindowListOption(arrayLiteral: CGWindowListOption.excludeDesktopElements, CGWindowListOption.optionOnScreenOnly)
+        let windowListInfo = CGWindowListCopyWindowInfo(options, CGWindowID(0))
+        let infoList = windowListInfo as NSArray? as? [[String: AnyObject]]
+        for item in infoList! {
+            if let _ = item["kCGWindowOwnerName"], let _ = item["kCGWindowName"] {
+                if "\(item["kCGWindowOwnerName"]!)" == AppInfo.displayname && "\(item["kCGWindowName"]!)" == windowName {
+                    return true
+                }
+            }
+        }
+        return false
+    }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        // Insert code here to initialize your application
+        configureTelemetryDeck()
         let skipVersionAlert = UserDefaults.standard.bool(forKey: "skipVersionAlert")
         resetVersionAlert_MenuItem.isEnabled = skipVersionAlert
         resetVersionAlert_MenuItem.isHidden = !skipVersionAlert

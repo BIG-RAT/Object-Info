@@ -28,6 +28,11 @@ Unused objects are not displayed.  For example, if a package is not used in eith
 
 **History**
 
+2025-12-16: Add basic hardware, OS, and Object Info app useage collection. Data is sent anonymously to [TelemetryDeck](https:telemetrydeck.com) to aid in the development of the app.
+Add ability to change the full name of the user.
+Address issue allow the change of the login name. 
+Address the issue of config payloads not properly being identified.
+
 2025-11-21: Version 3.2.1 - Address issue #29, searching configuration profiles for the FileVault and firewall payloads.
 
 2025-06-25: Version 3.2.0 - Add new version check. Fix issue searching configuration profiles for the content filter payload. Resolve issue #26, space(s) in export path.
