@@ -831,7 +831,7 @@
                 </windowController>
                 <customObject id="Oky-zY-oP4" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="95" y="314"/>
+            <point key="canvasLocation" x="43" y="236"/>
         </scene>
         <!--LoginVC-->
         <scene sceneID="dNs-ay-HrU">

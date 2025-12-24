@@ -1767,7 +1767,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        TelemetryDeckConfig.OptOut = UserDefaults.standard.bool(forKey: "optOut")
+        TelemetryDeckConfig.optOut = UserDefaults.standard.bool(forKey: "optOut")
         
         //create log file
         let logFileURL: URL
@@ -1857,7 +1857,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
         WriteToLog.shared.message("  Object Info Version: \(version)")
         WriteToLog.shared.message("        macOS Version: \(os.majorVersion).\(os.minorVersion).\(os.patchVersion)")
         WriteToLog.shared.message("================================")
-        WriteToLog.shared.message("analytics enabled: \(!TelemetryDeckConfig.OptOut)")
+        WriteToLog.shared.message("analytics enabled: \(!TelemetryDeckConfig.optOut)")
         
         if showLoginWindow {
             Task {

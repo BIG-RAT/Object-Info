@@ -12,7 +12,7 @@ class AboutVC: NSViewController {
     
     @IBAction func optOut_action(_ sender: NSButton) {
         UserDefaults.standard.set(sender.state == .on, forKey: "optOut")
-        TelemetryDeckConfig.OptOut = (sender.state == .on)
+        TelemetryDeckConfig.optOut = (sender.state == .on)
     }
     
     let supportText = """
