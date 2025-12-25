@@ -449,7 +449,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
             
             JamfPro.shared.getToken(serverUrl: JamfProServer.server) {
                 (statusCode, result) in
-                print("[apiCall] getToken: statusCode: \(statusCode), result: \(result)")
+//                print("[apiCall] getToken: statusCode: \(statusCode), result: \(result)")
                 if result == "success" {
                     
                     let encodedURL = NSURL(string: self.endpointUrl)
@@ -906,7 +906,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                         //                                print("[getDetails] self.singleEndpointXmlTag: \(self.singleEndpointXmlTag)")
                                         if self.menuIdentifier.prefix(5) == "apps_" || self.menuIdentifier.prefix(5) == "cp_al" { self.singleEndpointXmlTag = self.menuIdentifier }
                                         
-                                        print("[getDetails] singleEndpointXmlTag: \(singleEndpointXmlTag)")
+//                                        print("[getDetails] singleEndpointXmlTag: \(singleEndpointXmlTag)")
                                         //                                print("[getDetails] \(singleEndpointXmlTag) thePackageArray: \(endpointInfo["printers"] ?? "nil" as AnyObject)")
                                         
                                         switch singleEndpointXmlTag {
@@ -1334,8 +1334,8 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                         case "advanced_computer_search", "advanced_mobile_device_search":
                                             var eaType = ""
                                             for theCriteriaName in criteriaArray {
-                                                print("\(theCriteriaName)")
-                                                print("\(oSingleEndpointXmlTag)\n")
+//                                                print("\(theCriteriaName)")
+//                                                print("\(oSingleEndpointXmlTag)\n")
                                                 if oSingleEndpointXmlTag.contains("_extension_attribute") {
                                                     if let _ = objectByNameDict[theCriteriaName]?["input_type"]?["type"] {
                                                         eaType = objectByNameDict[theCriteriaName]!["input_type"]!["type"] as! String
@@ -1348,8 +1348,8 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                             }
                                             // see if EA is used as a display field
                                             for displayFieldName in displayFieldsArray {
-                                                print("[dispay field] name: \(displayFieldName)")
-                                                print("[dispay field] oSingleEndpointXmlTag: \(oSingleEndpointXmlTag)")
+//                                                print("[dispay field] name: \(displayFieldName)")
+//                                                print("[dispay field] oSingleEndpointXmlTag: \(oSingleEndpointXmlTag)")
                                                 if oSingleEndpointXmlTag.contains("_extension_attribute") {
                                                     if let _ = objectByNameDict[displayFieldName]?["input_type"]?["type"] {
                                                         eaType = objectByNameDict[displayFieldName]!["input_type"]!["type"] as! String
@@ -1366,9 +1366,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                         case "cp_all_iOS","cp_all_macOS":
                                             summaryArray.append(EndpointData(column1: "\(recordName)", column2: "\(payloadArray)", column3: "\(self.theScope)", column4: "\(limitationsExclusions["limitations"] ?? [])", column5: "\(limitationsExclusions["exclusions"] ?? [])", column6: "", column7: ""))
                                             details_TextView.string.append("\(recordName)\t\(payloadArray)\t\(theScope)\t\(limitationsExclusions["limitations"] ?? [])\t\(limitationsExclusions["exclusions"] ?? [])\n")
-                                            //                                case "osxconfigurationprofiles":
-                                            //                                    summaryArray.append(endpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "\(limitationsExclusions["limitations"] ?? [])", column5: "\(limitationsExclusions["exclusions"] ?? [])", column6: "", column7: ""))
-                                            //                                    details_TextView.string.append("\(recordName)\t\(payloadArray)\t\(theScope)\t\(limitationsExclusions["limitations"] ?? [])\t\(limitationsExclusions["exclusions"] ?? [])\n")
+                                            
                                         default:
                                             break
                                         }
@@ -1395,7 +1393,6 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                                         summaryArray.append(EndpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "\(theRecord[3])", column5: "", column6: "", column7: ""))
                                         details_TextView.string.append("\(theRecord[0])\t\(theRecord[1])\t\(theRecord[2])\t\(theRecord[3])\n")
                                     case 3:
-                                        print("case 3")
                                         if theRecord[0] != "" {
                                             summaryArray.append(EndpointData(column1: "\(theRecord[0])", column2: "\(theRecord[1])", column3: "\(theRecord[2])", column4: "", column5: "", column6: "", column7: ""))
                                             details_TextView.string.append("\(theRecord[0])\t\(theRecord[1])\t\(theRecord[2])\n")
@@ -1606,7 +1603,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
         WriteToLog.shared.message("[getLimitationsExceptions] endpointType: \(endpointType)")
 
         if let scope = endpointInfo["scope"] as? [String : AnyObject] {
-            print("[getLimitationsExceptions] scope: \(scope)")
+//            print("[getLimitationsExceptions] scope: \(scope)")
             for lore in ["limitations", "exclusions"] {
                 var currentList = [String]()
                 if let limitationsExclusions = scope[lore] as? [String: AnyObject] {
@@ -1832,7 +1829,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
         
         // Create the log file if it doesn't exist
         if !fileManager.fileExists(atPath: logFileURL.path) {
-            print("[ViewController.viewDidLoad] Create log file: \(logFileURL.path)")
+//            print("[ViewController.viewDidLoad] Create log file: \(logFileURL.path)")
             fileManager.createFile(atPath: logFileURL.path, contents: nil, attributes: nil)
         }
         

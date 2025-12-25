@@ -132,11 +132,11 @@ class JamfPro: NSObject, URLSessionDelegate {
         request.httpMethod = "POST"
         
         let (_, _, _, tokenAgeInSeconds) = timeDiff(startTime: JamfProServer.tokenCreated)
-        print("[JamfPro.getToken] \(whichServer.localizedCapitalized) server token age in seconds: \(tokenAgeInSeconds)")
+//        print("[JamfPro.getToken] \(whichServer.localizedCapitalized) server token age in seconds: \(tokenAgeInSeconds)")
         
 //        print("[getToken] JamfProServer.validToken[\(whichServer)]: \(String(describing: JamfProServer.validToken[whichServer]))")
 //        print("[getToken] \(whichServer) tokenAgeInSeconds: \(tokenAgeInSeconds)")
-        print("[JamfPro.getToken] token renews in: \(JamfProServer.authExpires - tokenAgeInSeconds) seconds")
+//        print("[JamfPro.getToken] token renews in: \(JamfProServer.authExpires - tokenAgeInSeconds) seconds")
 //        print("[getToken] JamfProServer.currentCred[\(whichServer)]: \(String(describing: JamfProServer.currentCred[whichServer]))")
         let user        = JamfProServer.username
         let password    = JamfProServer.password
