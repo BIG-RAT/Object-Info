@@ -195,7 +195,7 @@ struct Credentials {
             return "PS2F6S478M"
         }
         
-        let theFile = bundleContents.appending(component: "embedded.provisionprofile")
+//        let theFile = bundleContents.appending(component: "embedded.provisionprofile")
         
         do {
             // Read the provisioning profile data

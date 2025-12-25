@@ -236,7 +236,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
             }
         }
         
-        isRunning = true
+        //isRunning = true
         if theSender == "Login" {
             JamfProServer.validToken = false
             JamfProServer.server = jamfProServer_textfield.stringValue.trimTrailingSlash
@@ -252,7 +252,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
             JamfProServer.base64Creds = (jamfUtf8Creds?.base64EncodedString())!
             JamfPro.shared.getToken(whichServer: "source", serverUrl: JamfProServer.server) { [self]
                 authResult in
-                isRunning = false
+                //isRunning = false
                 login_Button.isEnabled = true
                 
                 let (statusCode,theResult) = authResult
@@ -308,7 +308,7 @@ class LoginVC: NSViewController, URLSessionDelegate, NSTextFieldDelegate {
             JamfPro.shared.getToken(whichServer: "source", serverUrl: JamfProServer.server) { [self]
                 authResult in
                 
-                isRunning = false
+                //isRunning = false
                 login_Button.isEnabled = true
                 
                 let (statusCode,theResult) = authResult

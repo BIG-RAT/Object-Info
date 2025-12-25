@@ -1225,7 +1225,7 @@ DQ
                                                     <items>
                                                         <menuItem title="Computer" id="g6p-yf-X37">
                                                             <modifierMask key="keyEquivalentModifierMask"/>
-                                                            <menu key="submenu" title="Computer" identifier="mac_sec-priv-general" id="guh-RE-SEv">
+                                                            <menu key="submenu" title="Computer" id="guh-RE-SEv">
                                                                 <items>
                                                                     <menuItem title="Accessibilty" identifier="mac_access" id="lfN-IY-VLE">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>

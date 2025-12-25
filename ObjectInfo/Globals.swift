@@ -9,7 +9,7 @@
 import Cocoa
 import Foundation
 
-public var isRunning        = false
+//public var isRunning        = false
 public var stopScan         = false
 public var detailQ          = OperationQueue()
 public var objectByNameDict = [String:[String:AnyObject]]()
@@ -46,7 +46,7 @@ struct AppInfo {
 
 struct JamfProServer {
     static var accessToken  = ""
-    static var authExpires  = 25.0
+    static var authExpires  = 0.0
     static var currentCred  = ""
     static var tokenCreated = Date()
     static var majorVersion = 0

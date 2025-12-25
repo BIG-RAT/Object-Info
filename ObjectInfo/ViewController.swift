@@ -368,6 +368,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
     }
     
     func prestages(currentPage: Int, pageSize: Int, objectCount: Int, endpoint: String, subsearch: String) {
+        
         JamfPro.shared.jpapiGET(endpoint: endpoint, page: "\(currentPage)", pageSize: "\(pageSize)", apiData: [:], id: "", token: "") { [self]
             (result: [String:Any]) in
 //            print("prestage results: \(result)")
@@ -448,6 +449,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
             
             JamfPro.shared.getToken(serverUrl: JamfProServer.server) {
                 (statusCode, result) in
+                print("[apiCall] getToken: statusCode: \(statusCode), result: \(result)")
                 if result == "success" {
                     
                     let encodedURL = NSURL(string: self.endpointUrl)
@@ -761,6 +763,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
                     task.resume()
                     semaphore.wait()
                 } else {
+                    WriteToLog.shared.message("[apiCall] failed to get token")
                     completion([:])
                 }
             }
@@ -804,7 +807,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
         
         DispatchQueue.main.async {
 //            get_button.isEnabled = false
-            isRunning            = true
+            //isRunning            = true
             URLCache.shared.removeAllCachedResponses()
             
             detailQ.maxConcurrentOperationCount = 4
@@ -823,7 +826,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
         
         detailQ.addOperation { [self] in
             
-            JamfPro.shared.getToken(serverUrl: JamfProServer.server) {
+            JamfPro.shared.getToken(serverUrl: JamfProServer.server) { [self]
                 (statusCode, result) in
                 if result == "success" {
                     
@@ -1486,7 +1489,7 @@ class ViewController: NSViewController, URLSessionDelegate, SendingLoginInfoDele
         progressBar.isHidden         = true
         action_textField.stringValue = ""
 //        action_textField.stringValue = "Search Complete"
-        isRunning                    = false
+        //isRunning                    = false
         //get_button.isEnabled         = true
         if Log.lookupFailed {
             let query = Log.FailedCount == 1 ? "query":"queries"

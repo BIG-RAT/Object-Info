@@ -90,13 +90,11 @@ class JamfPro: NSObject, URLSessionDelegate {
     
     func getToken(whichServer: String = "source", serverUrl: String, completion: @escaping (_ authResult: (Int,String)) -> Void) {
         
-        if !isRunning {
-            completion((600, "not running"))
-            return
-        }
-        
-//        print("[JamfPro.getToken] JamfProServer.username: \(String(describing: JamfProServer.username))")
-//        print("[JamfPro.getToken] JamfProServer.password: \(String(describing: JamfProServer.password.prefix(1)))*******")
+//        if !isRunning {
+//            completion((600, "not running"))
+//            return
+//        }
+
 //        print("[JamfPro.getToken]   JamfProServer.server: \(String(describing: JamfProServer.server))")
 
         JamfProServer.server = serverUrl
@@ -123,7 +121,7 @@ class JamfPro: NSObject, URLSessionDelegate {
         guard let tokenUrl = URL(string: "\(tokenUrlString)") else {
 //            print("problem constructing the URL from \(tokenUrlString)")
             WriteToLog.shared.message("[JamfPro.getToken] problem constructing the URL from \(tokenUrlString)")
-            isRunning = false
+//            //isRunning = false
             JamfProServer.validToken = false
             completion((500, "failed"))
             return
@@ -253,7 +251,7 @@ class JamfPro: NSObject, URLSessionDelegate {
                             } else {    // if let endpointJSON error
                                 WriteToLog.shared.message("[JamfPro.getToken] JSON error.\n\(String(describing: json))")
                                 JamfProServer.validToken = false
-                                isRunning = false
+                                //isRunning = false
                                 completion((httpResponse.statusCode, "failed"))
                                 return
                             }
@@ -262,12 +260,12 @@ class JamfPro: NSObject, URLSessionDelegate {
                             _ = Alert.shared.display(header: "", message: "Failed to get an expected response from \(String(describing: serverUrl)).", secondButton: "")
                             WriteToLog.shared.message("[TokenDelegate.getToken] Failed to get an expected response from \(String(describing: serverUrl)). Status Code: \(httpResponse.statusCode)")
                             JamfProServer.validToken = false
-                            isRunning = false
+                            //isRunning = false
                             completion((httpResponse.statusCode, "failed"))
                             return
                         }
                     } else {    // if httpResponse.statusCode <200 or >299
-                        isRunning = false
+                        //isRunning = false
                         _ = Alert.shared.display(header: "\(serverUrl)", message: "Failed to authenticate to \(serverUrl). \nStatus Code: \(httpResponse.statusCode)", secondButton: "")
                         WriteToLog.shared.message("[JamfPro.getToken] Failed to authenticate to \(serverUrl). Response error: \(httpResponse.statusCode)")
                         JamfProServer.validToken  = false
@@ -276,7 +274,7 @@ class JamfPro: NSObject, URLSessionDelegate {
                         
                     }
                 } else {
-                    isRunning = false
+                    //isRunning = false
                     _ = Alert.shared.display(header: "\(serverUrl)", message: "Failed to connect. \nUnknown error, verify url and port.", secondButton: "")
                     WriteToLog.shared.message("[JamfPro.getToken] token response error from \(serverUrl). Verify url and port")
                     JamfProServer.validToken = false
@@ -329,64 +327,76 @@ class JamfPro: NSObject, URLSessionDelegate {
          let semaphore = DispatchSemaphore(value: 0)
          
          detailQ.addOperation { [self] in
- //        let idUrl = self.endpointUrl+"/id/\(id)"
-             var idUrl = "\(JamfProServer.server)/JSSResource/\(apiEndpoint)/id/\(id)"
-             idUrl = idUrl.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
-         WriteToLog.shared.message("[getDetails] idUrl: \(idUrl)")
-         
-
-             let encodedURL          = NSURL(string: idUrl)
-             let request             = NSMutableURLRequest(url: encodedURL! as URL)
-             
-             request.httpMethod = "GET"
-             let serverConf = URLSessionConfiguration.ephemeral
-             serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.accessToken)", "User-Agent" : AppInfo.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
-             let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
-             let task = serverSession.dataTask(with: request as URLRequest, completionHandler: {
-                 (data, response, error) -> Void in
-                 serverSession.finishTasksAndInvalidate()
-                 if let httpResponse = response as? HTTPURLResponse {
-                     if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
-                        
-                         let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
-                         if let endpointJSON = json as? [String: Any] {
-//                             print("[ViewController.getDetails] endpoint: \(apiEndpoint)")
-//                             print("[ViewController.getDetails] endpointJSON: \(endpointJSON)")
-//                             print("[ViewController.getDetails] endpointDict[objectType]![2]: \(endpointDict[objectType]![2])")
-                             
-                             if let endpointInfo = endpointJSON["\(endpointDict[objectType]![2])"] as? [String : AnyObject] {
-                                 returnedRecord = endpointInfo
- //                                print("[ViewController.getDetails] endpointInfo: \(endpointInfo)")
- //                                print("[getDetails] self.singleEndpointXmlTag: \(self.singleEndpointXmlTag)")
+             JamfPro.shared.getToken(serverUrl: JamfProServer.server) {
+                 (statusCode, result) in
+                 if result == "success" {
+                     
+                     var idUrl = "\(JamfProServer.server)/JSSResource/\(apiEndpoint)/id/\(id)"
+                     idUrl = idUrl.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
+                     WriteToLog.shared.message("[getDetails] idUrl: \(idUrl)")
+                     
+                     
+                     let encodedURL          = NSURL(string: idUrl)
+                     let request             = NSMutableURLRequest(url: encodedURL! as URL)
+                     
+                     request.httpMethod = "GET"
+                     let serverConf = URLSessionConfiguration.ephemeral
+                     serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.accessToken)", "User-Agent" : AppInfo.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
+                     let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
+                     let task = serverSession.dataTask(with: request as URLRequest, completionHandler: {
+                         (data, response, error) -> Void in
+                         serverSession.finishTasksAndInvalidate()
+                         if let httpResponse = response as? HTTPURLResponse {
+                             if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
+                                 
+                                 let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
+                                 if let endpointJSON = json as? [String: Any] {
+                                     //                             print("[ViewController.getDetails] endpoint: \(apiEndpoint)")
+                                     //                             print("[ViewController.getDetails] endpointJSON: \(endpointJSON)")
+                                     //                             print("[ViewController.getDetails] endpointDict[objectType]![2]: \(endpointDict[objectType]![2])")
+                                     
+                                     if let endpointInfo = endpointJSON["\(endpointDict[objectType]![2])"] as? [String : AnyObject] {
+                                         returnedRecord = endpointInfo
+                                         //                                print("[ViewController.getDetails] endpointInfo: \(endpointInfo)")
+                                         //                                print("[getDetails] self.singleEndpointXmlTag: \(self.singleEndpointXmlTag)")
+                                     } else {
+                                         WriteToLog.shared.message("getDetails: if let endpointInfo = endpointJSON[\(apiEndpoint)], id='\(id)' error.)\n\(idUrl)")
+                                     }
+                                 }  else {  // if let serverEndpointJSON - end
+                                     WriteToLog.shared.message("getDetails - existing endpoints: error serializing JSON: \(String(describing: error))")
+                                 }
+                                 //                    }   // end do
+                                 
+                                 //                        print("returning from: \(idUrl)\n")
+                                 //                        print("getDetails - theRecord: \(theRecord)")
+                                 completion(returnedRecord)
                              } else {
-                                 WriteToLog.shared.message("getDetails: if let endpointInfo = endpointJSON[\(apiEndpoint)], id='\(id)' error.)\n\(idUrl)")
-                             }
-                         }  else {  // if let serverEndpointJSON - end
-                             WriteToLog.shared.message("getDetails - existing endpoints: error serializing JSON: \(String(describing: error))")
+                                 // something went wrong
+                                 WriteToLog.shared.message("[getDetails] lookup failed for \(idUrl)")
+                                 WriteToLog.shared.message("[getDetails] status code: \(httpResponse.statusCode)")
+                                 Log.FailedCount+=1
+                                 Log.lookupFailed = true
+                                 completion([:])
+                             }   // if httpResponse.statusCode - end
+                         } else {   // if let httpResponse = response - end
+                             WriteToLog.shared.message("[getDetails] lookup failed, no response for: \(idUrl)")
+                             Log.FailedCount+=1
+                             Log.lookupFailed = true
+                             completion([:])
                          }
- //                    }   // end do
-
- //                        print("returning from: \(idUrl)\n")
- //                        print("getDetails - theRecord: \(theRecord)")
-                         completion(returnedRecord)
-                     } else {
-                         // something went wrong
-                         WriteToLog.shared.message("[getDetails] lookup failed for \(idUrl)")
-                         WriteToLog.shared.message("[getDetails] status code: \(httpResponse.statusCode)")
-                         Log.FailedCount+=1
-                         Log.lookupFailed = true
-                         completion([:])
-                     }   // if httpResponse.statusCode - end
+                         semaphore.signal()
+                     })   // let task = serverSession.dataTask - end
+                     task.resume()
+                     semaphore.wait()
                  } else {   // if let httpResponse = response - end
-                     WriteToLog.shared.message("[getDetails] lookup failed, no response for: \(idUrl)")
+                     WriteToLog.shared.message("[getDetails] lookup failed, no response for: \(objectType), id: \(id)")
                      Log.FailedCount+=1
                      Log.lookupFailed = true
                      completion([:])
                  }
-                 semaphore.signal()
-             })   // let task = serverSession.dataTask - end
-             task.resume()
-             semaphore.wait()
+             }
+             
+             
          }   // detailQ - end
      }
     
@@ -397,78 +407,88 @@ class JamfPro: NSObject, URLSessionDelegate {
             return
         }
         
-        URLCache.shared.removeAllCachedResponses()
-        var path = ""
-
-        switch endpoint {
-        case  "buildings", "csa/token", "icon", "jamf-pro-version":
-            path = "v1/\(endpoint)"
-        case  "computer-prestages":
-            path = "v3/\(endpoint)"
-        default:
-            path = "v2/\(endpoint)"
-        }
-        
-        if page != "" && pageSize != "" {
-            path = path + "?page=\(page)&page-size=\(pageSize)&sort=id%3Adesc"
-        }
-
-        var urlString = "\(JamfProServer.server)/api/\(path)"
-        urlString     = urlString.replacingOccurrences(of: "//api", with: "/api")
-        if id != "" && id != "0" {
-            urlString = urlString + "/\(id)"
-        }
-    //        print("[Jpapi] urlString: \(urlString)")
-        
-        let url            = URL(string: "\(urlString)")
-        let configuration  = URLSessionConfiguration.default
-        var request        = URLRequest(url: url!)
-        request.httpMethod = "GET"
-        
-        if apiData.count > 0 {
-            do {
-                request.httpBody = try JSONSerialization.data(withJSONObject: apiData, options: .prettyPrinted)
-            } catch let error {
-                print(error.localizedDescription)
-            }
-        }
-        
-        WriteToLog.shared.message("[Jpapi.action] Attempting \(String(describing: request.httpMethod)) on \(urlString)")
-    //        print("[Jpapi.action] Attempting \(method) on \(urlString).")
+        JamfPro.shared.getToken(serverUrl: JamfProServer.server) {
+            (statusCode, result) in
+            if result == "success" {
                 
-        configuration.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.accessToken)", "User-Agent" : AppInfo.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
-        
-        let session = Foundation.URLSession(configuration: configuration, delegate: self as URLSessionDelegate, delegateQueue: OperationQueue.main)
-        let task = session.dataTask(with: request as URLRequest, completionHandler: {
-            (data, response, error) -> Void in
-            session.finishTasksAndInvalidate()
-            if let httpResponse = response as? HTTPURLResponse {
-                if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
-                    
-    //                    print("[jpapi] endpoint: \(endpoint)")
-                    
-                    let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
-                    if let endpointJSON = json! as? [String:Any] {
-                        WriteToLog.shared.message("[Jpapi.action] Data retrieved from \(urlString)")
-                        completion(endpointJSON)
-                        return
-                    } else {    // if let endpointJSON error
-                        WriteToLog.shared.message("[Jpapi.action] JSON error.  Returned data: \(String(describing: json))")
-                        completion(["JPAPI_result":"failed", "JPAPI_response":httpResponse.statusCode])
+                URLCache.shared.removeAllCachedResponses()
+                var path = ""
+                
+                switch endpoint {
+                case  "buildings", "csa/token", "icon", "jamf-pro-version":
+                    path = "v1/\(endpoint)"
+                case  "computer-prestages":
+                    path = "v3/\(endpoint)"
+                default:
+                    path = "v2/\(endpoint)"
+                }
+                
+                if page != "" && pageSize != "" {
+                    path = path + "?page=\(page)&page-size=\(pageSize)&sort=id%3Adesc"
+                }
+                
+                var urlString = "\(JamfProServer.server)/api/\(path)"
+                urlString     = urlString.replacingOccurrences(of: "//api", with: "/api")
+                if id != "" && id != "0" {
+                    urlString = urlString + "/\(id)"
+                }
+                //        print("[Jpapi] urlString: \(urlString)")
+                
+                let url            = URL(string: "\(urlString)")
+                let configuration  = URLSessionConfiguration.default
+                var request        = URLRequest(url: url!)
+                request.httpMethod = "GET"
+                
+                if apiData.count > 0 {
+                    do {
+                        request.httpBody = try JSONSerialization.data(withJSONObject: apiData, options: .prettyPrinted)
+                    } catch let error {
+                        print(error.localizedDescription)
+                    }
+                }
+                
+                WriteToLog.shared.message("[Jpapi.action] Attempting \(String(describing: request.httpMethod)) on \(urlString)")
+                //        print("[Jpapi.action] Attempting \(method) on \(urlString).")
+                
+                configuration.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.accessToken)", "User-Agent" : AppInfo.userAgentHeader, "Content-Type" : "application/json", "Accept" : "application/json"]
+                
+                let session = Foundation.URLSession(configuration: configuration, delegate: self as URLSessionDelegate, delegateQueue: OperationQueue.main)
+                let task = session.dataTask(with: request as URLRequest, completionHandler: {
+                    (data, response, error) -> Void in
+                    session.finishTasksAndInvalidate()
+                    if let httpResponse = response as? HTTPURLResponse {
+                        if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
+                            
+                            //                    print("[jpapi] endpoint: \(endpoint)")
+                            
+                            let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
+                            if let endpointJSON = json! as? [String:Any] {
+                                WriteToLog.shared.message("[Jpapi.action] Data retrieved from \(urlString)")
+                                completion(endpointJSON)
+                                return
+                            } else {    // if let endpointJSON error
+                                WriteToLog.shared.message("[Jpapi.action] JSON error.  Returned data: \(String(describing: json))")
+                                completion(["JPAPI_result":"failed", "JPAPI_response":httpResponse.statusCode])
+                                return
+                            }
+                        } else {    // if httpResponse.statusCode <200 or >299
+                            WriteToLog.shared.message("[Jpapi.action] Response error: \(httpResponse.statusCode)")
+                            completion(["JPAPI_result":"failed", "JPAPI_method":request.httpMethod ?? "undefined", "JPAPI_response":httpResponse.statusCode, "JPAPI_server":urlString, "JPAPI_token":token])
+                            return
+                        }
+                    } else {
+                        WriteToLog.shared.message("[Jpapi.action] GET response error.  Verify url and port")
+                        completion([:])
                         return
                     }
-                } else {    // if httpResponse.statusCode <200 or >299
-                WriteToLog.shared.message("[Jpapi.action] Response error: \(httpResponse.statusCode)")
-                    completion(["JPAPI_result":"failed", "JPAPI_method":request.httpMethod ?? "undefined", "JPAPI_response":httpResponse.statusCode, "JPAPI_server":urlString, "JPAPI_token":token])
-                    return
-                }
+                })
+                task.resume()
             } else {
-                WriteToLog.shared.message("[Jpapi.action] GET response error.  Verify url and port")
+                WriteToLog.shared.message("[Jpapi.action] Failed to get token: HTTP status code: \(statusCode)")
                 completion([:])
                 return
             }
-        })
-        task.resume()
+        }
         
     }   // func action - end
 }
