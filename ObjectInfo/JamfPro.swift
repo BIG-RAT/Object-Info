@@ -13,7 +13,7 @@ class JamfPro: NSObject, URLSessionDelegate {
     static let shared = JamfPro()
     private override init() { }
     
-    var renewQ = DispatchQueue(label: "com.jamfpse.token_refreshQ", qos: DispatchQoS.background)   // running background process for refreshing token
+//    var renewQ = DispatchQueue(label: "com.jamfpse.token_refreshQ", qos: DispatchQoS.background)   // running background process for refreshing token
     
     func getVersion(jpURL: String, token: String, completion: @escaping (_ jpversion: (Int,Int,Int)) -> Void) {
         
@@ -88,7 +88,7 @@ class JamfPro: NSObject, URLSessionDelegate {
         }
     }
     
-    func getToken(whichServer: String = "source", serverUrl: String, renew: Bool = false, completion: @escaping (_ authResult: (Int,String)) -> Void) {
+    func getToken(whichServer: String = "source", serverUrl: String, completion: @escaping (_ authResult: (Int,String)) -> Void) {
         
         if !isRunning {
             completion((600, "not running"))
@@ -133,12 +133,12 @@ class JamfPro: NSObject, URLSessionDelegate {
         var request        = URLRequest(url: tokenUrl)
         request.httpMethod = "POST"
         
-        let (_, _, _, tokenAgeInSeconds) = timeDiff(startTime: JamfProServer.tokenCreated ?? Date())
+        let (_, _, _, tokenAgeInSeconds) = timeDiff(startTime: JamfProServer.tokenCreated)
         print("[JamfPro.getToken] \(whichServer.localizedCapitalized) server token age in seconds: \(tokenAgeInSeconds)")
         
 //        print("[getToken] JamfProServer.validToken[\(whichServer)]: \(String(describing: JamfProServer.validToken[whichServer]))")
 //        print("[getToken] \(whichServer) tokenAgeInSeconds: \(tokenAgeInSeconds)")
-        print("[JamfPro.getToken] token renews in: \(JamfProServer.authExpires) seconds")
+        print("[JamfPro.getToken] token renews in: \(JamfProServer.authExpires - tokenAgeInSeconds) seconds")
 //        print("[getToken] JamfProServer.currentCred[\(whichServer)]: \(String(describing: JamfProServer.currentCred[whichServer]))")
         let user        = JamfProServer.username
         let password    = JamfProServer.password
@@ -198,9 +198,8 @@ class JamfPro: NSObject, URLSessionDelegate {
                                 JamfProServer.validToken   = true
                                 JamfProServer.authType     = "Bearer"
                                 
-                                //                      print("[JamfPro] result of token request: \(endpointJSON)")
+//                              print("[JamfPro] result of token request: \(endpointJSON)")
                                 WriteToLog.shared.message("[JamfPro.getToken] new token created for \(serverUrl)")
-                                WriteToLog.shared.message("[JamfPro.getToken] token will be renewed: \(renew)")
                                 
                                 if JamfProServer.version == "" {
                                     // get Jamf Pro version - start
@@ -242,31 +241,12 @@ class JamfPro: NSObject, URLSessionDelegate {
 //                                                    WriteToLog.shared.message("[JamfPro.getVersion] call token refresh process for \(serverUrl)")
                                                 }
                                                 completion((200, "success"))
-                                                
-                                                if renew {
-                                                    WriteToLog.shared.message("[JamfPro.getVersion] server token renews in \(JamfProServer.authExpires) seconds")
-                                                    DispatchQueue.main.asyncAfter(deadline: .now() + JamfProServer.authExpires) { [self] in
-                                                        WriteToLog.shared.message("[JamfPro.getVersion] renewing token")
-                                                        getToken(whichServer: whichServer, serverUrl: serverUrl, renew: true) {
-                                                            (result: (Int, String)) in
-                                                        }
-                                                    }
-                                                }
                                                 return
                                             }
                                         }
                                     }
                                     // get Jamf Pro version - end
                                 } else {
-                                    if renew {
-                                        WriteToLog.shared.message("[JamfPro.getVersion] server token renews in \(JamfProServer.authExpires) seconds")
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + JamfProServer.authExpires) { [self] in
-                                            WriteToLog.shared.message("[JamfPro.getVersion] renewing token")
-                                            getToken(whichServer: whichServer, serverUrl: serverUrl, renew: true) {
-                                                (result: (Int, String)) in
-                                            }
-                                        }
-                                    }
                                     completion((200, "success"))
                                     return
                                 }
