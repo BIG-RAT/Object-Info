@@ -3,6 +3,8 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/BIG-RAT/Object-Info?display_name=tag) ![GitHub all releases](https://img.shields.io/github/downloads/BIG-RAT/Object-Info/total) ![GitHub latest release](https://img.shields.io/github/downloads/BIG-RAT/Object-Info/latest/total)
  ![GitHub issues](https://img.shields.io/github/issues-raw/BIG-RAT/Object-Info) ![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/BIG-RAT/Object-Info) ![GitHub pull requests](https://img.shields.io/github/issues-pr-raw/BIG-RAT/Object-Info) ![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed-raw/BIG-RAT/Object-Info)
 
+The applicatoin will submit basic hardware, OS, and Object Info application usage to [TelemetryDeck](https://telemetrydeck.com). The data is sent anamously and used to aid in the development of the application. To opt out of data the sending of data click 'Opt out of analytics' at the bottom of the 'About Object Info' window.
+
 Wondering what packages or scripts are scoped to what policies?  Or what configuration profiles contain a certain payload?  Need an overview of all your network segments?  How about finding out what object(s) smart/static groups are attached to?  Object info looks to summarize these things and more.
 
 Download: [Object Info](https://github.com/BIG-RAT/Object-Info/releases/latest/download/Object.Info.zip)
