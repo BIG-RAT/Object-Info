@@ -28,6 +28,8 @@ Unused objects are not displayed.  For example, if a package is not used in eith
 
 **History**
 
+2025-12-26: Address issue #25. Token not renewing when needed, which could cause a crash, should be resolved.
+
 2025-12-16: Add basic hardware, OS, and Object Info app useage collection. Data is sent anonymously to [TelemetryDeck](https:telemetrydeck.com) to aid in the development of the app. View 'About Object Info' to opt out of sending the data.
 Address the issue of config payloads not properly being identified.
 
