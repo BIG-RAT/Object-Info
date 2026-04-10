@@ -1,5 +1,5 @@
 {
   "do_not_run_versions": [
   ],
-  "enableTelemetryDeck": false
+  "forceTelemetryDeckDisabled": true
 }

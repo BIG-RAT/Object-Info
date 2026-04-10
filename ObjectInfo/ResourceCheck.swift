@@ -38,7 +38,8 @@ class ResourceCheck: NSObject, URLSessionDelegate {
     func prohibited() async -> [String] {
         
         URLCache.shared.removeAllCachedResponses()
-        
+        // https://github.com/BIG-RAT/Object-Info/blob/main/resources/version/version-info.json
+        // https://raw.githubusercontent.com/BIG-RAT/Object-Info/refs/heads/main/resources/version/version-info.json
         let versionUrl = URL(string: "https://raw.githubusercontent.com/BIG-RAT/Object-Info/refs/heads/main/resources/version/version-info.json")
         
         let configuration = URLSessionConfiguration.ephemeral
@@ -67,6 +68,11 @@ class ResourceCheck: NSObject, URLSessionDelegate {
                             WriteToLog.shared.message("[prohibited] prohibited versions found: \(prohibitedVersion.description)")
                         }
                         UserDefaults.standard.set(prohibitedVersion, forKey: "prohibitedVersions")
+                        let forceTelemetryDeckDisabled = endpointJSON["telemetryDeckEnabled"] as? Bool ?? false
+                        WriteToLog.shared.message("[prohibited] forceTelemetryDeckDisabled: \(forceTelemetryDeckDisabled)")
+                        
+                        
+                        
                         return prohibitedVersion
                         
                     } else {    // if let endpointJSON error
