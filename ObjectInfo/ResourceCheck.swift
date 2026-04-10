@@ -51,11 +51,11 @@ class ResourceCheck: NSObject, URLSessionDelegate {
         do {
             
             let checkResult = try await session.data(for: request)
-//            if let responseString = String(data: checkResult.0, encoding: .utf8) {
-//                print("prohibitedVersions: \(responseString)")
-//            } else {
-//                print("prohibitedVersions: No response data returned")
-//            }
+            if let responseString = String(data: checkResult.0, encoding: .utf8) {
+                print("prohibitedVersions: \(responseString)")
+            } else {
+                print("prohibitedVersions: No response data returned")
+            }
             
             session.finishTasksAndInvalidate()
             if let httpResponse = checkResult.1 as? HTTPURLResponse {
