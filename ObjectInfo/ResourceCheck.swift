@@ -51,11 +51,11 @@ class ResourceCheck: NSObject, URLSessionDelegate {
         do {
             
             let checkResult = try await session.data(for: request)
-            if let responseString = String(data: checkResult.0, encoding: .utf8) {
-                print("prohibitedVersions: \(responseString)")
-            } else {
-                print("prohibitedVersions: No response data returned")
-            }
+//            if let responseString = String(data: checkResult.0, encoding: .utf8) {
+//                print("prohibitedVersions: \(responseString)")
+//            } else {
+//                print("prohibitedVersions: No response data returned")
+//            }
             
             session.finishTasksAndInvalidate()
             if let httpResponse = checkResult.1 as? HTTPURLResponse {
@@ -68,10 +68,9 @@ class ResourceCheck: NSObject, URLSessionDelegate {
                             WriteToLog.shared.message("[prohibited] prohibited versions found: \(prohibitedVersion.description)")
                         }
                         UserDefaults.standard.set(prohibitedVersion, forKey: "prohibitedVersions")
-                        let forceTelemetryDeckDisabled = endpointJSON["telemetryDeckEnabled"] as? Bool ?? false
+                        let forceTelemetryDeckDisabled = endpointJSON["forceTelemetryDeckDisabled"] as? Bool ?? false
+                        await MainActor.run { TelemetryDeckConfig.forceTelemetryDeckDisabled = forceTelemetryDeckDisabled }
                         WriteToLog.shared.message("[prohibited] forceTelemetryDeckDisabled: \(forceTelemetryDeckDisabled)")
-                        
-                        
                         
                         return prohibitedVersion
                         

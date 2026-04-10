@@ -103,7 +103,12 @@ class AboutVC: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        optOut_button.state = UserDefaults.standard.bool(forKey: "optOut") ? .on : .off
+        if TelemetryDeckConfig.forceTelemetryDeckDisabled {
+            optOut_button.isEnabled = false
+            optOut_button.state = .on
+        } else {
+            optOut_button.state = UserDefaults.standard.bool(forKey: "optOut") ? .on : .off
+        }
         
         DistributedNotificationCenter.default.addObserver(self, selector: #selector(interfaceModeChanged(sender:)), name: NSNotification.Name(rawValue: "AppleInterfaceThemeChangedNotification"), object: nil)
 
